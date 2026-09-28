@@ -187,6 +187,12 @@ const GLOW=(()=>{const c=document.createElement('canvas');c.width=c.height=128;c
   const gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.18,'rgba(255,255,255,.85)');
   gr.addColorStop(.45,'rgba(255,255,255,.22)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);})();
 function addMat(color,op=1){return new THREE.MeshBasicMaterial({color,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,side:THREE.DoubleSide,toneMapped:false});}
+const EYE=new THREE.Vector3(0,1.6,0);const BEAM_U=[];
+function beamMat(color,op){const u={uColor:{value:new THREE.Color(color)},uOp:{value:op},uEye:{value:EYE},uFade:{value:0}};BEAM_U.push(u);
+  const m=new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+    vertexShader:'varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
+    fragmentShader:'varying vec3 vW;uniform vec3 uColor;uniform float uOp;uniform vec3 uEye;uniform float uFade;void main(){float f=mix(1.,smoothstep(.3,1.1,distance(vW,uEye)),uFade);gl_FragColor=vec4(uColor,uOp*f);}'});
+  Object.defineProperty(m,'opacity',{get(){return u.uOp.value;},set(v){u.uOp.value=v;},configurable:true});return m;}
 function sprite(color,size,op=1){const m=new THREE.SpriteMaterial({map:GLOW,color,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,fog:false,opacity:op,toneMapped:false});const s=new THREE.Sprite(m);s.scale.setScalar(size);return s;}
 
 /* ---------- sky ---------- */
@@ -382,12 +388,12 @@ function buildFx(){
   const q={};
   q.crown=sprite(0xffffff,.2,0);q.crown.position.set(0,2.35,-.2);q.crownHalo=sprite(0xfff0c8,.2,0);q.crownHalo.position.copy(q.crown.position);
   const colG=new THREE.CylinderGeometry(1,1,1,14,1,true);colG.translate(0,-.5,0);
-  q.col=new THREE.Mesh(colG,addMat(0xffffff,1));q.colGlow=new THREE.Mesh(colG,addMat(0xfff0c4,.35));
+  q.col=new THREE.Mesh(colG,beamMat(0xffffff,.55));q.colGlow=new THREE.Mesh(colG,beamMat(0xfff0c4,.22));
   [q.col,q.colGlow].forEach((m,i)=>{m.position.y=2.35;m.scale.set(i?.15:.035,.0001,i?.15:.035);});
   q.ground=new THREE.Mesh(new THREE.RingGeometry(.9,1,72),addMat(0xfff0c0,0));q.ground.rotation.x=-Math.PI/2;q.ground.position.y=.05;
   q.r=sprite(0xff5a4a,.1,0);q.r.position.set(.45,1.45,0);q.l=sprite(0x5aa8ff,.1,0);q.l.position.set(-.45,1.45,0);
   const hG=new THREE.CylinderGeometry(1,1,1,14,1,true);hG.rotateZ(Math.PI/2);
-  q.h=new THREE.Mesh(hG,addMat(0xffffff,1));q.hGlow=new THREE.Mesh(hG,addMat(0xfff0c4,.35));
+  q.h=new THREE.Mesh(hG,beamMat(0xffffff,.5));q.hGlow=new THREE.Mesh(hG,beamMat(0xfff0c4,.2));
   [q.h,q.hGlow].forEach((m,i)=>{m.position.y=1.45;m.scale.set(.0001,i?.12:.028,i?.12:.028);});
   q.heart=sprite(0xffb38a,.1,0);q.heart.position.set(0,1.42,-.16);
   root.add(q.crown,q.crownHalo,q.col,q.colGlow,q.ground,q.r,q.l,q.h,q.hGlow,q.heart);F.qc=q;
@@ -454,19 +460,19 @@ function qcSteps(closing){
   const Q=()=>F.qc;
   return [
   {w:'Ateh',h:'אתה',say:'Ah-teh.',t:(closing?'Close with the Qabalistic Cross. ':'')+'Touch your forehead. Light gathers into a sphere above your crown.',face:90,look:{p:1},lookH:1.9,
-   fx(){const q=Q();if(!F.on.crown){F.on.crown=1;fadeSprite(q.crown,1.25);fadeSprite(q.crownHalo,3.2,.45,2);}else{pulse(q.crown,.8);pulse(q.crownHalo,.5);}bell(587.33);}},
+   fx(){const q=Q();if(!F.on.crown){F.on.crown=1;fadeSprite(q.crown,.9,.85);fadeSprite(q.crownHalo,2.4,.26,2);}else{pulse(q.crown,.8);pulse(q.crownHalo,.5);}bell(587.33);}},
   {w:'Malkuth',h:'מלכות',say:'Mal-kooth.',t:'Touch your breast. The light descends through you and deep into the earth.',face:90,look:{p:-1},lookH:1,
    fx(){const q=Q();if(!F.on.col){F.on.col=1;tween(2,e=>{q.col.scale.y=q.colGlow.scale.y=Math.max(.0001,5.35*e);});}
-     else{const b0=q.colGlow.material.opacity;tween(1.6,(e,p)=>{q.colGlow.material.opacity=b0+.5*Math.sin(p*Math.PI);});}
+     else{const b0=q.colGlow.material.opacity;tween(1.6,(e,p)=>{q.colGlow.material.opacity=b0+.28*Math.sin(p*Math.PI);});}
      tween(2.4,(e,p)=>{q.ground.scale.setScalar(.3+7*p);q.ground.material.opacity=.85*(1-p);},.8);bell(440);at(.9,()=>bell(110,.3));}},
   {w:'ve-Geburah',h:'וגבורה',say:'Veh-Geh-boo-rah.',t:'Touch your right shoulder. A point of scarlet force ignites.',face:90,look:{y:-1.2,p:-.3},
    fx(){const q=Q();if(!F.on.r){F.on.r=1;fadeSprite(q.r,.7);}else pulse(q.r,1);bell(659.25);}},
   {w:'ve-Gedulah',h:'וגדולה',say:'Veh-Geh-doo-lah.',t:'Touch your left shoulder. A point of blue mercy answers, and a beam joins them.',face:90,look:{y:1.2,p:-.3},
    fx(){const q=Q();if(!F.on.l){F.on.l=1;fadeSprite(q.l,.7);tween(1.4,e=>{q.h.scale.x=q.hGlow.scale.x=Math.max(.0001,.9*e);},.5);}else pulse(q.l,1);bell(739.99);}},
   {w:'le-Olam',h:'לעולם',say:'Leh-oh-lahm.',t:'Clasp your hands at your heart. You stand at the center of a cross of light.',face:90,look:{p:-.9},lookH:1.2,
-   fx(){const q=Q();if(!F.on.h){F.on.h=1;tween(1.8,e=>{q.h.scale.x=q.hGlow.scale.x=.9+2.6*e;});fadeSprite(q.heart,.9);}else pulse(q.heart,1);bell(880);}},
+   fx(){const q=Q();if(!F.on.h){F.on.h=1;tween(1.8,e=>{q.h.scale.x=q.hGlow.scale.x=.9+2.6*e;});fadeSprite(q.heart,.6,.8);}else pulse(q.heart,1);bell(880);}},
   {w:'Amen',h:'אמן',say:'Ah-men.',t:closing?'The cross is sealed. The rite is closed.':'The cross is sealed.',face:90,look:{p:-.2},
-   fx(){const q=Q();[q.crown,q.r,q.l,q.heart].forEach(s=>pulse(s,.9,1.8));{const b0=q.colGlow.material.opacity;tween(1.8,(e,p)=>q.colGlow.material.opacity=b0+.4*Math.sin(p*Math.PI));}
+   fx(){const q=Q();[q.crown,q.r,q.l,q.heart].forEach(s=>pulse(s,.6,1.8));{const b0=q.colGlow.material.opacity;tween(1.8,(e,p)=>q.colGlow.material.opacity=b0+.22*Math.sin(p*Math.PI));}
      {const c0=centerLight.intensity;tween(2,e=>centerLight.intensity=Math.max(c0,1.2*e));}chord([146.83,220,293.66],4.5);}}];}
 
 const STEPS=[
@@ -494,7 +500,7 @@ STEPS.push({w:'About me flame the pentagrams',h:'',say:'About me flame the penta
   fx(){F.pents.forEach((P,k)=>{tween(3.6,(e,p)=>{const s=Math.sin(p*Math.PI);P.tr.userData.glow(1+1.6*s);P.fl.material.size=.17*(1+1.4*s);},k*.25);at(k*.25,()=>bell(1046.5-k*130.8,.1));});
     F.arcs.forEach(A=>tween(3,(e,p)=>A.userData.glow(1+1.5*Math.sin(p*Math.PI))));tween(3,e=>{if(ring)ring.material.opacity=.22+.45*e;});}});
 STEPS.push({w:'And in the column shines the six-rayed star',h:'',say:'And in the column shines the six-rayed star.',t:'A golden hexagram turns about your heart, and the column blazes.',face:90,look:{p:-.75},lookH:1.2,dur:7,
-  fx(){F.hexT.forEach(t=>tween(2.8,(e,p)=>t.userData.set(p)));{const c0=centerLight.intensity;tween(2.2,e=>{F.qc.colGlow.material.opacity=.35+.45*e;centerLight.intensity=Math.max(c0,1.2+1.2*e);});}chord([293.66,369.99,440,587.33],6,.05);}});
+  fx(){F.hexT.forEach(t=>tween(2.8,(e,p)=>t.userData.set(p)));{const c0=centerLight.intensity;tween(2.2,e=>{F.qc.colGlow.material.opacity=.22+.16*e;centerLight.intensity=Math.max(c0,1+.6*e);});}chord([293.66,369.99,440,587.33],6,.05);}});
 STEPS.push(...qcSteps(true));
 STEPS.push({w:'The rite is complete',h:'',say:'The rite is complete.',t:'The circle is clear. Linger as long as you like, look around, or begin again.',face:90,elev:.7,dur:Infinity,
   fx(){tween(3,e=>motes.material.opacity=.75+.25*e);[523.25,659.25,783.99,1046.5].forEach((f,k)=>at(k*.35,()=>bell(f,.1)));}});
@@ -571,6 +577,7 @@ function updateCamera(dt,T){
 function animate(dt,T){
   auroraMat.uniforms.uT.value=T;if(ring)ring.rotation.z+=dt*.02;
   {const p=motes.geometry.attributes.position,sp=motes.userData.sp;for(let i=0;i<sp.length;i++){let y=p.getY(i)+sp[i]*dt;if(y>10)y=0;p.setY(i,y);p.setX(i,p.getX(i)+Math.sin(T*.3+i)*dt*.05);}p.needsUpdate=true;}
+  const near=xrOn||camMode==='fp';camera.getWorldPosition(EYE);BEAM_U.forEach(u=>u.uFade.value=near?1:0);
   if(!F)return;
   F.pents.forEach(P=>{if(P.fl.material.opacity<=0)return;const a=P.fl.geometry.attributes.position,b=P.fl.userData.base;
     for(let i=0;i<a.count;i++){const f=(T*1.6+i*.37)%1;a.setXYZ(i,b[i*3]+Math.sin(T*9+i*1.7)*.02,b[i*3+1]+f*.14,b[i*3+2]+Math.cos(T*8+i)*.02);}a.needsUpdate=true;
@@ -580,7 +587,7 @@ function animate(dt,T){
     const p=u.parts.geometry.attributes.position,sp=u.parts.userData.spd;for(let j=0;j<sp.length;j++){let y=p.getY(j)+sp[j]*dt;if(y>8.5)y=0;p.setY(j,y);}p.needsUpdate=true;
     if(u.a>=1)u.light.intensity=2.2+Math.sin(T*2+i)*.3;});
   F.hex.rotation.y+=dt*.25;
-  const q=F.qc;if(F.on.crown&&!tweens.length){q.crownHalo.material.opacity=.4+Math.sin(T*1.5)*.08;}
+  const q=F.qc;if(F.on.crown&&!tweens.length){q.crownHalo.material.opacity=.23+Math.sin(T*1.5)*.04;}
 }
 
 /* ---------- loop ---------- */
