@@ -131,6 +131,7 @@ button:focus-visible{outline:2px solid var(--gilt);outline-offset:3px}
     <button id="restart">Restart</button>
     <button id="pause">Pause</button>
     <button id="next" class="primary">Next step</button>
+    <button id="exit" class="primary off">Return to start</button>
   </div>
   <span class="count"></span>
 </section>
@@ -177,7 +178,7 @@ const scene=new THREE.Scene();
 scene.fog=new THREE.FogExp2(0x3a1a58,0.011);
 const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.05,1200);
 camera.rotation.order='YXZ';
-camera.position.set(30,9,20);
+camera.position.set(Math.cos(.6)*34,9,Math.sin(.6)*34);
 const rig=new THREE.Group();rig.add(camera);scene.add(rig);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 
@@ -502,7 +503,7 @@ STEPS.push({w:'About me flame the pentagrams',h:'',say:'About me flame the penta
 STEPS.push({w:'And in the column shines the six-rayed star',h:'',say:'And in the column shines the six-rayed star.',t:'A golden hexagram turns about your heart, and the column blazes.',face:90,look:{p:-.75},lookH:1.2,dur:7,
   fx(){F.hexT.forEach(t=>tween(2.8,(e,p)=>t.userData.set(p)));{const c0=centerLight.intensity;tween(2.2,e=>{F.qc.colGlow.material.opacity=.22+.16*e;centerLight.intensity=Math.max(c0,1+.6*e);});}chord([293.66,369.99,440,587.33],6,.05);}});
 STEPS.push(...qcSteps(true));
-STEPS.push({w:'The rite is complete',h:'',say:'The rite is complete.',t:'The circle is clear. Linger as long as you like, look around, or begin again.',face:90,elev:.7,dur:Infinity,
+STEPS.push({w:'The rite is complete',h:'',say:'The rite is complete.',t:'The circle is clear. Linger as long as you like, then return to the start.',face:90,elev:.7,dur:Infinity,
   fx(){tween(3,e=>motes.material.opacity=.75+.25*e);[523.25,659.25,783.99,1046.5].forEach((f,k)=>at(k*.35,()=>bell(f,.1)));}});
 STEPS.forEach(s=>{if(!s.dur)s.dur=4.6;});
 
@@ -511,20 +512,28 @@ let si=-1,stepT=0,started=false,guided=true,playing=false,camMode='witness',rece
 const el={heb:$('.heb'),word:$('.word'),instr:$('.instr'),fill:$('.fill'),count:$('.count'),next:$('#next'),pause:$('#pause')};
 function caption(s){const box=el.word.parentElement;box.classList.remove('swap');void box.offsetWidth;box.classList.add('swap');
   el.heb.textContent=s.h||'';el.word.textContent=s.w;el.instr.textContent=s.t;el.count.textContent=`Step ${si+1} of ${STEPS.length}`;
-  el.next.disabled=si>=STEPS.length-1;drawPanel(s);}
+  const last=si>=STEPS.length-1;el.next.classList.toggle('off',last);$('#exit').classList.toggle('off',!last);if(last)$('#exit').focus({preventScroll:true});drawPanel(s);}
 function go(i){finishTweens();si=i;stepT=0;const s=STEPS[i];
   if(s.face!==undefined)face=shortest(face,s.face);
   view=s.view!==undefined?shortest(view,s.view):face;
   look={p:(s.look&&s.look.p)||0,y:(s.look&&s.look.y)||0};elev=s.elev||0;lookH=s.lookH||1.4;recenter=true;
   if(s.fx)s.fx();caption(s);if(guided&&s.say)say(s.say);}
-function next(){if(!started)return;if(si<STEPS.length-1)go(si+1);}
+function next(){if(!started)return;if(si<STEPS.length-1)go(si+1);else if(xrOn)exitRite();}
+function exitRite(){if(!started)return;finishTweens();if('speechSynthesis' in window)speechSynthesis.cancel();
+  started=false;setPlaying(false);si=-1;
+  if(F){scene.remove(F.root);F.root.traverse(o=>{if(o.geometry)o.geometry.dispose();});F=null;}
+  if(ring)ring.material.opacity=.22;centerLight.intensity=0;face=view=curFace=curView=90;dragYaw=dragPitch=0;
+  $('#top').classList.add('off');$('#stage').classList.add('off');$('#intro').classList.remove('off');
+  $('#exit').classList.add('off');el.next.classList.remove('off');orbitA=Math.atan2(camera.position.z,camera.position.x);
+  const s=renderer.xr.getSession&&renderer.xr.getSession();if(s)s.end().catch(()=>{});
+  setTimeout(()=>$('#goGuided').focus({preventScroll:true}),50);}
 function restart(){finishTweens();buildFx();face=90;view=90;go(0);if(guided)setPlaying(true);}
 function setPlaying(v){playing=v;el.pause.textContent=v?'Pause':'Resume';}
 function begin(g){if(started)return;initAudio();guided=g;voiceOn=g;$('#nar').setAttribute('aria-pressed',String(g));
   started=true;$('#intro').classList.add('off');$('#top').classList.remove('off');$('#stage').classList.remove('off');
   el.pause.classList.toggle('off',!g);buildFx();go(0);setPlaying(g);}
 $('#goGuided').onclick=()=>begin(true);$('#goPractice').onclick=()=>begin(false);
-el.next.onclick=next;$('#restart').onclick=restart;el.pause.onclick=()=>setPlaying(!playing);
+el.next.onclick=next;$('#exit').onclick=exitRite;$('#restart').onclick=restart;el.pause.onclick=()=>setPlaying(!playing);
 $$('.seg button').forEach(b=>b.onclick=()=>{camMode=b.dataset.view;$$('.seg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
 $('#snd').onclick=e=>{soundOn=!soundOn;e.currentTarget.setAttribute('aria-pressed',String(soundOn));if(master)master.gain.value=soundOn?.7:0;if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();};
 $('#nar').onclick=e=>{voiceOn=!voiceOn;e.currentTarget.setAttribute('aria-pressed',String(voiceOn));if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();};
@@ -548,7 +557,7 @@ function drawPanel(s){const {c,tex}=panel.userData,g=c.getContext('2d');g.clearR
   g.fillStyle='rgba(18,8,44,.72)';g.beginPath();g.moveTo(30,0);g.lineTo(994,0);g.quadraticCurveTo(1024,0,1024,30);g.lineTo(1024,390);g.quadraticCurveTo(1024,420,994,420);g.lineTo(30,420);g.quadraticCurveTo(0,420,0,390);g.lineTo(0,30);g.quadraticCurveTo(0,0,30,0);g.fill();
   g.textAlign='center';g.fillStyle='#ffd36b';g.font='700 56px "Noto Serif Hebrew", serif';if(s.h)g.fillText(s.h,512,78);
   g.fillStyle='#f6efff';g.font='66px Marcellus, Georgia, serif';wrap(g,s.w,512,s.h?160:110,960,70);
-  g.fillStyle='#cbbbe8';g.font='300 36px Spectral, Georgia, serif';wrap(g,s.t,512,s.h?250:230,900,46);tex.needsUpdate=true;}
+  g.fillStyle='#cbbbe8';g.font='300 36px Spectral, Georgia, serif';wrap(g,s===STEPS[STEPS.length-1]?'The circle is clear. Pull a trigger to return to the start.':s.t,512,s.h?250:230,900,46);tex.needsUpdate=true;}
 let xrOn=false;
 [0,1].forEach(i=>{const c=renderer.xr.getController(i);c.addEventListener('select',()=>next());c.add(sprite(0xffe7a0,.08,.9));rig.add(c);});
 renderer.xr.addEventListener('sessionstart',()=>{xrOn=true;panel.visible=true;});
@@ -559,7 +568,7 @@ async function enterVR(){if(!started)begin(true);initAudio();if(AC&&AC.state==='
 if(navigator.xr&&navigator.xr.isSessionSupported){navigator.xr.isSessionSupported('immersive-vr').then(ok=>{if(ok)$$('[data-vr]').forEach(b=>{b.hidden=false;b.onclick=enterVR;});}).catch(()=>{});}
 
 /* ---------- camera ---------- */
-let curFace=90,curView=90,curP=0,curY=0,curElev=.5,curLookH=1.4;const lookT=new THREE.Vector3(0,1.4,0),camT=new THREE.Vector3();
+let orbitA=.6;const ORBIT_LOOK=new THREE.Vector3(0,3,0);let curFace=90,curView=90,curP=0,curY=0,curElev=.5,curLookH=1.4;const lookT=new THREE.Vector3(0,1.4,0),camT=new THREE.Vector3();
 function updateCamera(dt,T){
   const k=1-Math.exp(-dt*2.2);
   curFace+=(face-curFace)*k;curView+=(view-curView)*k;curP+=(look.p-curP)*k;curY+=(look.y-curY)*k;curElev+=(elev-curElev)*k*.8;curLookH+=(lookH-curLookH)*k;
@@ -567,7 +576,7 @@ function updateCamera(dt,T){
   operator.rotation.y=yawFor(curFace);
   operator.visible=started&&camMode==='witness'&&!xrOn;
   if(xrOn){const d=dir(curView);panel.position.set(d.x*1.9,1.05,d.z*1.9);panel.lookAt(0,1.5,0);return;}
-  if(!started){const a=reduced?.6:T*.045;camera.position.set(Math.cos(a)*34,9,Math.sin(a)*34);camera.lookAt(0,3,0);return;}
+  if(!started){if(!reduced)orbitA+=dt*.045;camT.set(Math.cos(orbitA)*34,9,Math.sin(orbitA)*34);camera.position.lerp(camT,1-Math.exp(-dt*1.2));lookT.lerp(ORBIT_LOOK,k);camera.lookAt(lookT);return;}
   if(camMode==='fp'){camera.position.set(0,1.6,0);camera.rotation.set(Math.max(-1.45,Math.min(1.45,curP-dragPitch)),yawFor(curView)+curY+dragYaw,0);return;}
   const b=curView-dragYaw/DEG,d=dir(b);const dist=lerp(2.7,8.5,curElev),h=lerp(2.5,8.5,curElev)+dragPitch*3;
   camT.set(-d.x*dist,Math.max(.6,h),-d.z*dist);camera.position.lerp(camT,1-Math.exp(-dt*1.8));
