@@ -24,7 +24,7 @@ VR.fx = {
   get state() { return F; },
   reset() {
     if (F) { VR.scene.remove(F.root); VR.disposeGroup(F.root); }
-    F = { root: new THREE.Group(), on: {}, pents: {}, lines: [], guardians: {}, cards: [], bursts: [], sigil: null, qc: null, hex: null, breath: null };
+    F = { root: new THREE.Group(), on: {}, pents: {}, lines: [], guardians: {}, cards: [], bursts: [], sigil: null, qc: null, hex: null, breath: null, chaos: {}, planets: null, serpent: null };
     VR.scene.add(F.root);
     F.ringCanvas = document.createElement('canvas'); F.ringCanvas.width = F.ringCanvas.height = 1024; F.ringTex = VR.canvasTex(F.ringCanvas);
     const m = new THREE.MeshBasicMaterial({ map: F.ringTex, color: new THREE.Color(0x7fd0ff).multiplyScalar(VR.fxK()), transparent: true, opacity: .16,
@@ -47,6 +47,11 @@ VR.fx = {
       const p = u.parts.geometry.attributes.position, sp = u.parts.userData.spd; for (let j = 0; j < sp.length; j++) { let y = p.getY(j) + sp[j] * dt; if (y > 8.5) y = 0; p.setY(j, y); } p.needsUpdate = true;
       if (u.a >= 1) u.light.intensity = (2.2 + Math.sin(T * 2 + i) * .3) * VR.fxK(); });
     if (F.hex) F.hex.rotation.y += dt * .25;
+    Object.values(F.chaos).forEach(C => { for (let k = 0; k < C.lit; k++) C.rays[k].userData.glow(1 + (VR.calm() ? .08 : .35) * Math.sin(T * 2.6 + k * .8)); });
+    if (F.planets) { const P = F.planets; P.g.rotation.y += dt * P.speed; Object.values(P.list).forEach(m => { m.position.y = m.userData.base + Math.sin(T * .7 + m.userData.phase) * .12; });
+      if (P.eighth) P.eighth.userData.halos.forEach((h, i) => { h.material.rotation += dt * (i % 2 ? -.2 : .15); }); }
+    if (F.serpent) { const S = F.serpent; S.U.uT.value += dt * S.speed; const r = S.U.uReveal.value;
+      S.head.material.opacity = r > .002 && r < .995 ? .9 : 0; if (S.head.material.opacity) S.head.position.copy(S.curve.getPointAt(Math.min(r, 1))); }
     if (F.sigil) { const s = F.sigil; s.spinner.rotation.z += dt * (.12 + (s.spinBoost || 0)); s.halo.material.opacity = (s.haloBase || .2) + Math.sin(T * 2) * .04; }
     F.cards.forEach((c, i) => { c.position.y = c.userData.baseY + Math.sin(T * .9 + i) * .03; });
     F.bursts = F.bursts.filter(b => { b.t += dt; const a = b.pts.geometry.attributes.position; for (let i = 0; i < a.count; i++) {
@@ -238,6 +243,7 @@ A.flare = a => {
   if (t === 'all' || t === 'pentagrams') Object.values(F.pents).forEach((P, i) => {
     VR.tween(3.6, (e, p) => { const s = Math.sin(p * Math.PI); P.tr.userData.glow(1 + k * s); P.fl.material.size = .17 * (1 + k * s); }, i * .25);
     VR.at(i * .25, () => VR.audio.bell(1046.5 - i * 130.8, .1)); });
+  if (t === 'all' || t === 'chaosphere') Object.values(F.chaos).forEach(C => { C.lit = 0; C.rays.concat([C.ring]).forEach((r, i) => VR.tween(3.2, (e, p) => { r.userData.glow(1 + k * Math.sin(p * Math.PI)); if (p >= 1) C.lit = 8; }, i * .08)); });
   if (t === 'all' || t === 'lines') F.lines.forEach(L => VR.tween(3, (e, p) => L.userData.glow(1 + k * Math.sin(p * Math.PI))));
   const o0 = F.ring.material.opacity; VR.tween(3, e => F.ring.material.opacity = Math.max(o0, VR.lerp(o0, .45, e)));
 };
@@ -339,6 +345,137 @@ A.tarot = (a, ctx) => {
     VR.at(i * .4 + 1.6, () => { VR.audio.bell(783.99 - i * 98, .12); VR.haptic(.5, 80); }); });
 };
 
+/* ---------- chaos star (chaosphere) ----------
+   The eight-rayed star of chaos, drawn in the air in front of the practitioner,
+   one arrow at a time, in scintillating octarine. */
+VR.OCTARINE = ['#b8ff5a', '#5affc8', '#5ab8ff', '#9a6aff', '#ff5ae0', '#ff6a5a', '#ffc85a', '#e8ff5a'];
+class PlaneCirc extends THREE.Curve { constructor(c, right, up, r) { super(); Object.assign(this, { c, right, up, r }); }
+  getPoint(t, o = new THREE.Vector3()) { const a = t * Math.PI * 2; return o.copy(this.c).addScaledVector(this.right, Math.cos(a) * this.r).addScaledVector(this.up, Math.sin(a) * this.r); } }
+A.chaosphere = (a, ctx) => {
+  const b = VR.bearing(a.quarter ?? ctx.face), key = a.key || String(b);
+  if (F.chaos[key]) { F.root.remove(F.chaos[key].group); VR.disposeGroup(F.chaos[key].group); }
+  const R = a.size || .95, r0 = R * .23, d = VR.dir(b), c = d.clone().multiplyScalar(a.radius || 2.8); c.y = a.height || 1.7;
+  const right = new THREE.Vector3().crossVectors(d, VR.UP), up = VR.UP.clone(), cols = a.colors || VR.OCTARINE;
+  const at = (ang, rr) => c.clone().addScaledVector(right, Math.sin(ang) * rr).addScaledVector(up, Math.cos(ang) * rr);
+  const grp = new THREE.Group(); F.root.add(grp); const rays = [];
+  for (let k = 0; k < 8; k++) {
+    const ang = k * Math.PI / 4, tip = at(ang, R), p0 = at(ang, r0), back = at(ang, R - R * .17);
+    const perp = at(ang + Math.PI / 2, 1).sub(c).multiplyScalar(R * .1);
+    const path = new THREE.CurvePath(); [[p0, tip], [tip, back.clone().add(perp)], [back.clone().add(perp), tip], [tip, back.clone().sub(perp)]].forEach(([u, v]) => path.add(new THREE.LineCurve3(u, v)));
+    const col = new THREE.Color(cols[k % cols.length]);
+    const tr = VR.trace(path, { segs: 90, r: .022, core: col.clone().lerp(new THREE.Color(0xffffff), .55), glow: col, gop: .5 }); grp.add(tr); rays.push(tr);
+  }
+  const ring = VR.trace(new PlaneCirc(c, right, up, r0), { segs: 60, r: .02, core: 0xffffff, glow: cols[3], gop: .5 }); grp.add(ring);
+  const heart = VR.sprite(0xffffff, .05, 0); heart.position.copy(c); grp.add(heart);
+  const S = { group: grp, rays, ring, heart, lit: 0 }; F.chaos[key] = S;
+  const per = a.rayTime || .45;
+  VR.tween(.7, e => ring.userData.set(e)); VR.fadeSprite(heart, .9, .8, 1);
+  rays.forEach((tr, k) => { VR.tween(per, (e, p) => { tr.userData.set(p); if (p >= 1) S.lit = Math.max(S.lit, k + 1); }, .5 + k * per);
+    VR.at(.5 + k * per, () => VR.audio.bell([261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25][k], .1)); });
+  const end = .5 + 8 * per;
+  if (!VR.calm()) { const fl = VR.sprite(0xffffff, .1, 0); fl.position.copy(c); grp.add(fl); VR.tween(1.4, (e, p) => { fl.material.opacity = Math.sin(p * Math.PI) * .8; fl.scale.setScalar(.2 + 3 * p); }, end); }
+  if (a.vibrate) VR.at(end, () => { VR.audio.vibrate(a.vibrate); VR.haptic(.8, 400); });
+};
+
+/* ---------- planets ----------
+   The seven classical planets circle the practitioner. "Ouranos" (or "Uranus") is the eighth:
+   a dark sun with an octarine corona, standing outside the ring. */
+const PLANET_NOTES = { Saturn: 98, Jupiter: 130.81, Mars: 146.83, Sun: 164.81, Venus: 196, Mercury: 220, Moon: 261.63 };
+const RING_ORDER = ['Saturn', 'Jupiter', 'Mars', 'Sun', 'Venus', 'Mercury', 'Moon'];
+function planetRing(a) {
+  if (F.planets) return F.planets;
+  const g = new THREE.Group(); F.root.add(g); F.planets = { g, list: {}, speed: .05, eighth: null }; return F.planets;
+}
+A.planet = (a, ctx) => {
+  const name = String(a.name || 'Sun'), P = planetRing(a);
+  if (/^(ouranos|uranus)$/i.test(name)) {
+    if (P.eighth) { const L = P.eighth.userData.halos; L.forEach(h => VR.pulse(h, .5, 2)); return; }
+    const g = new THREE.Group(), d = VR.dir(VR.bearing(a.quarter ?? ctx.face)); g.position.copy(d.multiplyScalar(a.radius || 12)); g.position.y = a.height || 5.5;
+    const core = new THREE.Mesh(new THREE.SphereGeometry(a.size || .9, 32, 16), new THREE.MeshBasicMaterial({ color: 0x000000, fog: false, transparent: true, opacity: 1 }));
+    const halos = [[VR.OCTARINE[3], 4.6, .75], [VR.OCTARINE[0], 3.2, .6], [VR.OCTARINE[4], 6.5, .3]].map(([c, s, o]) => { const h = VR.sprite(c, .1, 0); g.add(h); VR.tween(3, e => { h.material.opacity = o * e; h.scale.setScalar(.1 + s * e * (a.size || .9)); }); return h; });
+    const lbl = VR.textSprite([{ text: '♅', font: '140px serif', color: '#e8ffd0', glow: VR.OCTARINE[3], y: 110 }, { text: a.label || 'Ouranos', font: '54px Marcellus, Georgia, serif', color: '#e8ffd0', glow: VR.OCTARINE[0], y: 215 }], 512, 256, 2.2);
+    lbl.position.y = (a.size || .9) + 1.3; g.add(core, lbl); core.scale.setScalar(.01);
+    VR.tween(3, e => { core.scale.setScalar(Math.max(.01, e)); }); VR.tween(1.5, e => lbl.material.opacity = e, 2);
+    g.userData = { halos, lbl }; F.root.add(g); P.eighth = g;
+    VR.at(0, () => { VR.audio.tone(55, 6, .09); VR.audio.chord([55, 82.41, 116.54], 6, .05); }); VR.haptic(.7, 300);
+    return;
+  }
+  if (P.list[name]) { VR.pulse(P.list[name].userData.glow, .6); VR.audio.bell(PLANET_NOTES[name] * 2 || 440, .12); return; }
+  const info = (VR.cosmos && VR.cosmos.PLANETS[name]) || { color: '#ffffff', sym: '·' };
+  const idx = Math.max(0, RING_ORDER.indexOf(name)), ang = idx / 7 * Math.PI * 2 + Math.PI / 2, rad = a.radius || 5.2;
+  const m = new THREE.Group(); m.position.set(-Math.cos(ang) * rad, a.height || 2.8, -Math.sin(ang) * rad);
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(a.size || .28, 24, 12), VR.addMat(info.color, .95));
+  const glow = VR.sprite(info.color, .05, 0);
+  const lbl = VR.textSprite([{ text: info.sym, font: '130px serif', color: '#ffffff', glow: info.color, y: 100 }, { text: a.label || name, font: '52px Marcellus, Georgia, serif', color: '#ffffff', glow: info.color, y: 205 }], 512, 256, 1.1);
+  lbl.position.y = .6; m.add(ball, glow, lbl); ball.scale.setScalar(.01); P.g.add(m); P.list[name] = m;
+  m.userData = { glow, lbl, base: m.position.y, phase: idx };
+  VR.tween(1.6, e => { ball.scale.setScalar(Math.max(.01, e)); glow.material.opacity = .7 * e; glow.scale.setScalar(.05 + 1.6 * e); });
+  VR.tween(1.2, e => lbl.material.opacity = e, .8);
+  VR.at(0, () => VR.audio.bell(PLANET_NOTES[name] * 2 || 440, .14)); VR.at(.1, () => VR.audio.tone(PLANET_NOTES[name] || 196, 4, .04));
+};
+A.planets = a => {
+  const P = F.planets; if (!P) return;
+  if (a.speed != null) { const s0 = P.speed, s1 = a.speed; VR.tween(a.duration || 3, e => P.speed = VR.lerp(s0, s1, e)); }
+  if (a.mode === 'withdraw') { const D = a.duration || 3;
+    Object.entries(P.list).forEach(([n, m], i) => { const y0 = m.position.y; VR.tween(D, e => { m.userData.base = y0 + 4 * e; }, i * .15);
+      VR.fadeObject(m, D, () => { P.g.remove(m); VR.disposeGroup(m); if (P.list[n] === m) delete P.list[n]; }); });
+    if (P.eighth && a.eighth !== false) { const g8 = P.eighth; VR.tween(D, e => g8.scale.setScalar(Math.max(.01, 1 - e))); VR.fadeObject(g8, D, () => { F.root.remove(g8); VR.disposeGroup(g8); if (P.eighth === g8) P.eighth = null; }); }
+  }
+};
+
+/* ---------- serpent (riftline) ----------
+   A scintillating octarine serpent that tears across the sky above the practitioner like a
+   riftline, then undulates overhead. Modes: appear, charge, calm, withdraw. */
+const SERPENT_VS = `varying vec2 vUv;uniform float uT,uAmp,uR;
+void main(){vUv=uv;float taper=smoothstep(0.,.07,uv.x)*smoothstep(1.,.86,uv.x);
+vec3 p=position-normal*uR*(1.-taper);p.y+=sin(uv.x*14.-uT*1.3)*.35*uAmp;p+=normal*sin(uv.x*120.-uT*5.)*uR*.22;
+gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`;
+const SERPENT_FS = `varying vec2 vUv;uniform float uT,uReveal,uOp,uK,uSpark;
+vec3 hsv(float h,float s,float v){vec3 k=clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.);return v*mix(vec3(1.),k,s);}
+float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+void main(){if(vUv.x>uReveal)discard;
+float h=fract(vUv.x*2.5-uT*.06+sin(vUv.y*6.2831)*.04);vec3 c=hsv(h,.62,1.);
+c=mix(c,vec3(.72,1.,.34),.18+.14*sin(vUv.x*30.-uT*1.6));
+float band=.72+.28*sin(vUv.x*90.-uT*3.);
+float sp=step(.993,hash(floor(vUv*vec2(700.,6.))+floor(uT*5.)))*uSpark;
+float edge=uReveal<.999?smoothstep(uReveal,uReveal-.03,vUv.x):1.;
+gl_FragColor=vec4((c*band+sp)*uK,uOp*edge);}`;
+A.serpent = (a, ctx) => {
+  const mode = a.mode || 'appear';
+  if (mode === 'appear' || !F.serpent) {
+    if (F.serpent) { F.root.remove(F.serpent.g); VR.disposeGroup(F.serpent.g); }
+    const b0 = VR.bearing(a.from ?? ctx.face), b1 = VR.bearing(a.to ?? (b0 + 180)), L = a.length || 13, H = a.height || 3.2, arch = a.arch ?? 3;
+    const d0 = VR.dir(b0), d1 = VR.dir(b1), side = new THREE.Vector3().crossVectors(d0, VR.UP), pts = [];
+    for (let i = 0; i <= 24; i++) { const t = i / 24, p = d0.clone().multiplyScalar(L * (1 - t)).add(d1.clone().multiplyScalar(L * t));
+      p.addScaledVector(side, Math.sin(t * Math.PI * (a.coils || 3)) * (a.sway ?? 1.4)); p.y = H + Math.sin(t * Math.PI) * arch; pts.push(p); }
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const U = { uT: { value: 0 }, uReveal: { value: 0 }, uAmp: { value: 1 }, uK: { value: VR.fxK() }, uSpark: { value: VR.calm() ? 0 : 1 } };
+    const mk = (r, op) => new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, { uOp: { value: op }, uR: { value: r } }), vertexShader: SERPENT_VS, fragmentShader: SERPENT_FS,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+    const R = a.width || .08, g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.TubeGeometry(curve, 420, R, 10, false), mk(R, .95));
+    const halo = new THREE.Mesh(new THREE.TubeGeometry(curve, 300, R * 3.4, 8, false), mk(R * 3.4, .28));
+    const head = VR.sprite(0xf0ffe0, .9, 0), rift = VR.sprite(VR.OCTARINE[3], 2.4, 0); rift.position.copy(curve.getPointAt(0));
+    g.add(body, halo, head, rift); F.root.add(g);
+    F.serpent = { g, curve, U, body, halo, head, rift, speed: a.speed || 1, op: [body.material.uniforms.uOp, halo.material.uniforms.uOp] };
+    const S = F.serpent, D = a.duration || 5;
+    VR.tween(1.2, e => { rift.material.opacity = .8 * e; rift.scale.setScalar(.2 + 2.4 * e); });
+    VR.tween(D, (e, p) => { U.uReveal.value = e; }, .6);
+    VR.at(.6, () => { VR.audio.chord([110, 164.81, 207.65, 277.18], D + 2, .045); VR.audio.tone(55, D, .06); });
+    VR.at(.6 + D, () => VR.haptic(.6, 250));
+    if (mode === 'appear') return;
+  }
+  const S = F.serpent, D = a.duration || 6;
+  if (mode === 'charge') { const s0 = S.speed, a0 = S.U.uAmp.value; VR.tween(D, e => { S.speed = VR.lerp(s0, a.speed || 2.6, e); S.U.uAmp.value = VR.lerp(a0, VR.calm() ? 1.2 : 1.8, e); S.op[1].value = VR.lerp(.28, .45, e); }); }
+  if (mode === 'calm') { const s0 = S.speed, a0 = S.U.uAmp.value; VR.tween(D, e => { S.speed = VR.lerp(s0, 1, e); S.U.uAmp.value = VR.lerp(a0, 1, e); S.op[1].value = VR.lerp(S.op[1].value, .28, e); }); }
+  if (mode === 'withdraw') { const r0 = S.U.uReveal.value;
+    VR.tween(D, e => { S.U.uReveal.value = r0 * (1 - e); }); VR.tween(1.5, e => S.rift.material.opacity = .8 * (1 - e), D - .5);
+    VR.tween(D + 1, (e, p) => { if (p >= 1) { F.root.remove(S.g); VR.disposeGroup(S.g); if (F.serpent === S) F.serpent = null; } }); }
+};
+function fadeSerpent(D) { const S = F.serpent; if (!S) return; const o = S.op.map(u => u.value), ro = S.rift.material.opacity;
+  VR.tween(D, (e, p) => { S.op.forEach((u, i) => u.value = o[i] * (1 - e)); S.rift.material.opacity = ro * (1 - e); S.head.material.opacity = 0;
+    if (p >= 1) { F.root.remove(S.g); VR.disposeGroup(S.g); if (F.serpent === S) F.serpent = null; } }); }
+
 /* ---------- clearing & release ---------- */
 A.clear = a => {
   const t = a.target || 'all', D = a.duration || 2, is = k => t === 'all' || t === k;
@@ -349,6 +486,9 @@ A.clear = a => {
   if (is('sigil') && F.sigil) { const s = F.sigil; VR.fadeObject(s.g, D, () => { F.root.remove(s.g); VR.disposeGroup(s.g); if (F.sigil === s) F.sigil = null; }); }
   if (is('cards')) { const cs = F.cards; F.cards = []; cs.forEach(c => VR.fadeObject(c, D, () => { F.root.remove(c); VR.disposeGroup(c); })); }
   if (is('guardians')) A.dismiss({ quarter: 'all', duration: D });
+  if (is('chaosphere')) Object.entries(F.chaos).forEach(([k, C]) => { C.lit = 0; VR.fadeObject(C.group, D, () => { F.root.remove(C.group); VR.disposeGroup(C.group); if (F.chaos[k] === C) delete F.chaos[k]; }); });
+  if (is('planets') && F.planets) A.planets({ mode: 'withdraw', duration: D });
+  if (is('serpent')) fadeSerpent(D);
   if (t === 'all') { const o0 = F.ring.material.opacity; VR.tween(D, e => F.ring.material.opacity = VR.lerp(o0, .06, e)); const c0 = VR.centerLight.intensity; VR.tween(D, e => VR.centerLight.intensity = c0 * (1 - e)); }
 };
 A.wait = () => {};
