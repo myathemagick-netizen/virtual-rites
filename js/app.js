@@ -316,7 +316,7 @@ const xrui = (() => {
   const mk = (w, h, pw, ph) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = VR.canvasTex(c);
     const m = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, toneMapped: false, fog: false }));
     m.renderOrder = 10; m.visible = false; VR.scene.add(m); return { c, g: c.getContext('2d'), t, m }; };
-  const cap = mk(1024, 512, 1.15, .575), con = mk(768, 1024, .75, 1);
+  const cap = mk(1024, 512, .74, .37), con = mk(768, 1024, .75, 1);
   const orb = VR.sprite(0xffd36b, .09, .9); orb.visible = false; VR.scene.add(orb);
   const ret = new THREE.Mesh(new THREE.RingGeometry(.008, .012, 32), new THREE.MeshBasicMaterial({ color: 0xffe7a8, transparent: true, opacity: .8, depthTest: false, toneMapped: false }));
   ret.position.z = -1; ret.visible = false; ret.renderOrder = 20; VR.camera.add(ret);
@@ -328,11 +328,11 @@ const xrui = (() => {
     g.lineTo(w, h - 24); g.quadraticCurveTo(w, h, w - 24, h); g.lineTo(24, h); g.quadraticCurveTo(0, h, 0, h - 24); g.lineTo(0, 24); g.quadraticCurveTo(0, 0, 24, 0); g.fill();
     g.strokeStyle = 'rgba(255,211,107,.45)'; g.lineWidth = 3; g.stroke(); }
   U.caption = () => {
-    const g = cap.g; panelBg(g, 1024, 512); g.textAlign = 'center';
     let phase = '', heb = '', title = '', text = '';
     if (P.pending) { phase = 'Re-entry'; title = 'Returning to the circle'; text = 'The space you built is restored. Pull the trigger to continue now.'; }
     else if (P.si >= 0 && P.steps[P.si]) { const s = P.steps[P.si]; phase = VR.PHASE_NAMES[s.phase]; heb = s.hebrew || ''; title = P.fill(s.title); text = P.fill(s.text); }
     if (P.paused) phase = 'Paused · ' + phase;
+    const g = cap.g; panelBg(g, 1024, 512); g.textAlign = 'center';
     g.fillStyle = '#7fd0ff'; g.font = '28px Spectral, Georgia, serif'; g.fillText(phase.toUpperCase(), 512, 56);
     let y = 110; if (heb) { g.fillStyle = '#ffd36b'; g.font = '700 58px "Noto Serif Hebrew", serif'; g.fillText(heb, 512, y + 10); y += 70; }
     g.fillStyle = '#f6efff'; g.font = (title.length > 30 ? '46px' : '58px') + ' Marcellus, Georgia, serif'; g.fillText(title, 512, y + 30); y += 90;
@@ -358,14 +358,16 @@ const xrui = (() => {
   const eye = new THREE.Vector3(), fwd = new THREE.Vector3(), to = new THREE.Vector3();
   U.update = dt => {
     if (!xr.session) return;
-    const yOff = VR.rig.position.y, d = VR.dir(P.view);
-    const cp = d.clone().multiplyScalar(1.8); cp.y = 1.05 + yOff; cap.m.position.lerp(cp, Math.min(1, dt * 3));
-    VR.camera.getWorldPosition(eye); cap.m.lookAt(eye);
+    /* The caption sits low and close, about 30 degrees below eye level, so it never covers
+       what appears in front of you (cards, sigils, pentagrams sit at or above chest height). */
+    const yOff = VR.rig.position.y, d = VR.dir(P.view), right = new THREE.Vector3().crossVectors(d, VR.UP);
+    VR.camera.getWorldPosition(eye);
+    const cp = d.clone().multiplyScalar(1.25); cp.y = eye.y - .74; cap.m.position.lerp(cp, Math.min(1, dt * 3)); cap.m.lookAt(eye);
     if (con.m.visible) { const cd = VR.dir(P.view - 38).multiplyScalar(1.5); cd.y = 1.35 + yOff; con.m.position.lerp(cd, Math.min(1, dt * 3)); con.m.lookAt(eye); }
     const gazeOn = S.gaze && P.active; orb.visible = gazeOn; ret.visible = gazeOn;
     if (U.mark > 0) { U.mark = Math.max(0, U.mark - dt * 1.5); cap.m.material.color.setRGB(1, 1 - .25 * U.mark, 1 - .1 * U.mark); } else cap.m.material.color.setRGB(1, 1, 1);
     if (!gazeOn) { U.dwell = 0; return; }
-    orb.position.copy(cap.m.position).add(new THREE.Vector3(0, -.4, 0));
+    orb.position.copy(cap.m.position).addScaledVector(right, .48);
     VR.camera.getWorldDirection(fwd); to.copy(orb.position).sub(eye).normalize();
     U.cool = Math.max(0, U.cool - dt);
     if (fwd.angleTo(to) < .06 && U.cool <= 0) { U.dwell += dt; if (U.dwell >= 1.6) { U.dwell = 0; U.cool = 1.2; P.next(); } } else U.dwell = Math.max(0, U.dwell - dt * 2);
