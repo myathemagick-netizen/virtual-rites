@@ -3,613 +3,172 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>LBRP at Stonehenge</title>
+<title>Virtual Rites</title>
+<meta name="description" content="Ritual spaces you can step into, in your browser or a VR headset.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Spectral:ital,wght@0,300;0,400;1,300&family=Noto+Serif+Hebrew:wght@500;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  --bg:#150b3b;
-  --ink:#231240;
-  --ink-2:#4a3470;
-  --scrim:rgba(252,244,236,.82);
-  --scrim-0:rgba(252,244,236,0);
-  --edge:rgba(35,18,64,.28);
-  --chip:rgba(252,244,236,.7);
-  --gilt:#b57a12;
-  --lapis:#1f6fb8;
-  --primary-bg:#2a1650;
-  --primary-ink:#ffe7a8;
-  --shadow:0 0 0 rgba(0,0,0,0);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --ink:#f6efff;--ink-2:#cbbbe8;
-    --scrim:rgba(14,6,38,.78);--scrim-0:rgba(14,6,38,0);
-    --edge:rgba(255,211,107,.32);--chip:rgba(20,10,48,.55);
-    --gilt:#ffd36b;--lapis:#7fd0ff;
-    --primary-bg:#ffd36b;--primary-ink:#1b0d33;
-    --shadow:0 1px 18px rgba(20,6,50,.9);
-  }
-}
-:root[data-theme="dark"]{
-  --ink:#f6efff;--ink-2:#cbbbe8;
-  --scrim:rgba(14,6,38,.78);--scrim-0:rgba(14,6,38,0);
-  --edge:rgba(255,211,107,.32);--chip:rgba(20,10,48,.55);
-  --gilt:#ffd36b;--lapis:#7fd0ff;
-  --primary-bg:#ffd36b;--primary-ink:#1b0d33;
-  --shadow:0 1px 18px rgba(20,6,50,.9);
-}
-*,*::before,*::after{box-sizing:inherit}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);
-  font-family:Spectral,"Iowan Old Style",Georgia,serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
-canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
-canvas#c:active{cursor:grabbing}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible{outline:2px solid var(--gilt);outline-offset:3px}
-
-#top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
-  padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 0;pointer-events:none}
-#top > *{pointer-events:auto}
-.brand{font-family:Marcellus,"Trajan Pro",Georgia,serif;letter-spacing:.04em;text-shadow:var(--shadow);line-height:1.25}
-.brand b{display:block;font-weight:400;font-size:15px}
-.brand span{display:block;font-family:Spectral,Georgia,serif;font-style:italic;font-weight:300;font-size:14px;color:var(--ink-2)}
-.tools{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
-.chip{background:var(--chip);border:1px solid var(--edge);border-radius:6px;padding:6px 12px;font-size:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.chip[aria-pressed="false"]{color:var(--ink-2);text-decoration:line-through;text-decoration-thickness:1px}
-.seg{display:flex;border:1px solid var(--edge);border-radius:6px;overflow:hidden;background:var(--chip);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.seg button{background:none;border:0;padding:6px 12px;font-size:14px;color:var(--ink-2)}
-.seg button[aria-pressed="true"]{color:var(--ink);background:rgba(255,211,107,.18)}
-.vr{border-color:var(--gilt);color:var(--gilt)}
-
-#stage{position:fixed;left:0;right:0;bottom:0;padding:90px 20px calc(env(safe-area-inset-bottom,0px) + 16px);
-  background:linear-gradient(to top,var(--scrim) 0%,var(--scrim) 45%,var(--scrim-0) 100%);text-align:center;pointer-events:none}
-#stage > *{pointer-events:auto}
-.heb{font-family:"Noto Serif Hebrew","Times New Roman",serif;font-weight:700;font-size:30px;line-height:1.2;margin:0;color:var(--gilt);min-height:1.2em;text-shadow:var(--shadow)}
-.word{font-family:Marcellus,"Trajan Pro",Georgia,serif;font-weight:400;font-size:clamp(28px,6.2vw,52px);letter-spacing:.05em;line-height:1.1;margin:4px 0 8px;text-shadow:var(--shadow)}
-.instr{margin:0 auto;max-width:34em;font-weight:300;font-size:17px;line-height:1.6;color:var(--ink-2);min-height:3.2em}
-.swap{animation:swap .7s ease both}
-@keyframes swap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.prog{height:2px;background:var(--edge);margin:16px auto 12px;max-width:520px;border-radius:2px;overflow:hidden}
-.fill{height:100%;width:0;background:linear-gradient(90deg,var(--lapis),var(--gilt))}
-.ctrls{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
-.ctrls button{background:var(--chip);border:1px solid var(--edge);border-radius:6px;padding:8px 16px;font-size:15px}
-.ctrls .primary{background:var(--primary-bg);color:var(--primary-ink);border-color:transparent;font-weight:400;padding:8px 22px}
-.ctrls button:disabled{opacity:.4;cursor:default}
-.count{display:block;margin-top:8px;font-size:13px;color:var(--ink-2);font-style:italic}
-
-#intro{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;
-  padding:24px 22px calc(env(safe-area-inset-bottom,0px) + 34px);
-  background:linear-gradient(to top,var(--scrim) 0%,var(--scrim) 38%,var(--scrim-0) 80%)}
-.intro-inner{max-width:560px;text-align:center}
-.intro-inner h1{font-family:Marcellus,"Trajan Pro",Georgia,serif;font-weight:400;font-size:clamp(30px,6.5vw,50px);line-height:1.1;letter-spacing:.03em;margin:0 0 6px;text-shadow:var(--shadow)}
-.intro-inner .sub{font-style:italic;font-weight:300;color:var(--gilt);margin:0 0 14px;font-size:19px}
-.intro-inner p{margin:0 auto 18px;font-weight:300;color:var(--ink-2);max-width:32em}
-.intro-inner .note{font-size:14px;margin-top:16px;margin-bottom:0}
-.off{display:none!important}
-#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateX(-50%);max-width:88vw;
-  background:var(--chip);border:1px solid var(--edge);border-radius:6px;padding:10px 14px;font-size:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-@media (max-width:620px){
-  .brand span{display:none}
-  .brand b{font-size:13px;max-width:9em}
-  .chip,.seg button{padding:5px 9px;font-size:13px}
-  .instr{font-size:15.5px}
-  .heb{font-size:24px}
-  #stage{padding-top:70px}
-}
-@media (prefers-reduced-motion:reduce){.swap{animation:none}}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<canvas id="c" aria-label="Stonehenge at twilight, the ritual space"></canvas>
+<canvas id="c" aria-label="The ritual space"></canvas>
 
-<header id="top" class="off">
-  <div class="brand"><b>Lesser Banishing Ritual of the Pentagram</b><span>Stonehenge, before dawn</span></div>
-  <nav class="tools" aria-label="Settings">
-    <div class="seg" role="group" aria-label="Camera">
-      <button data-view="witness" aria-pressed="true">Witness</button>
-      <button data-view="fp" aria-pressed="false">First person</button>
+<!-- HOME ------------------------------------------------------------ -->
+<main id="home" class="screen">
+  <div class="panel">
+    <header class="masthead">
+      <h1>Virtual Rites</h1>
+      <p class="sub">Ritual spaces you can step into</p>
+      <p class="timing" id="timing"></p>
+    </header>
+    <div id="notices"></div>
+    <section>
+      <h2>Choose a rite</h2>
+      <div id="riteList" class="rites" role="list"></div>
+    </section>
+    <section>
+      <h2>Choose a place</h2>
+      <div id="worldList" class="chips" role="group" aria-label="Worlds"></div>
+      <p id="worldBlurb" class="blurb"></p>
+    </section>
+    <div class="row">
+      <button class="primary" id="toIntent">Continue</button>
+      <button id="openJournal">Journal</button>
+      <button id="openSettings">Comfort and access</button>
     </div>
-    <button class="chip" id="snd" aria-pressed="true">Sound</button>
-    <button class="chip" id="nar" aria-pressed="true">Narration</button>
-    <button class="chip vr" data-vr hidden>Enter VR</button>
+  </div>
+</main>
+
+<!-- INTENT ---------------------------------------------------------- -->
+<main id="intent" class="screen off">
+  <div class="panel">
+    <button class="link" data-home>Back</button>
+    <h1 id="intentTitle"></h1>
+    <p class="blurb" id="intentDesc"></p>
+    <p class="meta" id="intentMeta"></p>
+    <label class="field"><span id="intentLabel">Your intent</span>
+      <textarea id="intentText" rows="2" placeholder="What is this working for?"></textarea></label>
+    <div id="sigilBox" class="sigil off">
+      <canvas id="sigilCanvas" width="280" height="280" aria-label="Sigil preview"></canvas>
+      <div>
+        <p class="small">Letters after reduction</p>
+        <p id="sigilLetters" class="letters">·</p>
+        <div class="seg" id="sigilMethod" role="group" aria-label="Sigil construction">
+          <button data-m="wheel" aria-pressed="true">Wheel</button><button data-m="grid" aria-pressed="false">Grid</button>
+        </div>
+        <label class="field"><span>Or use a saved sigil</span><select id="savedSigils"></select></label>
+      </div>
+    </div>
+    <div class="grid2">
+      <label class="field"><span>How you feel going in</span>
+        <select id="stateIn"><option>Calm</option><option>Focused</option><option>Scattered</option><option>Anxious</option><option>Tired</option><option>Energized</option><option>Heavy</option><option>Curious</option></select></label>
+      <label class="field"><span>Energy today</span>
+        <select id="energy"><option value="full">Full</option><option value="some">Some</option><option value="low">Low: shorter and gentler</option></select></label>
+    </div>
+    <div class="field"><span>Mode</span>
+      <div class="seg" id="modeSeg" role="group" aria-label="Mode"><button data-mode="guided" aria-pressed="true">Guided</button><button data-mode="practice" aria-pressed="false">Practice</button></div>
+      <p class="small" id="modeNote"></p></div>
+    <div class="row">
+      <button class="primary" id="beginBtn">Begin</button>
+      <button class="xr off" id="beginVR">Begin in VR</button>
+      <button class="xr off" id="beginMR">Begin in mixed reality</button>
+    </div>
+  </div>
+</main>
+
+<!-- RITE HUD -------------------------------------------------------- -->
+<header id="top" class="off">
+  <div class="brand"><b id="riteName"></b><span id="worldName"></span></div>
+  <nav class="tools" aria-label="Rite settings">
+    <div class="seg" id="camSeg" role="group" aria-label="Camera"><button data-cam="witness">Witness</button><button data-cam="fp">First person</button></div>
+    <button class="chip" id="sndBtn">Sound</button>
+    <button class="chip" id="narBtn">Narration</button>
+    <button class="chip" id="condBtn" aria-expanded="false" aria-controls="conductor">Conductor</button>
+    <button class="chip xr off" id="hudXR">Enter VR</button>
   </nav>
 </header>
-
 <section id="stage" class="off">
-  <div aria-live="polite">
-    <p class="heb" dir="rtl" lang="he"></p>
-    <h2 class="word"></h2>
-    <p class="instr"></p>
+  <div id="capBox" aria-live="polite">
+    <p class="phase" id="phaseLabel"></p>
+    <p class="heb" id="heb" dir="rtl" lang="he"></p>
+    <h2 class="word" id="word"></h2>
+    <p class="instr" id="instr"></p>
   </div>
-  <div class="prog"><div class="fill"></div></div>
+  <div class="prog"><div class="fill" id="fill"></div></div>
   <div class="ctrls">
-    <button id="restart">Restart</button>
-    <button id="pause">Pause</button>
-    <button id="next" class="primary">Next step</button>
-    <button id="exit" class="primary off">Return to start</button>
+    <button id="repeatBtn" title="Replay this element (R)">Repeat</button>
+    <button id="pauseBtn" title="Pause (P)">Pause</button>
+    <button id="markBtn" title="Mark this moment for your journal (M)">Mark</button>
+    <button id="nextBtn" class="primary" title="Next (Space)">Next</button>
   </div>
-  <span class="count"></span>
+  <span class="count" id="count"></span>
 </section>
-
-<div id="intro">
-  <div class="intro-inner">
-    <h1>The Lesser Banishing Ritual of the Pentagram</h1>
-    <p class="sub">performed within the stones of Stonehenge</p>
-    <p>A guided rite of about two minutes. Guided mode narrates and moves on by itself. Practice mode is silent and waits for you, so you can vibrate the names in your own voice.</p>
-    <div class="ctrls">
-      <button class="primary" id="goGuided">Begin guided rite</button>
-      <button id="goPractice">Begin in practice mode</button>
-      <button class="vr" data-vr hidden>Enter VR</button>
-    </div>
-    <p class="note">In a headset, open this page in the headset's browser and choose Enter VR. Pull a trigger to advance. On a screen, drag to look around.</p>
+<aside id="conductor" class="drawer off" aria-label="Conductor">
+  <div class="drawer-head"><h2>Conductor</h2><button class="link" id="condClose">Close</button></div>
+  <p class="small">Where you are in the rite. Select any element to go there.</p>
+  <ol id="score" class="score"></ol>
+  <p class="note" id="condNote" role="status"></p>
+  <div class="col">
+    <button id="skipPhaseBtn">Skip to next phase</button>
+    <button id="saveLeaveBtn">Save and leave</button>
+    <button id="endBtn">End the rite now</button>
   </div>
-</div>
+</aside>
+
+<!-- AFTER ----------------------------------------------------------- -->
+<main id="after" class="screen off">
+  <div class="panel">
+    <h1>After the rite</h1>
+    <p class="blurb" id="afterSummary"></p>
+    <ul class="facts" id="afterFacts"></ul>
+    <label class="field"><span>Immediate impressions</span><textarea id="impressions" rows="3"></textarea></label>
+    <div class="grid2">
+      <label class="field"><span>What felt significant</span><textarea id="significant" rows="2"></textarea></label>
+      <label class="field"><span>What felt incomplete</span><textarea id="incomplete" rows="2"></textarea></label>
+    </div>
+    <label class="field"><span>How you feel now</span>
+      <select id="stateOut"><option>Calm</option><option>Clear</option><option>Lighter</option><option>Energized</option><option>Unsettled</option><option>Tired</option><option>Moved</option><option>No change</option></select></label>
+    <div class="row"><button class="primary" id="saveEntry">Save to journal</button><button id="discardEntry">Don't save</button></div>
+    <p class="small">Your journal lives only in this browser. Export it from the Journal screen to keep a copy.</p>
+  </div>
+</main>
+
+<!-- JOURNAL --------------------------------------------------------- -->
+<main id="journal" class="screen off">
+  <div class="panel">
+    <button class="link" data-home>Back</button>
+    <h1>Journal</h1>
+    <div class="row">
+      <button id="exportBtn">Export journal</button>
+      <label class="button">Import journal<input type="file" id="importFile" accept="application/json,.json" hidden></label>
+    </div>
+    <div id="entries"></div>
+    <h2>Saved sigils</h2>
+    <div id="sigilLib" class="siglib"></div>
+  </div>
+</main>
+
+<!-- SETTINGS -------------------------------------------------------- -->
+<main id="settings" class="screen off">
+  <div class="panel">
+    <button class="link" data-home>Back</button>
+    <h1>Comfort and access</h1>
+    <p class="blurb">Every setting is saved in this browser and applies to all rites.</p>
+    <div id="settingsForm" class="settings"></div>
+  </div>
+</main>
+
 <div id="toast" class="off" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-(function(){
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const DEG=Math.PI/180;
-const dir=b=>new THREE.Vector3(-Math.cos(b*DEG),0,-Math.sin(b*DEG)); // bearing: 0 N, 90 E, 180 S, 270 W
-const yawFor=b=>Math.PI/2-b*DEG;
-const UP=new THREE.Vector3(0,1,0);
-const lerp=(a,b,t)=>a+(b-a)*t;
-const ease=p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
-const shortest=(cur,t)=>cur+(((t-cur)%360+540)%360-180);
-const hash=n=>{const s=Math.sin(n*91.345+7.13)*43758.5453;return s-Math.floor(s);};
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-/* ---------- renderer ---------- */
-const renderer=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
-renderer.outputEncoding=THREE.sRGBEncoding;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-renderer.xr.enabled=true;
-renderer.xr.setReferenceSpaceType('local-floor');
-const scene=new THREE.Scene();
-scene.fog=new THREE.FogExp2(0x3a1a58,0.011);
-const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.05,1200);
-camera.rotation.order='YXZ';
-camera.position.set(Math.cos(.6)*34,9,Math.sin(.6)*34);
-const rig=new THREE.Group();rig.add(camera);scene.add(rig);
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
-
-/* ---------- shared helpers ---------- */
-function canvasTex(c){const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
-const GLOW=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
-  const gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.18,'rgba(255,255,255,.85)');
-  gr.addColorStop(.45,'rgba(255,255,255,.22)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);})();
-function addMat(color,op=1){return new THREE.MeshBasicMaterial({color,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,side:THREE.DoubleSide,toneMapped:false});}
-const EYE=new THREE.Vector3(0,1.6,0);const BEAM_U=[];
-function beamMat(color,op){const u={uColor:{value:new THREE.Color(color)},uOp:{value:op},uEye:{value:EYE},uFade:{value:0}};BEAM_U.push(u);
-  const m=new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
-    vertexShader:'varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
-    fragmentShader:'varying vec3 vW;uniform vec3 uColor;uniform float uOp;uniform vec3 uEye;uniform float uFade;void main(){float f=mix(1.,smoothstep(.3,1.1,distance(vW,uEye)),uFade);gl_FragColor=vec4(uColor,uOp*f);}'});
-  Object.defineProperty(m,'opacity',{get(){return u.uOp.value;},set(v){u.uOp.value=v;},configurable:true});return m;}
-function sprite(color,size,op=1){const m=new THREE.SpriteMaterial({map:GLOW,color,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,fog:false,opacity:op,toneMapped:false});const s=new THREE.Sprite(m);s.scale.setScalar(size);return s;}
-
-/* ---------- sky ---------- */
-const DAWN=dir(51);
-const sky=new THREE.Mesh(new THREE.SphereGeometry(500,48,24),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
-  uniforms:{uDawn:{value:DAWN}},
-  vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec3 vP;uniform vec3 uDawn;
-  void main(){float h=vP.y;vec3 top=vec3(.035,.02,.13),mid=vec3(.2,.05,.36),hor=vec3(.86,.24,.47),ember=vec3(1.,.58,.24),teal=vec3(.1,.55,.62);
-  vec3 flat3=normalize(vec3(vP.x,0.,vP.z));float d=max(dot(flat3,uDawn),0.);float o=max(-dot(flat3,uDawn),0.);
-  vec3 col=mix(hor,mid,smoothstep(0.,.22,h));col=mix(col,top,smoothstep(.18,.75,h));
-  col+=ember*pow(d,5.)*smoothstep(.32,0.,h)*1.1;col+=teal*pow(o,2.)*smoothstep(.28,0.,abs(h-.04))*.35;
-  if(h<0.)col=mix(hor*.55,vec3(.05,.03,.1),smoothstep(0.,-.15,h));gl_FragColor=vec4(col,1.);}`}));
-scene.add(sky);
-{ // stars
-  const n=2200,pos=new Float32Array(n*3),col=new Float32Array(n*3);const pal=[[1,1,1],[.8,.85,1],[1,.85,.95],[.85,1,1]];
-  for(let i=0;i<n;i++){const u=Math.random()*2*Math.PI,v=Math.acos(1-Math.random()*.9);const r=470;
-    pos[i*3]=r*Math.sin(v)*Math.cos(u);pos[i*3+1]=r*Math.cos(v);pos[i*3+2]=r*Math.sin(v)*Math.sin(u);
-    const p=pal[i%4],b=.35+Math.random()*.65;col[i*3]=p[0]*b;col[i*3+1]=p[1]*b;col[i*3+2]=p[2]*b;}
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));
-  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:1.7,sizeAttenuation:false,vertexColors:true,fog:false,transparent:true,depthWrite:false})));
-}
-const auroraMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
-  uniforms:{uT:{value:0}},
-  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec2 vUv;uniform float uT;
-  void main(){float w=sin(vUv.x*18.+uT*.35)*.5+.5;float w2=sin(vUv.x*43.-uT*.6)*.5+.5;
-  float band=smoothstep(0.,.25,vUv.y)*pow(1.-vUv.y,1.6)*(.45+.55*w)*(.6+.4*w2);
-  float edge=smoothstep(0.,.12,vUv.x)*smoothstep(1.,.88,vUv.x);
-  vec3 c=mix(vec3(.15,1.,.75),vec3(.95,.3,.9),smoothstep(.15,.9,vUv.y+.2*sin(vUv.x*6.+uT*.2)));
-  gl_FragColor=vec4(c*band*edge*.55,1.);}`});
-[[330,300,70],[250,320,95]].forEach(([b,r,h],k)=>{
-  const g=new THREE.PlaneGeometry(1,1,96,1);const p=g.attributes.position;
-  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i);const bb=b+(x)*80;const d=dir(bb);const rr=r+Math.sin(x*9+k)*20;
-    p.setXYZ(i,d.x*rr,h+(y+.5)*70,d.z*rr);}
-  scene.add(new THREE.Mesh(g,auroraMat));});
-
-/* ---------- ground & lights ---------- */
-{
-  const g=new THREE.PlaneGeometry(900,900,150,150);g.rotateX(-Math.PI/2);
-  const p=g.attributes.position,c=new Float32Array(p.count*3);const a=new THREE.Color(0x14352a),b=new THREE.Color(0x27503a),t=new THREE.Color(0x3b3f36),tmp=new THREE.Color();
-  for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);const r=Math.hypot(x,z);
-    const n=.5+.25*Math.sin(x*.21+z*.13)+.25*Math.sin(x*.047-z*.09+1.3);tmp.copy(a).lerp(b,n);
-    if(r<17)tmp.lerp(t,.35*(1-r/17));c[i*3]=tmp.r;c[i*3+1]=tmp.g;c[i*3+2]=tmp.b;
-    if(r>58)p.setY(i,Math.sin(x*.02)*1.5+Math.sin(z*.017+2)*1.8+(r-58)*.012);}
-  g.setAttribute('color',new THREE.BufferAttribute(c,3));g.computeVertexNormals();
-  scene.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1})));
-  const bank=new THREE.Mesh(new THREE.TorusGeometry(52,2.4,8,120),new THREE.MeshStandardMaterial({color:0x23493a,roughness:1,flatShading:true}));
-  bank.rotation.x=-Math.PI/2;bank.scale.z=.3;scene.add(bank);
-}
-scene.add(new THREE.HemisphereLight(0x9a86ff,0x16302a,.6));
-const sun=new THREE.DirectionalLight(0xff9f6a,1.25);sun.position.copy(DAWN).multiplyScalar(60).setY(10);scene.add(sun);
-const moon=new THREE.DirectionalLight(0x6f8cff,.45);moon.position.set(40,60,50);scene.add(moon);
-const centerLight=new THREE.PointLight(0x9fd4ff,0,26,1.6);centerLight.position.set(0,2,0);scene.add(centerLight);
-
-/* ---------- the stones ---------- */
-const stoneMats=[0x8c879a,0x7b7788,0x96908b,0x6e6a7c,0x85807a].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.95,flatShading:true}));
-let seedN=1;
-function stoneGeo(w,h,d,seed,rough){
-  const g=new THREE.BoxGeometry(w,h,d,2,4,2);const p=g.attributes.position;
-  for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-    const kx=Math.round(x*100),ky=Math.round(y*100),kz=Math.round(z*100);
-    const r1=hash(kx*.37+ky*1.13+kz*2.71+seed*13.1),r2=hash(kx*1.91+ky*.53+kz*.77+seed*7.7),r3=hash(kx*.61+ky*2.3+kz*1.37+seed*3.3);
-    const t=y/h+.5;x=(x+(r1-.5)*rough*w)*(1-.1*t);y=y+(r2-.5)*rough*h*.25;z=(z+(r3-.5)*rough*d)*(1-.1*t);p.setXYZ(i,x,y,z);}
-  g.computeVertexNormals();g.translate(0,h/2,0);return g;}
-function stone(w,h,d,pos,yaw,o={}){
-  const m=new THREE.Mesh(stoneGeo(w,h,d,seedN,o.rough??.14),stoneMats[seedN%stoneMats.length]);seedN++;
-  m.position.set(pos.x,o.y||0,pos.z);m.rotation.y=yaw;if(o.lean)m.rotation.z=o.lean;if(o.tilt)m.rotation.x=o.tilt;scene.add(m);return m;}
-// sarsen circle
-const missing=new Set([8,9,15,18,19,23,24,27]);const ups=[];
-for(let i=0;i<30;i++){const b=i*12;if(missing.has(i)){ups.push(0);continue;}const h=4+hash(i)*.5;
-  stone(2.1,h,1.1,dir(b).multiplyScalar(15),yawFor(b),{lean:(hash(i+3)-.5)*.04});ups.push(h);}
-for(let i=0;i<30;i++){const j=(i+1)%30;if(ups[i]&&ups[j]&&hash(i+40)>.2){const b=i*12+6;
-  stone(3.35,.75,1.05,dir(b).multiplyScalar(14.95),yawFor(b),{y:Math.min(ups[i],ups[j])-.15,rough:.06});}}
-stone(2,1,4.2,dir(112).multiplyScalar(18),yawFor(112)+.4);stone(1.9,.9,3.8,dir(300).multiplyScalar(17.5),yawFor(300)-.3);
-// trilithon horseshoe, open to the northeast
-[{b:230,r:8.3,h:7.3},{b:180,r:8.4,h:6.4},{b:280,r:8.4,h:6.4},{b:130,r:9.1,h:5.8},{b:330,r:9.1,h:5.8}].forEach((t,k)=>{
-  const c=dir(t.b).multiplyScalar(t.r),tg=dir(t.b+90);
-  [-1.15,1.15].forEach(s=>stone(2,t.h,1.3,c.clone().addScaledVector(tg,s),yawFor(t.b)));
-  stone(4.9,.95,1.2,c,yawFor(t.b),{y:t.h-.15,rough:.06});});
-// bluestone circle
-for(let i=0;i<40;i++){if(hash(i+50)<.22)continue;const b=i*9+hash(i+60)*3;const h=1.3+hash(i+70)*1;
-  stone(.75,h,.55,dir(b).multiplyScalar(11.6),yawFor(b)+(hash(i+80)-.5)*.4,{lean:(hash(i+90)-.5)*.16});}
-stone(4.8,.5,1,dir(232).multiplyScalar(5.2),yawFor(232)+Math.PI/2,{rough:.08}); // altar stone
-stone(2.4,4.8,2.1,dir(51).multiplyScalar(70),yawFor(51),{lean:.12,rough:.24}); // heel stone
-stone(2.1,.6,6,dir(51).multiplyScalar(26),yawFor(51),{rough:.1}); // slaughter stone
-
-/* ---------- magic circle on the ground ---------- */
-let ring;
-function buildRing(){
-  const c=document.createElement('canvas');c.width=c.height=1024;const g=c.getContext('2d');g.strokeStyle='#fff';g.fillStyle='#fff';
-  g.translate(512,512);[[500,4],[472,2],[300,3],[286,1.5]].forEach(([r,w])=>{g.lineWidth=w;g.beginPath();g.arc(0,0,r,0,Math.PI*2);g.stroke();});
-  for(let i=0;i<72;i++){g.save();g.rotate(i*5*DEG);g.lineWidth=i%6?1.5:3;g.beginPath();g.moveTo(0,-472);g.lineTo(0,i%6?-486:-500);g.stroke();g.restore();}
-  g.textAlign='center';g.textBaseline='middle';g.font='700 76px "Noto Serif Hebrew", serif';
-  ['יהוה','אדני','אהיה','אגלא'].forEach((n,k)=>{g.save();g.rotate(k*Math.PI/2);g.fillText(n,0,-385);g.restore();
-    g.save();g.rotate(k*Math.PI/2+Math.PI/4);g.beginPath();g.arc(0,-385,16,0,Math.PI*2);g.lineWidth=2;g.stroke();g.restore();});
-  const m=new THREE.MeshBasicMaterial({map:canvasTex(c),color:0x7fd0ff,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,toneMapped:false});
-  ring=new THREE.Mesh(new THREE.PlaneGeometry(8.6,8.6),m);ring.rotation.x=-Math.PI/2;ring.position.y=.03;scene.add(ring);
-}
-
-/* ---------- drifting motes ---------- */
-const motes=(()=>{const n=650,pos=new Float32Array(n*3),col=new Float32Array(n*3),sp=new Float32Array(n);
-  const pal=[0x4cc3ff,0xe0408a,0xffd36b,0xa77bff,0x3fe0c0].map(h=>new THREE.Color(h));
-  for(let i=0;i<n;i++){const r=Math.sqrt(Math.random())*24,a=Math.random()*Math.PI*2;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=Math.random()*10;pos[i*3+2]=Math.sin(a)*r;
-    const c=pal[i%5];col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;sp[i]=.08+Math.random()*.25;}
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));
-  const m=new THREE.PointsMaterial({size:.16,map:GLOW,vertexColors:true,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false});
-  const p=new THREE.Points(g,m);p.userData.sp=sp;scene.add(p);return p;})();
-
-/* ---------- the operator (seen in witness view) ---------- */
-const operator=new THREE.Group();
-{const m=addMat(0xd8ccff,.22);const body=new THREE.Mesh(new THREE.CylinderGeometry(.17,.27,1.25,16),m);body.position.y=.72;
- const head=new THREE.Mesh(new THREE.SphereGeometry(.13,16,12),m);head.position.y=1.6;
- const sh=new THREE.Mesh(new THREE.SphereGeometry(.16,16,8),m);sh.scale.set(2.6,.5,1);sh.position.y=1.38;
- const aura=sprite(0xb9a8ff,2.4,.35);aura.position.y=1.1;operator.add(body,head,sh,aura);}
-scene.add(operator);
-
-/* ---------- ritual effects ---------- */
-function trace(curve,{segs=200,r=.028,core=0xffffff,glow=0x4cc3ff,gop=.4}={}){
-  const g1=new THREE.TubeGeometry(curve,segs,r,6,false),g2=new THREE.TubeGeometry(curve,segs,r*3.4,6,false);
-  const m1=addMat(core,1),m2=addMat(glow,gop);const grp=new THREE.Group();grp.add(new THREE.Mesh(g1,m1),new THREE.Mesh(g2,m2));
-  const head=sprite(glow,.65);head.visible=false;grp.add(head);const per=36;
-  grp.userData={set(p){const n=Math.floor(p*segs)*per;g1.setDrawRange(0,n);g2.setDrawRange(0,n);head.visible=p>0&&p<1;
-      if(head.visible)head.position.copy(curve.getPointAt(Math.min(p,1)));},
-    glow(a){m1.opacity=Math.min(1,a);m2.opacity=Math.min(1,gop*a);}};
-  grp.userData.set(0);return grp;}
-class Arc extends THREE.Curve{constructor(b0,b1,r,y){super();Object.assign(this,{b0,b1,r,y});}
-  getPoint(t,o=new THREE.Vector3()){const d=dir(this.b0+(this.b1-this.b0)*t);return o.set(d.x*this.r,this.y,d.z*this.r);}}
-function textSprite(lines,w,h,scale){
-  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.textAlign='center';g.textBaseline='middle';
-  lines.forEach(L=>{g.font=L.font;g.fillStyle=L.color;g.shadowColor=L.glow;g.shadowBlur=34;g.fillText(L.text,w/2,L.y);g.shadowBlur=0;g.fillText(L.text,w/2,L.y);});
-  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:canvasTex(c),transparent:true,depthWrite:false,fog:false,opacity:0,toneMapped:false}));
-  s.scale.set(scale,scale*h/w,1);return s;}
-const wingTex=(()=>{const c=document.createElement('canvas');c.width=256;c.height=512;const g=c.getContext('2d');g.globalCompositeOperation='lighter';
-  for(let i=0;i<13;i++){const t=i/12,ang=lerp(-1.47,-.12,t),len=lerp(480,215,t);g.save();g.translate(12,470);g.rotate(ang);
-    const gr=g.createLinearGradient(0,0,len,0);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.35,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,.12)');
-    g.fillStyle=gr;g.beginPath();g.ellipse(len/2,0,len/2,15+t*9,0,0,Math.PI*2);g.fill();
-    g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=1.5;g.beginPath();g.moveTo(10,0);g.lineTo(len*.96,0);g.stroke();g.restore();}
-  return canvasTex(c);})();
-
-const PENT=[{b:90,w:'Yod Heh Vav Heh',h:'יהוה',say:'Yod. Heh. Vav. Heh.',f:73.42,q:'East'},
-  {b:180,w:'Adonai',h:'אדני',say:'Ah-doh-nai.',f:98,q:'South'},
-  {b:270,w:'Eheieh',h:'אהיה',say:'Eh-heh-yeh.',f:110,q:'West'},
-  {b:0,w:'AGLA',h:'אגלא',say:'Ah-geh-lah.',f:82.41,q:'North'}];
-const ANG=[{b:90,w:'Raphael',h:'רפאל',p:0xffd84a,s:0xb67cff,attr:'wand',chord:[220,277.18,329.63]},
-  {b:270,w:'Gabriel',h:'גבריאל',p:0x3d7bff,s:0xff9a3d,attr:'cup',chord:[196,246.94,293.66]},
-  {b:180,w:'Michael',h:'מיכאל',p:0xff3b2f,s:0x2fe08a,attr:'sword',chord:[261.63,329.63,392]},
-  {b:0,w:'Auriel',h:'אוריאל',p:0xa8d83a,s:0xd8743a,attr:'sheaf',chord:[174.61,220,261.63]}];
-
-function pentCurve(b){const c=dir(b).multiplyScalar(3.2);c.y=1.6;const right=new THREE.Vector3().crossVectors(dir(b),UP);const R=.85;
-  const pts=[-126,90,-54,162,18,-126].map(a=>c.clone().addScaledVector(right,Math.cos(a*DEG)*R).addScaledVector(UP,Math.sin(a*DEG)*R));
-  const path=new THREE.CurvePath();for(let i=0;i<5;i++)path.add(new THREE.LineCurve3(pts[i],pts[i+1]));return {path,center:c};}
-function flamePts(path){const pts=path.getSpacedPoints(150);const base=new Float32Array(pts.length*3);pts.forEach((p,i)=>{base[i*3]=p.x;base[i*3+1]=p.y;base[i*3+2]=p.z;});
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(base.slice(),3));
-  const m=new THREE.PointsMaterial({map:GLOW,size:.17,color:0x6cc6ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,toneMapped:false});
-  const p=new THREE.Points(g,m);p.userData.base=base;return p;}
-
-function makeAngel(a){
-  const root=new THREE.Group();root.position.copy(dir(a.b).multiplyScalar(6.8));root.lookAt(0,0,0);
-  const inner=new THREE.Group();root.add(inner);const mats=[];
-  const M=(c,o)=>{const m=addMat(c,o);mats.push([m,o]);m.opacity=0;return m;};
-  const S=(c,size,o,x,y,z)=>{const s=sprite(c,size,0);s.position.set(x,y,z);mats.push([s.material,o]);inner.add(s);return s;};
-  const prof=[[0,0],[1.5,.05],[1.25,1.5],[.95,3],[.7,4.4],[.55,5.4],[.4,6.1],[0,6.3]].map(v=>new THREE.Vector2(v[0],v[1]));
-  const robe=new THREE.LatheGeometry(prof,40);inner.add(new THREE.Mesh(robe,M(a.p,.26)));
-  const core=new THREE.Mesh(robe,M(0xffffff,.1));core.scale.set(.45,1,.45);inner.add(core);
-  S(0xffffff,1.3,.9,0,6.85,.1);S(a.p,3.4,.6,0,6.7,0);S(a.s,6,.25,0,4.5,-.4);
-  const halo=new THREE.Mesh(new THREE.TorusGeometry(.8,.035,8,64),M(0xffe7a0,.9));halo.position.set(0,6.95,-.3);inner.add(halo);
-  const wm=M(a.s,.8);wm.map=wingTex;wm.needsUpdate=true;const wings=[];
-  [1,-1].forEach(side=>{const pv=new THREE.Group();pv.position.set(.35*side,4.1,-.2);pv.scale.x=side;
-    const pl=new THREE.Mesh(new THREE.PlaneGeometry(3.3,6.6),wm);pl.position.set(1.52,2.75,0);pv.add(pl);pv.rotation.y=-.38*side;inner.add(pv);wings.push(pv);});
-  const at=new THREE.Group();at.position.set(1,3.2,.5);
-  if(a.attr==='sword'){at.add(new THREE.Mesh(new THREE.BoxGeometry(.09,2.8,.03),M(0xffffff,.9)),new THREE.Mesh(new THREE.BoxGeometry(.22,2.9,.1),M(a.p,.5)));
-    const gd=new THREE.Mesh(new THREE.BoxGeometry(.7,.09,.09),M(0xffe7a0,.9));gd.position.y=-.9;at.add(gd);}
-  else if(a.attr==='cup'){const cup=new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.25,0],[.08,.1],[.06,.5],[.36,.7],[.44,1.1]].map(v=>new THREE.Vector2(v[0],v[1])),24),M(a.s,.75));cup.position.y=-.4;at.add(cup);
-    S(0x9fdcff,1,.8,1,3.95,.5);}
-  else if(a.attr==='wand'){at.add(new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,2.4,8),M(0xffffff,.8)));S(a.s,1.1,.9,1,4.45,.5);}
-  else{for(let i=0;i<7;i++){const cn=new THREE.Mesh(new THREE.ConeGeometry(.07,1.6,6),M(i%2?a.p:a.s,.8));cn.rotation.z=(i-3)*.12;cn.position.x=(i-3)*.05;at.add(cn);}}
-  inner.add(at);
-  const disk=new THREE.Mesh(new THREE.PlaneGeometry(8,8),M(a.p,.55));disk.material.map=GLOW;disk.rotation.x=-Math.PI/2;disk.position.y=.06;root.add(disk);
-  const n=150,pp=new Float32Array(n*3),spd=new Float32Array(n);for(let i=0;i<n;i++){const r=Math.random()*1.8,t=Math.random()*6.28;pp[i*3]=Math.cos(t)*r;pp[i*3+1]=Math.random()*8;pp[i*3+2]=Math.sin(t)*r;spd[i]=.4+Math.random()*1.2;}
-  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
-  const pm=new THREE.PointsMaterial({map:GLOW,size:.2,color:a.s,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,toneMapped:false});
-  mats.push([pm,.9]);const parts=new THREE.Points(pg,pm);parts.userData.spd=spd;inner.add(parts);
-  const light=new THREE.PointLight(a.p,0,22,1.5);light.position.set(0,3,1);root.add(light);
-  root.visible=false;root.userData={setA:v=>mats.forEach(([m,o])=>m.opacity=o*v),inner,light,wings,halo,parts,a:0};
-  return root;}
-
-let F=null;
-function buildFx(){
-  if(F){scene.remove(F.root);F.root.traverse(o=>{if(o.geometry)o.geometry.dispose();});}
-  const root=new THREE.Group();scene.add(root);F={root,on:{}};
-  // Qabalistic Cross
-  const q={};
-  q.crown=sprite(0xffffff,.2,0);q.crown.position.set(0,2.35,-.2);q.crownHalo=sprite(0xfff0c8,.2,0);q.crownHalo.position.copy(q.crown.position);
-  const colG=new THREE.CylinderGeometry(1,1,1,14,1,true);colG.translate(0,-.5,0);
-  q.col=new THREE.Mesh(colG,beamMat(0xffffff,.55));q.colGlow=new THREE.Mesh(colG,beamMat(0xfff0c4,.22));
-  [q.col,q.colGlow].forEach((m,i)=>{m.position.y=2.35;m.scale.set(i?.15:.035,.0001,i?.15:.035);});
-  q.ground=new THREE.Mesh(new THREE.RingGeometry(.9,1,72),addMat(0xfff0c0,0));q.ground.rotation.x=-Math.PI/2;q.ground.position.y=.05;
-  q.r=sprite(0xff5a4a,.1,0);q.r.position.set(.45,1.45,0);q.l=sprite(0x5aa8ff,.1,0);q.l.position.set(-.45,1.45,0);
-  const hG=new THREE.CylinderGeometry(1,1,1,14,1,true);hG.rotateZ(Math.PI/2);
-  q.h=new THREE.Mesh(hG,beamMat(0xffffff,.5));q.hGlow=new THREE.Mesh(hG,beamMat(0xfff0c4,.2));
-  [q.h,q.hGlow].forEach((m,i)=>{m.position.y=1.45;m.scale.set(.0001,i?.12:.028,i?.12:.028);});
-  q.heart=sprite(0xffb38a,.1,0);q.heart.position.set(0,1.42,-.16);
-  root.add(q.crown,q.crownHalo,q.col,q.colGlow,q.ground,q.r,q.l,q.h,q.hGlow,q.heart);F.qc=q;
-  // pentagrams, flames, names
-  F.pents=PENT.map(pd=>{const {path,center}=pentCurve(pd.b);
-    const tr=trace(path,{segs:240,r:.03,core:0xd6f1ff,glow:0x2f8cff,gop:.45});const fl=flamePts(path);
-    const flash=sprite(0xaee4ff,.1,0);flash.position.copy(center);
-    const label=textSprite([{text:pd.h,font:'700 170px "Noto Serif Hebrew", serif',color:'#eaf6ff',glow:'#3fa9ff',y:200},
-      {text:pd.w,font:'64px Marcellus, Georgia, serif',color:'#bfe3ff',glow:'#3fa9ff',y:390}],1024,512,1.7);
-    label.position.copy(center).add(new THREE.Vector3(0,1.3,0));root.add(tr,fl,flash,label);return {tr,fl,flash,label};});
-  F.arcs=PENT.map(pd=>{const t=trace(new Arc(pd.b,pd.b+90,3.2,1.6),{segs:140,r:.016,core:0xffffff,glow:0xeae2ff,gop:.35});root.add(t);return t;});
-  F.angels=ANG.map(a=>{const g=makeAngel(a);root.add(g);return g;});
-  // hexagram around the heart
-  F.hex=new THREE.Group();F.hex.position.y=1.25;
-  F.hexT=[0,60].map(o=>{const path=new THREE.CurvePath();const pts=[0,120,240,360].map(a=>new THREE.Vector3(Math.cos((a+o)*DEG)*1.35,0,Math.sin((a+o)*DEG)*1.35));
-    for(let i=0;i<3;i++)path.add(new THREE.LineCurve3(pts[i],pts[i+1]));const t=trace(path,{segs:180,r:.025,core:0xfff1c2,glow:0xffc53d,gop:.5});F.hex.add(t);return t;});
-  root.add(F.hex);
-  if(ring)ring.material.opacity=.22;centerLight.intensity=0;motes.material.opacity=.75;
-}
-
-/* ---------- tweens ---------- */
-let tweens=[];
-function tween(dur,fn,delay=0){tweens.push({t:-delay,dur,fn});}
-function at(delay,fn){tweens.push({t:-delay,dur:.0001,fn:(e,p,skip)=>{if(!skip)fn();}});}
-function updTweens(dt){tweens=tweens.filter(tw=>{tw.t+=dt;if(tw.t<0)return true;const p=Math.min(tw.t/tw.dur,1);tw.fn(ease(p),p,false);return p<1;});}
-function finishTweens(){const t=tweens;tweens=[];t.forEach(tw=>tw.fn(1,1,true));}
-function pulse(spr,amt,dur=1.4){const s0=spr.scale.x;tween(dur,(e,p)=>spr.scale.setScalar(s0*(1+amt*Math.sin(p*Math.PI))));}
-function fadeSprite(spr,size,op=1,dur=1.4){tween(dur,e=>{spr.material.opacity=op*e;spr.scale.setScalar(.05+size*e);});}
-
-/* ---------- audio ---------- */
-let AC=null,master,rev,soundOn=true,voiceOn=true;
-function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
-  master=AC.createGain();master.gain.value=soundOn?.7:0;const comp=AC.createDynamicsCompressor();master.connect(comp);comp.connect(AC.destination);
-  rev=AC.createConvolver();const len=AC.sampleRate*3.6,buf=AC.createBuffer(2,len,AC.sampleRate);
-  for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);}
-  rev.buffer=buf;const wet=AC.createGain();wet.gain.value=.5;rev.connect(wet);wet.connect(master);
-  [73.42,110,146.83].forEach((f,i)=>{const o=AC.createOscillator();o.frequency.value=f;o.detune.value=(i-1)*5;const g=AC.createGain();g.gain.value=.045/(i+1);
-    const l=AC.createOscillator();l.frequency.value=.05+i*.03;const lg=AC.createGain();lg.gain.value=.02/(i+1);l.connect(lg);lg.connect(g.gain);o.connect(g);out(g);o.start();l.start();});
-  const nb=AC.createBuffer(1,AC.sampleRate*4,AC.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
-  const n=AC.createBufferSource();n.buffer=nb;n.loop=true;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=520;bp.Q.value=.7;
-  const ng=AC.createGain();ng.gain.value=.03;const l=AC.createOscillator();l.frequency.value=.07;const lg=AC.createGain();lg.gain.value=280;l.connect(lg);lg.connect(bp.frequency);
-  n.connect(bp);bp.connect(ng);out(ng);n.start();l.start();}
-function out(n){n.connect(master);n.connect(rev);}
-function bell(f,v=.16){if(!AC)return;const now=AC.currentTime;[1,2.76,5.4].forEach((m,i)=>{const o=AC.createOscillator();o.frequency.value=f*m;const g=AC.createGain();
-  g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(v/(i+1.4),now+.01);g.gain.exponentialRampToValueAtTime(.0001,now+2.6/(i+1));o.connect(g);out(g);o.start(now);o.stop(now+3);});}
-function vibrate(f,dur=3.4){if(!AC)return;const now=AC.currentTime;const g=AC.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.2,now+.6);
-  g.gain.setValueAtTime(.2,now+dur-.9);g.gain.linearRampToValueAtTime(0,now+dur);const src=AC.createGain();
-  [1,1.006,.994].forEach(m=>{const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=f*2*m;o.connect(src);o.start(now);o.stop(now+dur+.1);});
-  const f1=AC.createBiquadFilter(),f2=AC.createBiquadFilter();[f1,f2].forEach(x=>{x.type='bandpass';x.Q.value=7;});
-  f1.frequency.setValueAtTime(300,now);f1.frequency.linearRampToValueAtTime(800,now+dur*.45);f1.frequency.linearRampToValueAtTime(420,now+dur);
-  f2.frequency.setValueAtTime(2250,now);f2.frequency.linearRampToValueAtTime(1150,now+dur*.45);f2.frequency.linearRampToValueAtTime(820,now+dur);
-  const mix=AC.createGain();mix.gain.value=1.5;src.connect(f1);src.connect(f2);f1.connect(mix);f2.connect(mix);mix.connect(g);
-  const sub=AC.createOscillator();sub.frequency.value=f;const sg=AC.createGain();sg.gain.value=.55;sub.connect(sg);sg.connect(g);sub.start(now);sub.stop(now+dur+.1);out(g);}
-function chord(fs,dur=5,v=.06){if(!AC)return;const now=AC.currentTime;fs.forEach((f,i)=>{[0,7].forEach(dt=>{const o=AC.createOscillator();o.type=i?'sine':'triangle';o.frequency.value=f;o.detune.value=dt;
-  const g=AC.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(v,now+1.2);g.gain.linearRampToValueAtTime(0,now+dur);o.connect(g);out(g);o.start(now);o.stop(now+dur+.1);});});}
-let voice=null;
-function pickVoice(){const vs=speechSynthesis.getVoices();voice=vs.find(v=>/Daniel|Google UK English Male|Arthur|Oliver/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||null;}
-if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
-function say(t){if(!voiceOn||!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.78;u.pitch=.7;u.volume=.95;if(voice)u.voice=voice;speechSynthesis.speak(u);}
-
-/* ---------- ritual steps ---------- */
-let face=90,view=90,look={p:0,y:0},elev=0,lookH=1.4;
-function qcSteps(closing){
-  const Q=()=>F.qc;
-  return [
-  {w:'Ateh',h:'אתה',say:'Ah-teh.',t:(closing?'Close with the Qabalistic Cross. ':'')+'Touch your forehead. Light gathers into a sphere above your crown.',face:90,look:{p:1},lookH:1.9,
-   fx(){const q=Q();if(!F.on.crown){F.on.crown=1;fadeSprite(q.crown,.9,.85);fadeSprite(q.crownHalo,2.4,.26,2);}else{pulse(q.crown,.8);pulse(q.crownHalo,.5);}bell(587.33);}},
-  {w:'Malkuth',h:'מלכות',say:'Mal-kooth.',t:'Touch your breast. The light descends through you and deep into the earth.',face:90,look:{p:-1},lookH:1,
-   fx(){const q=Q();if(!F.on.col){F.on.col=1;tween(2,e=>{q.col.scale.y=q.colGlow.scale.y=Math.max(.0001,5.35*e);});}
-     else{const b0=q.colGlow.material.opacity;tween(1.6,(e,p)=>{q.colGlow.material.opacity=b0+.28*Math.sin(p*Math.PI);});}
-     tween(2.4,(e,p)=>{q.ground.scale.setScalar(.3+7*p);q.ground.material.opacity=.85*(1-p);},.8);bell(440);at(.9,()=>bell(110,.3));}},
-  {w:'ve-Geburah',h:'וגבורה',say:'Veh-Geh-boo-rah.',t:'Touch your right shoulder. A point of scarlet force ignites.',face:90,look:{y:-1.2,p:-.3},
-   fx(){const q=Q();if(!F.on.r){F.on.r=1;fadeSprite(q.r,.7);}else pulse(q.r,1);bell(659.25);}},
-  {w:'ve-Gedulah',h:'וגדולה',say:'Veh-Geh-doo-lah.',t:'Touch your left shoulder. A point of blue mercy answers, and a beam joins them.',face:90,look:{y:1.2,p:-.3},
-   fx(){const q=Q();if(!F.on.l){F.on.l=1;fadeSprite(q.l,.7);tween(1.4,e=>{q.h.scale.x=q.hGlow.scale.x=Math.max(.0001,.9*e);},.5);}else pulse(q.l,1);bell(739.99);}},
-  {w:'le-Olam',h:'לעולם',say:'Leh-oh-lahm.',t:'Clasp your hands at your heart. You stand at the center of a cross of light.',face:90,look:{p:-.9},lookH:1.2,
-   fx(){const q=Q();if(!F.on.h){F.on.h=1;tween(1.8,e=>{q.h.scale.x=q.hGlow.scale.x=.9+2.6*e;});fadeSprite(q.heart,.6,.8);}else pulse(q.heart,1);bell(880);}},
-  {w:'Amen',h:'אמן',say:'Ah-men.',t:closing?'The cross is sealed. The rite is closed.':'The cross is sealed.',face:90,look:{p:-.2},
-   fx(){const q=Q();[q.crown,q.r,q.l,q.heart].forEach(s=>pulse(s,.6,1.8));{const b0=q.colGlow.material.opacity;tween(1.8,(e,p)=>q.colGlow.material.opacity=b0+.22*Math.sin(p*Math.PI));}
-     {const c0=centerLight.intensity;tween(2,e=>centerLight.intensity=Math.max(c0,1.2*e));}chord([146.83,220,293.66],4.5);}}];}
-
-const STEPS=[
-  {w:'Stand at the center',h:'',t:'You are inside the sarsen circle, facing East. The Heel Stone waits to the northeast, where the sun will rise. Breathe slowly.',face:90,dur:7,say:'Stand at the center of the circle, facing East. Breathe slowly.',elev:.5},
-  ...qcSteps(false)];
-PENT.forEach((pd,i)=>{
-  STEPS.push({w:pd.w,h:pd.h,say:pd.say,face:pd.b,dur:8,
-    t:`Face the ${pd.q}. Trace the banishing pentagram of Earth, beginning at your left hip. Stab its center and vibrate the name.`,
-    fx(){const P=F.pents[i];tween(3.4,(e,p)=>P.tr.userData.set(p));[523.25,587.33,659.25,783.99,880].forEach((f,k)=>at(k*.68,()=>bell(f,.12)));
-      tween(1.6,(e,p)=>{P.flash.material.opacity=Math.sin(p*Math.PI);P.flash.scale.setScalar(.2+2.8*p);},3.5);
-      tween(2.2,(e,p)=>P.tr.userData.glow(1+2*Math.sin(p*Math.PI)),3.5);tween(1.2,e=>P.label.material.opacity=e,3.7);
-      tween(1.5,e=>P.fl.material.opacity=.9*e,3.5);at(3.5,()=>vibrate(pd.f));}});
-  const nx=PENT[(i+1)%4];
-  STEPS.push({w:i<3?`Carry the line to the ${nx.q}`:'Close the circle in the East',h:'',dur:3.4,
-    say:i<3?`Turn to the ${nx.q}.`:'Return to the East.',t:'Keep your arm extended. A line of white fire follows your hand around the circle.',
-    fx(){const A=F.arcs[i];const b0=shortest(face,pd.b);tween(2.8,(e,p)=>{A.userData.set(p);face=b0+90*e;view=face;});}});
-});
-ANG.forEach((a,i)=>{
-  const lead=['Before me','Behind me','On my right hand','On my left hand'][i];
-  const desc=['Robes of yellow and violet billow in a breath of air.','Robes of blue and orange, bearing the cup of the waters.','Robes of scarlet and emerald, bearing the sword of fire.','Robes of citrine, olive and russet, bearing the fruits of the earth.'][i];
-  STEPS.push({w:`${lead}, ${a.w}`,h:a.h,say:`${lead}, ${a.w}.`,t:desc,face:90,view:a.b,dur:6,look:{p:.38},lookH:3.6,
-    fx(){const A=F.angels[i];A.visible=true;const u=A.userData;tween(3,e=>{u.a=e;u.setA(e);u.inner.position.y=-2*(1-e);u.light.intensity=2.4*e;});chord(a.chord,5.5);}});
-});
-STEPS.push({w:'About me flame the pentagrams',h:'',say:'About me flame the pentagrams.',t:'Four blue stars burn at the quarters of the circle.',face:90,elev:1,dur:6.5,
-  fx(){F.pents.forEach((P,k)=>{tween(3.6,(e,p)=>{const s=Math.sin(p*Math.PI);P.tr.userData.glow(1+1.6*s);P.fl.material.size=.17*(1+1.4*s);},k*.25);at(k*.25,()=>bell(1046.5-k*130.8,.1));});
-    F.arcs.forEach(A=>tween(3,(e,p)=>A.userData.glow(1+1.5*Math.sin(p*Math.PI))));tween(3,e=>{if(ring)ring.material.opacity=.22+.45*e;});}});
-STEPS.push({w:'And in the column shines the six-rayed star',h:'',say:'And in the column shines the six-rayed star.',t:'A golden hexagram turns about your heart, and the column blazes.',face:90,look:{p:-.75},lookH:1.2,dur:7,
-  fx(){F.hexT.forEach(t=>tween(2.8,(e,p)=>t.userData.set(p)));{const c0=centerLight.intensity;tween(2.2,e=>{F.qc.colGlow.material.opacity=.22+.16*e;centerLight.intensity=Math.max(c0,1+.6*e);});}chord([293.66,369.99,440,587.33],6,.05);}});
-STEPS.push(...qcSteps(true));
-STEPS.push({w:'The rite is complete',h:'',say:'The rite is complete.',t:'The circle is clear. Linger as long as you like, then return to the start.',face:90,elev:.7,dur:Infinity,
-  fx(){tween(3,e=>motes.material.opacity=.75+.25*e);[523.25,659.25,783.99,1046.5].forEach((f,k)=>at(k*.35,()=>bell(f,.1)));}});
-STEPS.forEach(s=>{if(!s.dur)s.dur=4.6;});
-
-/* ---------- step runner & UI ---------- */
-let si=-1,stepT=0,started=false,guided=true,playing=false,camMode='witness',recenter=true,dragYaw=0,dragPitch=0;
-const el={heb:$('.heb'),word:$('.word'),instr:$('.instr'),fill:$('.fill'),count:$('.count'),next:$('#next'),pause:$('#pause')};
-function caption(s){const box=el.word.parentElement;box.classList.remove('swap');void box.offsetWidth;box.classList.add('swap');
-  el.heb.textContent=s.h||'';el.word.textContent=s.w;el.instr.textContent=s.t;el.count.textContent=`Step ${si+1} of ${STEPS.length}`;
-  const last=si>=STEPS.length-1;el.next.classList.toggle('off',last);$('#exit').classList.toggle('off',!last);if(last)$('#exit').focus({preventScroll:true});drawPanel(s);}
-function go(i){finishTweens();si=i;stepT=0;const s=STEPS[i];
-  if(s.face!==undefined)face=shortest(face,s.face);
-  view=s.view!==undefined?shortest(view,s.view):face;
-  look={p:(s.look&&s.look.p)||0,y:(s.look&&s.look.y)||0};elev=s.elev||0;lookH=s.lookH||1.4;recenter=true;
-  if(s.fx)s.fx();caption(s);if(guided&&s.say)say(s.say);}
-function next(){if(!started)return;if(si<STEPS.length-1)go(si+1);else if(xrOn)exitRite();}
-function exitRite(){if(!started)return;finishTweens();if('speechSynthesis' in window)speechSynthesis.cancel();
-  started=false;setPlaying(false);si=-1;
-  if(F){scene.remove(F.root);F.root.traverse(o=>{if(o.geometry)o.geometry.dispose();});F=null;}
-  if(ring)ring.material.opacity=.22;centerLight.intensity=0;face=view=curFace=curView=90;dragYaw=dragPitch=0;
-  $('#top').classList.add('off');$('#stage').classList.add('off');$('#intro').classList.remove('off');
-  $('#exit').classList.add('off');el.next.classList.remove('off');orbitA=Math.atan2(camera.position.z,camera.position.x);
-  const s=renderer.xr.getSession&&renderer.xr.getSession();if(s)s.end().catch(()=>{});
-  setTimeout(()=>$('#goGuided').focus({preventScroll:true}),50);}
-function restart(){finishTweens();buildFx();face=90;view=90;go(0);if(guided)setPlaying(true);}
-function setPlaying(v){playing=v;el.pause.textContent=v?'Pause':'Resume';}
-function begin(g){if(started)return;initAudio();guided=g;voiceOn=g;$('#nar').setAttribute('aria-pressed',String(g));
-  started=true;$('#intro').classList.add('off');$('#top').classList.remove('off');$('#stage').classList.remove('off');
-  el.pause.classList.toggle('off',!g);buildFx();go(0);setPlaying(g);}
-$('#goGuided').onclick=()=>begin(true);$('#goPractice').onclick=()=>begin(false);
-el.next.onclick=next;$('#exit').onclick=exitRite;$('#restart').onclick=restart;el.pause.onclick=()=>setPlaying(!playing);
-$$('.seg button').forEach(b=>b.onclick=()=>{camMode=b.dataset.view;$$('.seg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
-$('#snd').onclick=e=>{soundOn=!soundOn;e.currentTarget.setAttribute('aria-pressed',String(soundOn));if(master)master.gain.value=soundOn?.7:0;if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();};
-$('#nar').onclick=e=>{voiceOn=!voiceOn;e.currentTarget.setAttribute('aria-pressed',String(voiceOn));if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();};
-addEventListener('keydown',e=>{if(!started)return;if(e.target.tagName==='BUTTON'&&(e.key===' '||e.key==='Enter'))return;
-  if(e.key===' '||e.key==='ArrowRight'){e.preventDefault();next();}else if(e.key==='p'||e.key==='P'){if(guided)setPlaying(!playing);}
-  else if(e.key==='v'||e.key==='V'){$$('.seg button').find(b=>b.dataset.view!==camMode).click();}});
-function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.remove('off');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.add('off'),6000);}
-
-// look around by dragging
-{let down=null;const cv=$('#c');
- cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);recenter=false;});
- cv.addEventListener('pointermove',e=>{if(!down)return;dragYaw+=(e.clientX-down.x)*.005;dragPitch=Math.max(-1,Math.min(1,dragPitch+(e.clientY-down.y)*.004));down={x:e.clientX,y:e.clientY};});
- const up=()=>{down=null;};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);}
-
-/* ---------- WebXR ---------- */
-const panel=(()=>{const c=document.createElement('canvas');c.width=1024;c.height=420;const tex=canvasTex(c);
-  const m=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.615),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,fog:false,toneMapped:false}));
-  m.visible=false;m.renderOrder=10;scene.add(m);m.userData={c,tex};return m;})();
-function wrap(g,text,x,y,maxW,lh){const words=text.split(' ');let line='';for(const w of words){const t=line?line+' '+w:w;if(g.measureText(t).width>maxW&&line){g.fillText(line,x,y);line=w;y+=lh;}else line=t;}if(line)g.fillText(line,x,y);}
-function drawPanel(s){const {c,tex}=panel.userData,g=c.getContext('2d');g.clearRect(0,0,1024,420);
-  g.fillStyle='rgba(18,8,44,.72)';g.beginPath();g.moveTo(30,0);g.lineTo(994,0);g.quadraticCurveTo(1024,0,1024,30);g.lineTo(1024,390);g.quadraticCurveTo(1024,420,994,420);g.lineTo(30,420);g.quadraticCurveTo(0,420,0,390);g.lineTo(0,30);g.quadraticCurveTo(0,0,30,0);g.fill();
-  g.textAlign='center';g.fillStyle='#ffd36b';g.font='700 56px "Noto Serif Hebrew", serif';if(s.h)g.fillText(s.h,512,78);
-  g.fillStyle='#f6efff';g.font='66px Marcellus, Georgia, serif';wrap(g,s.w,512,s.h?160:110,960,70);
-  g.fillStyle='#cbbbe8';g.font='300 36px Spectral, Georgia, serif';wrap(g,s===STEPS[STEPS.length-1]?'The circle is clear. Pull a trigger to return to the start.':s.t,512,s.h?250:230,900,46);tex.needsUpdate=true;}
-let xrOn=false;
-[0,1].forEach(i=>{const c=renderer.xr.getController(i);c.addEventListener('select',()=>next());c.add(sprite(0xffe7a0,.08,.9));rig.add(c);});
-renderer.xr.addEventListener('sessionstart',()=>{xrOn=true;panel.visible=true;});
-renderer.xr.addEventListener('sessionend',()=>{xrOn=false;panel.visible=false;});
-async function enterVR(){if(!started)begin(true);initAudio();if(AC&&AC.state==='suspended')AC.resume();
-  try{const s=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor','hand-tracking']});await renderer.xr.setSession(s);}
-  catch(e){toast("VR couldn't start in this view. Open the page by itself in your headset's browser and try again.");}}
-if(navigator.xr&&navigator.xr.isSessionSupported){navigator.xr.isSessionSupported('immersive-vr').then(ok=>{if(ok)$$('[data-vr]').forEach(b=>{b.hidden=false;b.onclick=enterVR;});}).catch(()=>{});}
-
-/* ---------- camera ---------- */
-let orbitA=.6;const ORBIT_LOOK=new THREE.Vector3(0,3,0);let curFace=90,curView=90,curP=0,curY=0,curElev=.5,curLookH=1.4;const lookT=new THREE.Vector3(0,1.4,0),camT=new THREE.Vector3();
-function updateCamera(dt,T){
-  const k=1-Math.exp(-dt*2.2);
-  curFace+=(face-curFace)*k;curView+=(view-curView)*k;curP+=(look.p-curP)*k;curY+=(look.y-curY)*k;curElev+=(elev-curElev)*k*.8;curLookH+=(lookH-curLookH)*k;
-  if(recenter){dragYaw*=1-k*.6;dragPitch*=1-k*.6;}
-  operator.rotation.y=yawFor(curFace);
-  operator.visible=started&&camMode==='witness'&&!xrOn;
-  if(xrOn){const d=dir(curView);panel.position.set(d.x*1.9,1.05,d.z*1.9);panel.lookAt(0,1.5,0);return;}
-  if(!started){if(!reduced)orbitA+=dt*.045;camT.set(Math.cos(orbitA)*34,9,Math.sin(orbitA)*34);camera.position.lerp(camT,1-Math.exp(-dt*1.2));lookT.lerp(ORBIT_LOOK,k);camera.lookAt(lookT);return;}
-  if(camMode==='fp'){camera.position.set(0,1.6,0);camera.rotation.set(Math.max(-1.45,Math.min(1.45,curP-dragPitch)),yawFor(curView)+curY+dragYaw,0);return;}
-  const b=curView-dragYaw/DEG,d=dir(b);const dist=lerp(2.7,8.5,curElev),h=lerp(2.5,8.5,curElev)+dragPitch*3;
-  camT.set(-d.x*dist,Math.max(.6,h),-d.z*dist);camera.position.lerp(camT,1-Math.exp(-dt*1.8));
-  const tgt=new THREE.Vector3(d.x*3,lerp(curLookH,.8,curElev),d.z*3);lookT.lerp(tgt,k);camera.lookAt(lookT);}
-
-/* ---------- idle animation ---------- */
-function animate(dt,T){
-  auroraMat.uniforms.uT.value=T;if(ring)ring.rotation.z+=dt*.02;
-  {const p=motes.geometry.attributes.position,sp=motes.userData.sp;for(let i=0;i<sp.length;i++){let y=p.getY(i)+sp[i]*dt;if(y>10)y=0;p.setY(i,y);p.setX(i,p.getX(i)+Math.sin(T*.3+i)*dt*.05);}p.needsUpdate=true;}
-  const near=xrOn||camMode==='fp';camera.getWorldPosition(EYE);BEAM_U.forEach(u=>u.uFade.value=near?1:0);
-  if(!F)return;
-  F.pents.forEach(P=>{if(P.fl.material.opacity<=0)return;const a=P.fl.geometry.attributes.position,b=P.fl.userData.base;
-    for(let i=0;i<a.count;i++){const f=(T*1.6+i*.37)%1;a.setXYZ(i,b[i*3]+Math.sin(T*9+i*1.7)*.02,b[i*3+1]+f*.14,b[i*3+2]+Math.cos(T*8+i)*.02);}a.needsUpdate=true;
-    P.label.position.y=1.6+1.3+Math.sin(T*.8)*.04;});
-  F.angels.forEach((A,i)=>{if(!A.visible)return;const u=A.userData;
-    u.wings.forEach((w,s)=>{w.rotation.z=(s?-1:1)*Math.sin(T*1.1+i)*.06;});u.halo.rotation.z+=dt*.5;u.inner.rotation.y=Math.sin(T*.4+i)*.04;
-    const p=u.parts.geometry.attributes.position,sp=u.parts.userData.spd;for(let j=0;j<sp.length;j++){let y=p.getY(j)+sp[j]*dt;if(y>8.5)y=0;p.setY(j,y);}p.needsUpdate=true;
-    if(u.a>=1)u.light.intensity=2.2+Math.sin(T*2+i)*.3;});
-  F.hex.rotation.y+=dt*.25;
-  const q=F.qc;if(F.on.crown&&!tweens.length){q.crownHalo.material.opacity=.23+Math.sin(T*1.5)*.04;}
-}
-
-/* ---------- loop ---------- */
-const clock=new THREE.Clock();let T=0;
-renderer.setAnimationLoop(()=>{const dt=Math.min(clock.getDelta(),.05);T+=dt;
-  if(started){if(playing&&guided&&si>=0){stepT+=dt;if(stepT>=STEPS[si].dur&&si<STEPS.length-1)go(si+1);}updTweens(dt);
-    const s=STEPS[si];el.fill.style.width=((si+(isFinite(s.dur)?Math.min(stepT/s.dur,1):1))/STEPS.length*100)+'%';}
-  animate(dt,T);updateCamera(dt,T);renderer.render(scene,camera);});
-
-/* fonts must be ready before painting text into the ground circle */
-const fontsReady=document.fonts?Promise.all([document.fonts.load('700 76px "Noto Serif Hebrew"','יהוה'),document.fonts.load('64px Marcellus','A')]).catch(()=>{}):Promise.resolve();
-Promise.race([fontsReady,new Promise(r=>setTimeout(r,2000))]).then(buildRing);
-})();
-</script>
+<script src="js/core.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/sigil.js"></script>
+<script src="js/tarot.js"></script>
+<script src="js/cosmos.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/player.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
