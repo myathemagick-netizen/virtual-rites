@@ -186,7 +186,7 @@ function openAfter(s) {
   const facts = [];
   if (s.intent) facts.push(`Intent: ${s.intent}`);
   if (s.sigil) facts.push(`Sigil letters: ${s.sigil.letters} (${s.sigil.method})`);
-  (s.draws || []).forEach(d => facts.push(`Drew: ${d.cards.join(', ')}`));
+  (s.draws || []).forEach(d => d.cards.forEach((c, i) => facts.push(`Drew: ${c}${d.meanings && d.meanings[i] ? ' (' + d.meanings[i] + ')' : ''}`)));
   if (s.marks.length) facts.push(`Marked: ${s.marks.map(m => m.title).join('; ')}`);
   if (s.skippedPhases && s.skippedPhases.length) facts.push(`Skipped: ${s.skippedPhases.map(p => VR.PHASE_NAMES[p]).join(', ')}`);
   if (s.cosmos) facts.push(`${s.cosmos.moon.name}, day of ${s.cosmos.dayRuler}, hour of ${s.cosmos.hourRuler}`);
@@ -212,7 +212,7 @@ function renderJournal() {
     d.innerHTML = `<summary><b>${esc(s.ritual.title)}</b><span>${when.toLocaleDateString()} ${when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · ${esc(s.worldName)}${pend ? ' · <span class="pending">outcome not yet recorded</span>' : ''}</span></summary>
       <dl>${row('Intent', s.intent)}${row('Mode', s.mode)}${row('Going in', s.stateIn)}${row('Energy', s.energy)}${row('Coming out', s.stateOut)}
       ${row('Progress', s.completed ? 'Completed' : `${s.stepsDone} of ${s.total} steps`)}${row('Length', fmtDur(s.durationSec))}
-      ${row('Sigil', s.sigil ? s.sigil.letters : '')}${row('Cards', (s.draws || []).map(x => x.cards.join(', ')).join(' / '))}
+      ${row('Sigil', s.sigil ? s.sigil.letters : '')}${row('Cards', (s.draws || []).map(x => x.cards.map((c, i) => c + (x.meanings && x.meanings[i] ? ': ' + x.meanings[i] : '')).join('; ')).join(' / '))}
       ${row('Marked', (s.marks || []).map(m => m.title).join('; '))}${row('Timing', s.cosmos ? `${s.cosmos.moon.name}, ${s.cosmos.dayName}, hour of ${s.cosmos.hourRuler}` : '')}
       ${row('Impressions', s.impressions)}${row('Significant', s.significant)}${row('Incomplete', s.incomplete)}
       ${s.outcome ? row('Outcome', `${s.outcome.result}${s.outcome.notes ? ': ' + s.outcome.notes : ''} (${new Date(s.outcome.at).toLocaleDateString()})`) : ''}</dl>
@@ -362,7 +362,7 @@ const xrui = (() => {
        what appears in front of you (cards, sigils, pentagrams sit at or above chest height). */
     const yOff = VR.rig.position.y, d = VR.dir(P.view), right = new THREE.Vector3().crossVectors(d, VR.UP);
     VR.camera.getWorldPosition(eye);
-    const cp = d.clone().multiplyScalar(1.25); cp.y = eye.y - .74; cap.m.position.lerp(cp, Math.min(1, dt * 3)); cap.m.lookAt(eye);
+    const cp = d.clone().multiplyScalar(1.25); cp.y = Math.max(.62, eye.y - .74); cap.m.position.lerp(cp, Math.min(1, dt * 3)); cap.m.lookAt(eye);
     if (con.m.visible) { const cd = VR.dir(P.view - 38).multiplyScalar(1.5); cd.y = 1.35 + yOff; con.m.position.lerp(cd, Math.min(1, dt * 3)); con.m.lookAt(eye); }
     const gazeOn = S.gaze && P.active; orb.visible = gazeOn; ret.visible = gazeOn;
     if (U.mark > 0) { U.mark = Math.max(0, U.mark - dt * 1.5); cap.m.material.color.setRGB(1, 1 - .25 * U.mark, 1 - .1 * U.mark); } else cap.m.material.color.setRGB(1, 1, 1);
@@ -401,7 +401,7 @@ function updateCamera(dt) {
   const C = VR.camera, k = Math.min(1, dt * 2.2);
   if (!cam.drag) { cam.dx *= Math.pow(.25, dt); cam.dy *= Math.pow(.25, dt); }
   const inRite = state.screen === 'rite' && (P.active || P.si >= 0);
-  if (!inRite) { cam.a += dt * .025; const a = cam.a + cam.dx; tgt.set(Math.cos(a) * 30, 8 + cam.dy * 10, Math.sin(a) * 30); look.set(0, 2.5, 0);
+  if (!inRite) { cam.a += dt * .025; const a = cam.a + cam.dx; tgt.set(Math.cos(a) * 30, Math.max(1.5, 8 + cam.dy * 10), Math.sin(a) * 30); look.set(0, 2.5, 0);
     C.position.lerp(tgt, k * .6); curLook.lerp(look, k); C.lookAt(curLook); return; }
   if (S.camera === 'fp') {
     tgt.set(0, 1.6, 0); C.position.lerp(tgt, k);
@@ -409,7 +409,7 @@ function updateCamera(dt) {
     cam.yaw = VR.lerp(cam.yaw, y, k); cam.pitch = VR.lerp(cam.pitch, p, k); C.rotation.set(cam.pitch, cam.yaw, 0);
     const d = VR.dir(VR.DEG ? (Math.PI / 2 - cam.yaw) / VR.DEG : 0); curLook.set(d.x * 4, 1.6, d.z * 4); return;
   }
-  const back = P.view + 180 + 22 + cam.dx / VR.DEG * .5, dist = 8.5 - P.elev * 1.5, h = 3 + P.elev * 4 + cam.dy * 5;
+  const back = P.view + 180 + 22 + cam.dx / VR.DEG * .5, dist = 8.5 - P.elev * 1.5, h = Math.max(1, 3 + P.elev * 4 + cam.dy * 5);
   const bd = VR.dir(back); tgt.set(bd.x * dist, h, bd.z * dist); C.position.lerp(tgt, k * .8);
   const fd = VR.dir(P.view); look.set(fd.x * 1.5, P.focus, fd.z * 1.5); curLook.lerp(look, k); C.lookAt(curLook);
   cam.yaw = C.rotation.y; cam.pitch = C.rotation.x;

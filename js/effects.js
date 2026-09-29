@@ -334,13 +334,13 @@ A.sigil = (a, ctx) => {
 /* ---------- tarot ---------- */
 A.tarot = (a, ctx) => {
   const n = Math.max(1, Math.min(10, a.count || 1)), cards = VR.tarot.draw(n, !!a.reversals);
-  if (VR.session) { VR.session.draws = (VR.session.draws || []).concat([{ at: new Date().toISOString(), cards: cards.map(c => c.name + (c.reversed ? ' (reversed)' : '')) }]); VR.session.lastCards = cards; }
+  if (VR.session) { VR.session.draws = (VR.session.draws || []).concat([{ at: new Date().toISOString(), cards: cards.map(c => c.name + (c.reversed ? ' (reversed)' : '')), meanings: cards.map(c => VR.tarotMeaning(c)) }]); VR.session.lastCards = cards; }
   F.cards.forEach(c => { F.root.remove(c); VR.disposeGroup(c); }); F.cards = [];
   const d = VR.dir(ctx.face), right = new THREE.Vector3().crossVectors(d, VR.UP);
   cards.forEach((c, i) => { const m = VR.tarot.mesh(c), off = (i - (n - 1) / 2) * .9, pos = d.clone().multiplyScalar(a.distance || 1.9).addScaledVector(right, off);
     pos.y = a.height || 1.45; m.position.copy(pos); m.lookAt(0, pos.y, 0); m.userData.baseY = pos.y; F.root.add(m); F.cards.push(m);
-    const inner = m.userData.inner; inner.rotation.y = Math.PI; inner.position.y = -1.2;
-    VR.tween(2.2, e => { inner.position.y = -1.2 * (1 - e); }, i * .4);
+    const inner = m.userData.inner; inner.rotation.y = Math.PI; inner.position.y = -.55; inner.scale.setScalar(.15);
+    VR.tween(2.2, e => { inner.position.y = -.55 * (1 - e); inner.scale.setScalar(.15 + .85 * e); }, i * .4);
     VR.tween(1.4, e => { inner.rotation.y = Math.PI * (1 - e); }, i * .4 + 1.6);
     VR.at(i * .4 + 1.6, () => { VR.audio.bell(783.99 - i * 98, .12); VR.haptic(.5, 80); }); });
 };

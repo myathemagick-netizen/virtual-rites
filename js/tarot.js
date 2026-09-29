@@ -8,9 +8,64 @@ const MAJ = ['The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'T
 const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
 const RANKS = ['Ace', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Page', 'Knight', 'Queen', 'King'];
 const SUITS = [{ n: 'Wands', c: '#ff7a3d' }, { n: 'Cups', c: '#3d9bff' }, { n: 'Swords', c: '#d8d0ff' }, { n: 'Pentacles', c: '#9fd34a' }];
+/* Traditional meanings in brief, after the Rider-Waite-Smith tradition: [upright, reversed] */
+const MAJ_M = [
+  ['new beginnings, spontaneity, a leap of faith', 'recklessness, hesitation, poor judgment'],
+  ['will, skill, resourcefulness, manifestation', 'manipulation, untapped talent, trickery'],
+  ['intuition, hidden knowledge, the inner voice', 'secrets, ignored intuition, withdrawal'],
+  ['abundance, nurturing, fertility, the senses', 'dependence, creative block, smothering'],
+  ['authority, structure, stability, leadership', 'rigidity, domination, lack of discipline'],
+  ['tradition, teaching, institutions, shared belief', 'rebellion, unconventional paths, dogma questioned'],
+  ['love, union, aligned values, a meaningful choice', 'disharmony, imbalance, a choice avoided'],
+  ['willpower, victory, determination, forward motion', 'lack of direction, scattered force, obstacles'],
+  ['courage, gentle power, patience, compassion', 'self-doubt, weakness, raw emotion'],
+  ['solitude, introspection, inner guidance', 'isolation, loneliness, withdrawal'],
+  ['cycles, fate, turning points, luck', 'bad luck, resisting change, broken cycles'],
+  ['fairness, truth, cause and effect, accountability', 'injustice, dishonesty, avoiding accountability'],
+  ['surrender, suspension, a new perspective', 'stalling, needless sacrifice, indecision'],
+  ['endings, transformation, transition', 'resisting change, stagnation, lingering'],
+  ['balance, moderation, patience, blending', 'excess, imbalance, short-sightedness'],
+  ['bondage, temptation, materialism, the shadow', 'release, breaking free, reclaiming power'],
+  ['sudden upheaval, revelation, false structures falling', 'averted disaster, fear of change, delayed collapse'],
+  ['hope, renewal, inspiration, serenity', 'despair, lost faith, disconnection'],
+  ['illusion, dreams, the unconscious, uncertainty', 'confusion lifting, repressed fear, truth emerging'],
+  ['joy, success, vitality, clarity', 'temporary gloom, dimmed enthusiasm, delayed success'],
+  ['awakening, reckoning, a calling, renewal', 'self-doubt, refusing the call, harsh self-judgment'],
+  ['completion, fulfillment, integration, wholeness', 'incompletion, lack of closure, delays']];
+const MIN_M = {
+  Wands: [['inspiration, a spark, a new venture', 'delays, lack of motivation'], ['planning, future vision, decisions', 'fear of the unknown, poor planning'],
+    ['expansion, foresight, progress', 'setbacks, frustrated plans'], ['celebration, homecoming, harmony', 'instability at home, transition'],
+    ['conflict, competition, friction', 'avoiding conflict, resolution'], ['victory, recognition, acclaim', 'fall from grace, ego'],
+    ['standing your ground, defense, perseverance', 'overwhelm, giving up'], ['swift movement, momentum, news', 'delays, frustration'],
+    ['resilience, persistence, a last stand', 'exhaustion, defensiveness'], ['burden, responsibility, overload', 'releasing burdens, delegating'],
+    ['enthusiasm, exploration, a message', 'false starts, impatience'], ['action, adventure, impulsiveness', 'recklessness, haste'],
+    ['confidence, warmth, determination', 'jealousy, insecurity'], ['vision, leadership, boldness', 'impulsiveness, overbearing force']],
+  Cups: [['new love, emotional opening, compassion', 'blocked feelings, emptiness'], ['partnership, mutual attraction, union', 'imbalance, broken communication'],
+    ['friendship, celebration, community', 'overindulgence, gossip'], ['apathy, contemplation, a missed offer', 'renewed interest, acceptance'],
+    ['loss, grief, regret', 'acceptance, moving on'], ['nostalgia, childhood, innocence', 'stuck in the past'],
+    ['choices, fantasy, illusion', 'clarity, focus'], ['walking away, seeking deeper meaning', 'fear of change, aimless drifting'],
+    ['contentment, a wish fulfilled', 'smugness, dissatisfaction'], ['harmony, family, lasting happiness', 'disconnection, strained family'],
+    ['a creative offer, intuition, sensitivity', 'emotional immaturity'], ['romance, charm, following the heart', 'moodiness, unrealistic ideals'],
+    ['compassion, calm, emotional depth', 'codependence, insecurity'], ['emotional balance, diplomacy, generosity', 'manipulation, volatility']],
+  Swords: [['clarity, breakthrough, truth', 'confusion, chaos'], ['a difficult choice, stalemate', 'indecision, information overload'],
+    ['heartbreak, sorrow, grief', 'recovery, forgiveness'], ['rest, recovery, contemplation', 'restlessness, burnout'],
+    ['conflict, defeat, winning at a cost', 'reconciliation, making amends'], ['transition, moving on, calmer waters', 'resisting change, unfinished business'],
+    ['deception, strategy, stealth', 'confession, coming clean'], ['restriction, feeling trapped, self-limiting beliefs', 'release, a new perspective'],
+    ['anxiety, worry, sleeplessness', 'hope, reaching out'], ['a painful ending, rock bottom', 'recovery, regeneration'],
+    ['curiosity, new ideas, vigilance', 'gossip, hasty words'], ['ambition, drive, fast thinking', 'aggression, scattered energy'],
+    ['independence, clear judgment, honesty', 'coldness, bitterness'], ['intellect, authority, truth', 'manipulation, cruelty']],
+  Pentacles: [['a new opportunity, prosperity, manifestation', 'a missed chance, poor planning'], ['balance, adaptability, juggling priorities', 'overwhelm, disorganization'],
+    ['teamwork, craft, collaboration', 'disharmony, poor workmanship'], ['security, holding on, control', 'greed, letting go'],
+    ['hardship, loss, isolation', 'recovery, help arriving'], ['generosity, giving and receiving', 'debt, strings attached'],
+    ['patience, long-term investment', 'impatience, poor return'], ['diligence, skill, mastery through practice', 'perfectionism, lack of focus'],
+    ['abundance, self-sufficiency, luxury', 'overwork, dependence'], ['wealth, legacy, family', 'financial loss, a legacy at risk'],
+    ['study, ambition, new skills', 'procrastination, lack of progress'], ['hard work, routine, reliability', 'stagnation, boredom'],
+    ['nurturing, practicality, comfort', 'self-neglect, work and home out of balance'], ['wealth, security, discipline', 'greed, stubbornness']]
+};
 const deck = [];
-MAJ.forEach((n, i) => deck.push({ id: 'major-' + String(i).padStart(2, '0'), name: n, num: ROMAN[i], arcana: 'major', color: '#ffd36b' }));
-SUITS.forEach(s => RANKS.forEach((r, i) => deck.push({ id: s.n.toLowerCase() + '-' + String(i + 1).padStart(2, '0'), name: r + ' of ' + s.n, num: i < 10 ? String(i + 1) : r, arcana: 'minor', suit: s.n, color: s.c })));
+MAJ.forEach((n, i) => deck.push({ id: 'major-' + String(i).padStart(2, '0'), name: n, num: ROMAN[i], arcana: 'major', color: '#ffd36b', up: MAJ_M[i][0], rev: MAJ_M[i][1] }));
+SUITS.forEach(s => RANKS.forEach((r, i) => deck.push({ id: s.n.toLowerCase() + '-' + String(i + 1).padStart(2, '0'), name: r + ' of ' + s.n, num: i < 10 ? String(i + 1) : r, arcana: 'minor', suit: s.n, color: s.c, up: MIN_M[s.n][i][0], rev: MIN_M[s.n][i][1] })));
+VR.tarotMeaning = c => c ? (c.reversed ? c.rev : c.up) : '';
 
 function rand(n) { if (window.crypto && crypto.getRandomValues) { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; } return Math.floor(Math.random() * n); }
 function draw(n, reversals) { const pool = deck.slice(), out = []; for (let i = 0; i < n && pool.length; i++) { const c = pool.splice(rand(pool.length), 1)[0]; out.push(Object.assign({}, c, { reversed: reversals ? rand(2) === 1 : false })); } return out; }

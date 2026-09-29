@@ -42,7 +42,8 @@ P.load = (ritual, session) => {
 };
 P.fill = t => String(t || '').replace(/\{(\w+)\}/g, (m, k) => { const S = P.session || {}, c = S.cosmos || {};
   switch (k) { case 'intent': return S.intent || 'your intent'; case 'letters': return (S.sigil && S.sigil.letters) || '';
-    case 'cards': return cardsText(S.lastCards); case 'moon': return c.moon ? c.moon.name : ''; case 'hour': return c.hourRuler || '';
+    case 'cards': return cardsText(S.lastCards);
+    case 'meanings': case 'meaning': return (S.lastCards || []).map(c => `${c.name}${c.reversed ? ', reversed' : ''}: ${VR.tarotMeaning(c)}.`).join(' '); case 'moon': return c.moon ? c.moon.name : ''; case 'hour': return c.hourRuler || '';
     case 'day': return c.dayRuler || ''; case 'sign': return c.sunSign || ''; case 'world': return S.worldName || ''; default: return m; } });
 
 function ctx(skip) { return { skip, get face() { return P.face; }, setFace: b => { P.face = b; P.view = b; }, session: P.session }; }
