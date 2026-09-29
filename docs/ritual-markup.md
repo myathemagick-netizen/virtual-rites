@@ -170,6 +170,20 @@ When the practitioner presses Repeat, a step's actions run again: pentagrams and
 | `duration` | 2.8 | Seconds. |
 | `radius`, `height` | 3.2, 1.6 | Meters. |
 
+**`chaosphere`** draws the eight-rayed Chaos Star in the air in front of the practitioner, one arrow at a time, each in a different octarine color, with a small circle at the center. The arrows keep shimmering once drawn.
+
+| Parameter | Default | Meaning |
+|---|---|---|
+| `quarter` | current facing | Where it appears. |
+| `colors` | octarine palette | A list of up to eight colors, one per arrow. |
+| `size` | 0.95 | Length of each arrow in meters. |
+| `radius`, `height` | 2.8, 1.7 | Distance in front of the practitioner and height of the center. |
+| `rayTime` | 0.45 | Seconds to draw each arrow. |
+| `vibrate` | none | A frequency in hertz sounded once the star is complete. |
+| `key` | the quarter | Give two stars in one quarter different keys to keep both. |
+
+`flare` accepts `"target": "chaosphere"`, and `clear` accepts it too.
+
 **`hexagram`** forms a turning six-rayed star around the practitioner at chest height. Parameters: `color` (default gold), `radius` (1.35), `height` (1.25), `chord` (a list of frequencies, or `false` for silence).
 
 **`cross`** builds the Qabalistic Cross on the practitioner's body, one point at a time. Parameter `point` is one of `crown` (sphere above the head), `descend` (column of light into the earth), `right` (scarlet point at the right shoulder), `left` (blue point at the left shoulder, joined by a beam), `heart` (the beam extends and the heart glows), or `seal` (all points brighten). Calling it again later, as in the closing cross, brightens what is already there.
@@ -183,9 +197,9 @@ When the practitioner presses Repeat, a step's actions run again: pentagrams and
 | `color` | Ring color. |
 | `duration` | Seconds to fade to the new brightness. Default 2. |
 
-**`flare`** makes existing pentagrams and lines blaze brighter for a few seconds. `target` is `all` (default), `pentagrams` or `lines`.
+**`flare`** makes existing pentagrams, lines and Chaos Stars blaze brighter for a few seconds. `target` is `all` (default), `pentagrams`, `lines` or `chaosphere`.
 
-**`clear`** fades things away. `target` is one of `all`, `pentagrams`, `lines`, `hexagram`, `cross`, `sigil`, `cards` or `guardians`. `duration` in seconds, default 2. Use it in the sealing phase.
+**`clear`** fades things away. `target` is one of `all`, `pentagrams`, `lines`, `hexagram`, `cross`, `sigil`, `cards`, `guardians`, `chaosphere`, `planets` or `serpent`. `duration` in seconds, default 2. Use it in the sealing phase.
 
 ### Presences
 
@@ -204,6 +218,25 @@ When the practitioner presses Repeat, a step's actions run again: pentagrams and
 | `duration` | 3 | Seconds to rise. |
 
 **`dismiss`** lets guardians depart upward. `quarter` names one, or leave it out (or use `"all"`) for every guardian. Optional `chord` and `duration`.
+
+### The heavens
+
+**`planet`** places one of the seven classical planets in a ring circling the practitioner overhead, as a colored sphere labeled with its symbol. `name` is `Saturn`, `Jupiter`, `Mars`, `Sun`, `Venus`, `Mercury` or `Moon`; colors follow the planetary colors used by the timing strip. Optional `label`, `radius` (5.2), `height` (2.8), `size` (0.28). Placing a planet that is already there makes it pulse.
+
+Use `"name": "Ouranos"` (or `"Uranus"`) for the eighth: a dark sun with a shifting octarine corona, standing outside the ring at a quarter. Optional `quarter`, `radius` (12), `height` (5.5), `size` (0.9), `label`. Placing it again makes its corona swell.
+
+**`planets`** controls the whole ring. `speed` sets how fast it turns (0.05 is a slow drift, 0.35 is brisk) over `duration` seconds. `"mode": "withdraw"` lifts every planet away and fades it, along with the eighth unless `"eighth": false`. `clear` with `"target": "planets"` does the same.
+
+**`serpent`** tears a riftline across the sky above the practitioner, and a scintillating octarine serpent pours through it and undulates overhead.
+
+| `mode` | What happens |
+|---|---|
+| `appear` | The rift opens at `from` and the serpent flows across to `to` over `duration` seconds (default 5). |
+| `charge` | It writhes faster and brighter over `duration` seconds. Optional `speed` (default 2.6). |
+| `calm` | It settles back to its resting motion. |
+| `withdraw` | It draws back into the rift, which then closes. |
+
+Other parameters for `appear`: `from` (current facing) and `to` (the opposite quarter), `height` (3.2 at the ends), `arch` (3 more meters at the middle), `length` (13), `coils` (3), `sway` (1.4), `width` (0.08). `clear` with `"target": "serpent"` fades it out. At the Low intensity setting its sparkles are switched off.
 
 ### Light, breath and celebration
 
