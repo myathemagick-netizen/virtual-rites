@@ -31,7 +31,7 @@
       "face": "east", "duration": 6,
       "actions": [ { "do": "tarot", "count": 1 } ] },
     { "phase": "working", "title": "{cards}",
-      "text": "You drew {cards}. What in this card answers your question? Stay as long as you need.",
+      "text": "{meanings} What in this card answers your question? Stay as long as you need.",
       "say": "You drew {cards}.",
       "face": "east", "hold": true },
     { "phase": "sealing", "title": "Close the circle",
