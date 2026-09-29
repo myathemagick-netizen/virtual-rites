@@ -112,6 +112,7 @@ These placeholders are replaced in `title`, `text`, `say` and `describe`:
 | `{intent}` | What the practitioner wrote on the intent screen. |
 | `{letters}` | The sigil's letters after reduction. |
 | `{cards}` | The cards drawn by the most recent `tarot` action, e.g. "The Star" or "Three of Cups, reversed". |
+| `{meanings}` | Each drawn card with its traditional meaning, e.g. "The Star: hope, renewal, inspiration, serenity." Reversed cards get the reversed meaning. |
 | `{moon}` | The moon phase at the start of the rite, e.g. "Waxing Crescent". |
 | `{hour}` | The planetary ruler of the current hour, e.g. "Venus". |
 | `{day}` | The planetary ruler of the day. |
@@ -267,7 +268,7 @@ Other parameters: `color`, `size` (default 0.8), `distance` (2.3), `height` (1.7
 | `reversals` | false | `true` allows reversed cards. |
 | `distance`, `height` | 1.9, 1.45 | Placement in meters. |
 
-The draw is written to the journal automatically, and `{cards}` names the result in later steps.
+The draw and each card's traditional meaning are written to the journal automatically. In later steps, `{cards}` names the result and `{meanings}` gives the meanings.
 
 ### Sound
 
