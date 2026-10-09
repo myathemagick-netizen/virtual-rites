@@ -14,7 +14,10 @@ test('desktop libraries, rituals, replay, session resume and resource stability'
   await expect(page.locator('#worldList button')).toHaveCount(5);
   await page.evaluate(() => { VR.settings.sound = false; VR.settings.narration = false; });
   const diagnostics = await page.evaluate(async () => {
-    const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const frame = async () => {
+      await VR.world?.inst.heroTree?.userData.ready;
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    };
     const result = [];
     for (const simplified of [false, true]) for (const id of VR.worldOrder) {
       VR.settings.simplified = simplified;
@@ -116,7 +119,13 @@ test('disposal ownership, journal and accessibility storage', async ({ page }) =
 test('Grove prototype stays clear, batches resources and provides quiet fallbacks', async ({ page }, testInfo) => {
   await page.goto('./'); await page.waitForFunction(() => !!window.VR?.ready); await page.evaluate(() => VR.ready);
   const metrics = await page.evaluate(async () => {
-    const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    // Measure a deterministic fully loaded frame. Automatic frames during a
+    // cold GLB fetch can allocate the temporary procedural fallback too.
+    VR.renderer.setAnimationLoop(null);
+    const frame = async () => {
+      await VR.world?.inst.heroTree?.userData.ready;
+      VR.renderer.render(VR.scene, VR.camera);
+    };
     VR.settings.grovePrototype = false; VR.loadWorld('grove', true); await frame();
     const original = VR.resourceSnapshot();
     VR.settings.grovePrototype = true; VR.loadWorld('grove', true); await frame();

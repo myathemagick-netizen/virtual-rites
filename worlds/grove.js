@@ -1,6 +1,7 @@
 /* World: Sacred Grove
    A ring of old oaks under a midsummer moon, a still pool, glowing mushrooms and fireflies. */
 import { buildFungalLighting } from './grove-lighting.js';
+import { buildHeroTree } from './grove-tree.js';
 VR.registerWorld({
   id: 'grove',
   name: 'Sacred Grove',
@@ -15,15 +16,19 @@ VR.registerWorld({
     const moon = new THREE.Mesh(new THREE.SphereGeometry(14, 32, 16), new THREE.MeshBasicMaterial({ color: 0xeaf2ff, fog: false, toneMapped: false })); moon.position.copy(moonPos); g.add(moon);
     const halo = VR.sprite(0x9fc4ff, 120, .45); halo.position.copy(moonPos); g.add(halo);
     K.ground(g, { a: 0x0b2416, b: 0x1d4a28, center: 0x2a3a22, flatRadius: 40, rise: .02 });
-    g.add(new THREE.HemisphereLight(0x6f9cff, 0x0c2014, .55));
+    g.add(new THREE.HemisphereLight(0x6f9cff, 0x25412e, .85));
     const ml = new THREE.DirectionalLight(0xbcd4ff, .75); ml.position.copy(moonPos); g.add(ml);
+    const bounce = new THREE.DirectionalLight(0x92b3b0, .55);
+    bounce.position.set(-moonPos.x, 70, -moonPos.z); g.add(bounce);
 
     const bark = new THREE.MeshStandardMaterial({ color: 0x3b2a20, roughness: 1, flatShading: true });
     const leaves = [0x1f4d2b, 0x2d6a36, 0x19402a, 0x28593a].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: .9, flatShading: true }));
     const crowns = [];
+    let heroFallback = null;
     for (let i = 0; i < 18; i++) {
       const b = i * 20 + hash(i) * 8, r = 14 + hash(i + 7) * 3, p = dir(b).multiplyScalar(r), h = 6 + hash(i + 3) * 3;
       const tree = new THREE.Group(); tree.position.set(p.x, 0, p.z); g.add(tree);
+      if (i === 9) heroFallback = tree;
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.35 + hash(i + 1) * .15, .7, h, 7), bark); trunk.position.y = h / 2; tree.add(trunk);
       for (let k = 0; k < 3; k++) { const br = new THREE.Mesh(new THREE.CylinderGeometry(.08, .2, 3, 5), bark); br.position.y = h * (.55 + k * .12); br.rotation.z = (k % 2 ? 1 : -1) * .9; br.rotation.y = k * 2; br.position.x = (k % 2 ? -1 : 1) * .9; tree.add(br); }
       const crown = new THREE.Group(); crown.position.y = h; tree.add(crown); crowns.push(crown);
@@ -40,7 +45,8 @@ VR.registerWorld({
 
     const flies = K.motes(g, { count: ctx.simplified ? 120 : 420, radius: 17, height: 5, palette: [0xd4ff6a, 0xffe66a, 0x9dff9a, 0xfff0a0], size: .13, speed: .4, opacity: .9 });
     const fungi = prototype ? buildFungalLighting(ctx) : null;
-    return { update(dt, T) {
+    const heroTree = buildHeroTree(ctx, heroFallback);
+    return { heroTree, update(dt, T) {
       if (fungi) fungi.update(dt, T);
       if (prototype && (ctx.simplified || VR.calm() || VR.reducedMotion)) return;
       flies.update(dt, T); crowns.forEach((c, i) => { c.rotation.z = Math.sin(T * .4 + i) * .015; c.rotation.x = Math.cos(T * .35 + i) * .012; });

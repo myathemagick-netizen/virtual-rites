@@ -70,3 +70,7 @@ References: [Three migration guide](https://github.com/mrdoob/three.js/wiki/Migr
 - Documentation: `README.md`, `docs/worlds.md`, this audit and verification results/captures.
 
 Ritual JSON files, journal module, cosmos module, sigil module, CSS and the other world definitions are unchanged.
+
+## Illustrated asset follow-up
+
+The authorized artwork follow-up adds all 78 public-domain tarot faces and one Meshy-generated Grove oak. See [asset provenance, loading/disposal, fallback policy and Quest limits](illustrated-assets.md). Changed files include `assets/tarot/*`, `assets/models/grove-oak/*`, `worlds/grove-tree.js`, Grove lighting/placement, ImageBitmap closure in `js/core.js`, bounded card anisotropy in `js/tarot.js`, `scripts/import-tarot.py`, `scripts/inspect-glb.py`, asset integrity/browser tests and review captures. The original Grove counters above predate the model; current diagnostics are separate. No renderer switch or ritual-format change was introduced.

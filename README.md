@@ -74,7 +74,7 @@ Intents, sigils, journal entries, settings and your optional location are stored
 
 ## Credits
 
-The Lesser Banishing Ritual of the Pentagram follows Golden Dawn material from the 1890s, in the public domain. Sigil reduction follows Austin Osman Spare's The Book of Pleasure (1913). Tarot card names follow the Rider-Waite-Smith deck (1909). Built with three.js.
+The Lesser Banishing Ritual of the Pentagram follows Golden Dawn material from the 1890s, in the public domain. Sigil reduction follows Austin Osman Spare's The Book of Pleasure (1913). Tarot faces use public-domain historic Rider–Waite–Smith illustrations by Pamela Colman Smith from Wikimedia Commons. The Grove hero oak was generated with Meshy from original text prompts. Source pages, asset rights, generation settings and hashes are recorded alongside the assets; see [illustrated assets](docs/illustrated-assets.md). Built with three.js.
 
 ## Roadmap
 

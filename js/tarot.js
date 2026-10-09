@@ -1,6 +1,6 @@
 /* Virtual Rites — tarot module
    78 cards named after the Rider-Waite-Smith deck (1909, public domain).
-   Faces are drawn procedurally. To use real card images, see assets/tarot/README.md. */
+   Historic public-domain illustrations with procedural fallback; see assets/tarot/README.md. */
 (function (VR) {
 'use strict';
 const MAJ = ['The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The Emperor', 'The Hierophant', 'The Lovers', 'The Chariot', 'Strength', 'The Hermit',
@@ -118,7 +118,7 @@ function mesh(card) {
   const geo = new THREE.PlaneGeometry(.66, 1.14), front = new THREE.Mesh(geo, frontMat), back = new THREE.Mesh(geo, backMat); back.rotation.y = Math.PI;
   const glow = VR.sprite(card.color, 2, .35); glow.position.z = -.05;
   inner.add(glow, front, back); if (card.reversed) inner.rotation.z = Math.PI;
-  if (info.images) new THREE.TextureLoader().load(VR.assetURL(`assets/tarot/${card.id}.${info.ext || 'jpg'}`), t => { if (frontMat.userData.disposed) { t.dispose(); return; } t.colorSpace = THREE.SRGBColorSpace; frontMat.map.dispose(); frontMat.map = t; frontMat.needsUpdate = true; }, undefined, () => {});
+  if (info.images) new THREE.TextureLoader().load(VR.assetURL(`assets/tarot/${card.id}.${info.ext || 'jpg'}`), t => { if (frontMat.userData.disposed) { t.dispose(); return; } t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(4, VR.renderer.capabilities.getMaxAnisotropy()); frontMat.map.dispose(); frontMat.map = t; frontMat.userData.illustrated = true; frontMat.needsUpdate = true; }, undefined, () => {});
   outer.userData = { inner, mats: [frontMat, backMat, glow.material] };
   backMat.userData.shared = true;
   return outer;

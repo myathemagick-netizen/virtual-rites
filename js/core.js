@@ -226,7 +226,14 @@ function disposeGroup(g) {
       });
     });
   });
-  textures.forEach(t => { if (!VR.sharedTextures.has(t)) t.dispose(); });
+  const bitmaps = new Set();
+  textures.forEach(t => {
+    if (VR.sharedTextures.has(t)) return;
+    // GLTFLoader uses ImageBitmap; disposing the GPU texture does not close it.
+    if (t.image && typeof t.image.close === 'function') bitmaps.add(t.image);
+    t.dispose();
+  });
+  bitmaps.forEach(image => image.close());
   materials.forEach(m => { m.userData.disposed = true; m.dispose(); });
   geometries.forEach(geo => { geo.dispose(); });
   instances.forEach(mesh => mesh.dispose());

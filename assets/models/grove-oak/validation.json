@@ -1,0 +1,35 @@
+{
+  "file": "tree.glb",
+  "sha256": "0ee682de403c1de6dbe11666805fa4c0568de1cb46f0d07ba9c99c4e7fa39b1e",
+  "bytes": 10535204,
+  "triangles": 20489,
+  "meshes": 1,
+  "materials": 1,
+  "textures": [
+    [
+      2048,
+      2048
+    ],
+    [
+      2048,
+      2048
+    ],
+    [
+      2048,
+      2048
+    ],
+    [
+      2048,
+      2048
+    ]
+  ],
+  "policy": {
+    "maxTriangles": 25000,
+    "maxBytes": 12000000,
+    "maxTextureDimension": 2048,
+    "maxMaterials": 6,
+    "embeddedOnly": true
+  },
+  "passed": true,
+  "validation": "GLB v2 header/chunk lengths, embedded buffer/image bounds, decoded image integrity, triangle/material/texture/file budgets"
+}
