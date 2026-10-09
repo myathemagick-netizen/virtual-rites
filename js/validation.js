@@ -1,4 +1,5 @@
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+import { safeAssetPath } from './media-paths.js';
 const fail = message => { throw new Error('Invalid ritual: ' + message); };
 
 export function validateRitual(r, actions) {
@@ -8,6 +9,15 @@ export function validateRitual(r, actions) {
   if (r.sequences !== undefined && !object(r.sequences)) fail('sequences must be an object');
   const seqs = r.sequences || {};
   checkValues(r);
+  if (r.assetRoot !== undefined && !safeAssetPath(r.assetRoot)) fail('unsafe asset folder');
+  if (r.assets !== undefined) {
+    if (!object(r.assets) || Object.keys(r.assets).length > 64) fail('assets must be an object with at most 64 entries');
+    const extensions = {image:/\.(png|jpe?g|webp|svg|avif)$/i,audio:/\.(mp3|wav|ogg|m4a)$/i,video:/\.(mp4|webm)$/i,model:/\.glb$/i};
+    for (const [id,a] of Object.entries(r.assets)) {
+      if (!/^[a-zA-Z0-9_-]{1,64}$/.test(id) || !object(a) || !Object.hasOwn(extensions,a.type) || !safeAssetPath(a.file) || !extensions[a.type].test(a.file)) fail('invalid media asset');
+      if (a.poster !== undefined && (!safeAssetPath(a.poster) || !extensions.image.test(a.poster))) fail('invalid video poster');
+    }
+  }
   let count = 0, leaves = 0;
   const visit = (list, stack) => {
     if (!Array.isArray(list)) fail('sequence must be an array');
@@ -27,6 +37,14 @@ export function validateRitual(r, actions) {
         if (!Array.isArray(s.actions)) fail('actions must be an array');
         for (const a of s.actions) {
           if (!object(a) || typeof a.do !== 'string' || (actions && !Object.hasOwn(actions, a.do))) fail('unknown action');
+          if (a.do === 'media') {
+            if (!Object.hasOwn(r.assets || {},a.asset)) fail('missing media asset');
+            if (a.lifetime !== undefined && !['step','ritual'].includes(a.lifetime)) fail('invalid media lifetime');
+            for (const field of ['width','size','distance']) if (a[field] !== undefined && (typeof a[field] !== 'number' || a[field] <= 0 || a[field] > 30)) fail('invalid media dimensions');
+            if (a.height !== undefined && (typeof a.height !== 'number' || Math.abs(a.height) > 30)) fail('invalid media height');
+            if (a.volume !== undefined && (typeof a.volume !== 'number' || a.volume < 0 || a.volume > 1)) fail('invalid media volume');
+            if (a.loop !== undefined && typeof a.loop !== 'boolean') fail('invalid media loop');
+          }
           if (a.degrees !== undefined && (typeof a.degrees !== 'number' || Math.abs(a.degrees) > 3600)) fail('degrees exceeds geometry budget');
           for (const field of ['colors', 'names', 'notes', 'chord']) {
             if (a[field] !== undefined && a[field] !== false && !Array.isArray(a[field])) fail(field + ' must be an array');
@@ -35,6 +53,7 @@ export function validateRitual(r, actions) {
           checkValues(a);
         }
       }
+      for (const field of ['narration','descriptionAudio']) if (s[field] !== undefined && r.assets?.[s[field]]?.type !== 'audio') fail('narration must reference an audio asset');
       checkValues(s);
     }
   };

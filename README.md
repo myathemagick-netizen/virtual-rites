@@ -56,6 +56,12 @@ For a renamed repository, set `VITE_BASE=/your-repository/` when building. For a
 
 WebGL2 is required. WebXR also requires HTTPS (or localhost) and a compatible device. See [the migration audit](docs/modernization-audit.md) for verification results and physical Quest checks.
 
+## Narration and ritual media
+
+The four built-in rites include 98 reusable recorded narration clips, so Narration can work in browsers without native TTS. Keep Sound and Narration enabled. Optional local speech can be downloaded in Comfort and access for personalized text and custom rites; prepare it before entering VR. Recorded speech plays first, followed by native voices and the optional local fallback. Physical Quest verification remains pending.
+
+Rituals can reference images, audio, muted video with still-image fallbacks, and embedded GLB models from their own folders. See [media authoring and narration](docs/ritual-media.md) and `examples/media-demo.json` for the schema and limitations.
+
 ## Controls
 
 On a screen: Space or the right arrow for next, R to repeat the current element, M to mark a moment for the journal, P to pause, C for the Conductor, V to switch between the witness camera and first person. Drag to look around.
@@ -70,7 +76,7 @@ Effect intensity (with a low setting that removes flashes), simplified environme
 
 ## Privacy
 
-Intents, sigils, journal entries, settings and your optional location are stored only in this browser's local storage. Nothing is sent anywhere. Export the journal from the Journal screen to keep a copy or move it to another device, and import it there.
+Intents, sigils, journal entries, settings and your optional location are stored only in this browser's local storage. Narration does not send ritual text to a cloud TTS service at runtime. Enabling optional local speech downloads model files from Hugging Face; speech inference then runs in the browser. Export the journal from the Journal screen to keep a copy or move it to another device, and import it there.
 
 ## Credits
 

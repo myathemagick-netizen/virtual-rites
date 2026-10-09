@@ -1,0 +1,34 @@
+{
+  "result": {
+    "status": "ready",
+    "clearance": 13.075369369155789,
+    "height": 12,
+    "triangles": 20489,
+    "meshes": 1,
+    "count": 18,
+    "resources": {
+      "geometries": 10,
+      "textures": 7,
+      "programs": 9,
+      "calls": 10,
+      "triangles": 422914
+    }
+  },
+  "cleanup": {
+    "warm": {
+      "geometries": 5,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "end": {
+      "geometries": 5,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "simplified": true
+  }
+}

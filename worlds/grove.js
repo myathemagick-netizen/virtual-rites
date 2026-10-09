@@ -24,11 +24,11 @@ VR.registerWorld({
     const bark = new THREE.MeshStandardMaterial({ color: 0x3b2a20, roughness: 1, flatShading: true });
     const leaves = [0x1f4d2b, 0x2d6a36, 0x19402a, 0x28593a].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: .9, flatShading: true }));
     const crowns = [];
-    let heroFallback = null;
+    const treeFallbacks = [];
     for (let i = 0; i < 18; i++) {
       const b = i * 20 + hash(i) * 8, r = 14 + hash(i + 7) * 3, p = dir(b).multiplyScalar(r), h = 6 + hash(i + 3) * 3;
       const tree = new THREE.Group(); tree.position.set(p.x, 0, p.z); g.add(tree);
-      if (i === 9) heroFallback = tree;
+      treeFallbacks.push(tree);
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.35 + hash(i + 1) * .15, .7, h, 7), bark); trunk.position.y = h / 2; tree.add(trunk);
       for (let k = 0; k < 3; k++) { const br = new THREE.Mesh(new THREE.CylinderGeometry(.08, .2, 3, 5), bark); br.position.y = h * (.55 + k * .12); br.rotation.z = (k % 2 ? 1 : -1) * .9; br.rotation.y = k * 2; br.position.x = (k % 2 ? -1 : 1) * .9; tree.add(br); }
       const crown = new THREE.Group(); crown.position.y = h; tree.add(crown); crowns.push(crown);
@@ -45,7 +45,7 @@ VR.registerWorld({
 
     const flies = K.motes(g, { count: ctx.simplified ? 120 : 420, radius: 17, height: 5, palette: [0xd4ff6a, 0xffe66a, 0x9dff9a, 0xfff0a0], size: .13, speed: .4, opacity: .9 });
     const fungi = prototype ? buildFungalLighting(ctx) : null;
-    const heroTree = buildHeroTree(ctx, heroFallback);
+    const heroTree = buildHeroTree(ctx, treeFallbacks);
     return { heroTree, update(dt, T) {
       if (fungi) fungi.update(dt, T);
       if (prototype && (ctx.simplified || VR.calm() || VR.reducedMotion)) return;

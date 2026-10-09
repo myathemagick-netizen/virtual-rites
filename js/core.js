@@ -27,7 +27,7 @@ VR.store = {
   set(k, v) { try { localStorage.setItem('vr.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem('vr.' + k); } catch (e) {} }
 };
-const DEFAULTS = { grovePrototype: false, intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
+const DEFAULTS = { localNarration: false, grovePrototype: false, intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
   gaze: false, singleSwitch: false, narration: true, sound: true, timingTint: true, camera: 'witness', location: null };
 VR.settings = Object.assign({}, DEFAULTS, VR.store.get('settings', {}));
 VR.saveSettings = () => VR.store.set('settings', VR.settings);
@@ -163,6 +163,7 @@ AU.start = () => {
   if (AU.ctx && AU.ctx.state === 'suspended') AU.ctx.resume().catch(() => {});
 };
 AU.stop = () => {
+  VR.media?.stopAudio(); VR.narration?.stop();
   AU.active = false;
   const ctx = AU.ctx;
   // Drop the whole graph, including looping sources, LFOs and reverb tails.
@@ -196,12 +197,9 @@ AU.tone = (f, dur = 4, v = .05) => { if (!ready()) return; const A = AU.ctx, now
   o.connect(g); out(g); o.start(now); o.stop(now + dur + .1); };
 
 /* ---------- speech & haptics ---------- */
-let voice = null;
-function pickVoice() { const vs = speechSynthesis.getVoices(); voice = vs.find(v => /Daniel|Google UK English Male|Arthur|Oliver/i.test(v.name)) || vs.find(v => /^en/i.test(v.lang)) || null; }
-if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-VR.say = (t, queue) => { if (!t || VR.silent || !VR.settings.sound || !('speechSynthesis' in window)) return; if (!queue) speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(t); u.rate = .8; u.pitch = .72; u.volume = .95; if (voice) u.voice = voice; speechSynthesis.speak(u); };
-VR.stopSpeech = () => { if ('speechSynthesis' in window) speechSynthesis.cancel(); };
+// The narration module installs recorded, browser and local voice providers.
+VR.say = () => {};
+VR.stopSpeech = () => {};
 VR.haptic = (strength = .5, ms = 60) => { if (!VR.settings.haptics || VR.silent) return; const s = renderer.xr.getSession && renderer.xr.getSession(); if (!s) return;
   for (const src of s.inputSources) { const a = src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0]; if (a && a.pulse) try { a.pulse(strength, ms); } catch (e) {} } };
 

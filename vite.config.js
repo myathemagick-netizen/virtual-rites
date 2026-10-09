@@ -3,6 +3,7 @@ import { cpSync, mkdirSync } from 'node:fs';
 
 export default defineConfig({
   base: process.env.VITE_BASE || '/virtual-rites/',
+  worker: { format: 'es' },
   plugins: [{
     name: 'ritual-library',
     closeBundle() {

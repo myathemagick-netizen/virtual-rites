@@ -1,0 +1,5 @@
+{
+  "format":"virtual-rites/1", "id":"media-demo", "title":"Media authoring example", "defaultWorld":"room",
+  "assets":{"focus":{"type":"image","file":"focus.svg"}},
+  "steps":[{"title":"Focus","phase":"working","say":"Focus on the image.","hold":true,"actions":[{"do":"media","asset":"focus","id":"focus","quarter":"east","distance":3,"height":1.7,"width":1.5,"size":1.5}]}]
+}

@@ -51,3 +51,15 @@ No physical VR or mixed-reality screenshots are available. Refer to [the audit](
 All 78 public-domain card faces decode at 512×884, and samples render upright/reversed. The Meshy oak passes static GLB policy checks (20,489 triangles, one material, four 2K embedded images, 10.5MB). Its bounding rectangle stays more than 13m from the ritual centre; simplified mode skips the GLB. Repeated card/world teardown returns to warm GPU geometry/texture counts, and delayed/missing assets have disposal/fallback coverage.
 
 The final local checks are **4 Node tests, production build, and 11 Playwright browser tests**. Browser coverage retains all previous ritual replay, session/journal, accessibility, WebGL failure, visual-effect and audio-exit checks. Current receipts and screenshots: [asset details](illustrated-assets.md), [GPU counters](captures/asset-resources.json). The initial Grove comparison above is historical and does not describe the added tree's cost. Physical Quest performance and VR/MR transitions remain unverified.
+
+## Narration, ritual media and instanced Grove follow-up
+
+The production build and seven Node tests pass. A full 15-test desktop Chromium run passed, including actual Kokoro WASM preparation and nonzero speech PCM, decoding all 98 recorded clips, missing native voices, narration cancellation, media image lifetime, quiet video posters, ritual replay/resume, audio exit and world disposal. A subsequent four-test targeted run passed for the final media lifecycle and local worker retry fixes. There are now 16 browser tests; real model downloading is opt-in via `VR_LOCAL_VOICE=1`, and regular CI skips that network-heavy test.
+
+98 separate Daniel narration clips cover static phrases in all four existing rites. They cost 3,781 credits against the approved 4,200-credit ceiling; the selected pronunciation pilot cost a separate 516 credits. One personalized placeholder phrase uses native/local speech. No sound effects were generated. See [media authoring and narration](ritual-media.md) for paths, actions, settings and asset provenance.
+
+The Grove now uses 18 rotated/scaled instances of one imported oak. Measured clearing clearance is 13.075m. The captured scene renders 422,914 triangles in 10 draws, with 10 geometries and seven textures. Three world teardown cycles return to the warm baseline of five geometries and three textures; simplified mode retains procedural trees. These desktop counters establish ownership and draw batching, not Quest performance. [GPU receipt](captures/instanced-oak-resources.json).
+
+![Instanced oak Grove](captures/grove-instanced-oaks.png)
+
+Physical Quest checks remain: audio unlock after gesture/XR entry, recorded and local narration in both browsers, local voice memory/latency, headset suspension, video codecs, frame time with all oaks, and MR transitions. The local speech dependency tree has six moderate npm audit findings, documented in the media guide.

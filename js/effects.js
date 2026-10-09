@@ -24,6 +24,7 @@ function drawRing(names) {
 VR.fx = {
   get state() { return F; },
   reset() {
+    VR.media?.clear();
     VR.finishTweens();
     if (F) { VR.scene.remove(F.root); VR.disposeGroup(F.root); }
     F = { root: new THREE.Group(), on: {}, pents: {}, lines: [], guardians: {}, cards: [], bursts: [], sigil: null, qc: null, hex: null, breath: null, chaos: {}, planets: null, serpent: null };

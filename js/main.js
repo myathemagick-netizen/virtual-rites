@@ -10,9 +10,9 @@ window.VR.loadWorldModule = async file => {
   if (!load) throw new Error('Unknown world module: ' + file);
   await load();
 };
-const modules = import.meta.glob('./*.js');
+const modules = import.meta.glob(['./*.js', '!./*.worker.js']);
 try {
-  for (const file of ['core', 'effects', 'sigil', 'tarot', 'cosmos', 'journal', 'player', 'app']) {
+  for (const file of ['core', 'effects', 'sigil', 'tarot', 'cosmos', 'journal', 'media', 'narration', 'player', 'app']) {
     await modules[`./${file}.js`]();
   }
 } catch (error) {

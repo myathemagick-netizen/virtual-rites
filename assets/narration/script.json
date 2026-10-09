@@ -1,0 +1,1203 @@
+{
+  "provider": "ElevenLabs",
+  "voiceId": "onwK4e9ZLuTAKqWW03F9",
+  "model": "eleven_multilingual_v2",
+  "entries": [
+    {
+      "id": "dec9c9fe86f5f64e",
+      "text": "Ah-teh.",
+      "file": "shared/dec9c9fe86f5f64e.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "11f4eda2be6ee851",
+      "text": "A sphere of white light forms just above your head.",
+      "file": "shared/11f4eda2be6ee851.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "ee213ea749de48eb",
+      "text": "Mal-kooth.",
+      "file": "shared/ee213ea749de48eb.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "8446f6b65aa625ba",
+      "text": "A column of light runs down through your body into the ground, and a ring of light spreads across the floor.",
+      "file": "shared/8446f6b65aa625ba.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "ca106dbaa574c1cb",
+      "text": "Veh-Geh-boo-rah.",
+      "file": "shared/ca106dbaa574c1cb.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "2ce434395dac21b8",
+      "text": "A red point of light glows at your right shoulder.",
+      "file": "shared/2ce434395dac21b8.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "e8d8287e25e28cbe",
+      "text": "Veh-Geh-doo-lah.",
+      "file": "shared/e8d8287e25e28cbe.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "189ee4cd72ab1207",
+      "text": "A blue point of light glows at your left shoulder, and a beam connects both shoulders.",
+      "file": "shared/189ee4cd72ab1207.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "ef3ee98015bcde40",
+      "text": "Leh-oh-lahm.",
+      "file": "shared/ef3ee98015bcde40.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "faf8ee377a921176",
+      "text": "The horizontal beam extends outward and a warm glow gathers at your heart.",
+      "file": "shared/faf8ee377a921176.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "e34ee4afac557ad3",
+      "text": "Ah-men.",
+      "file": "shared/e34ee4afac557ad3.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d328967a36f243ed",
+      "text": "Every point of the cross brightens together.",
+      "file": "shared/d328967a36f243ed.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "b70402a0c6a0dadf",
+      "text": "Stand at the center of the circle, facing East. Breathe slowly.",
+      "file": "shared/b70402a0c6a0dadf.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "3776bf104b2971d2",
+      "text": "You stand at the center of a faint circle of light inscribed with four Hebrew names.",
+      "file": "shared/3776bf104b2971d2.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "242090e2ec917555",
+      "text": "Yod. Heh. Vav. Heh.",
+      "file": "shared/242090e2ec917555.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "38bc90e76b4f1dcf",
+      "text": "A blue flaming pentagram is drawn in the air to the East, and the name appears above it.",
+      "file": "shared/38bc90e76b4f1dcf.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "76db82415a5f47ab",
+      "text": "Turn to the South.",
+      "file": "shared/76db82415a5f47ab.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "4e02e354c484bc53",
+      "text": "Ah-doh-nai.",
+      "file": "shared/4e02e354c484bc53.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "1df8510ea9b52fe0",
+      "text": "A second blue pentagram burns to the South.",
+      "file": "shared/1df8510ea9b52fe0.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "a5859257bd467a17",
+      "text": "Turn to the West.",
+      "file": "shared/a5859257bd467a17.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d24b2a51566c7de6",
+      "text": "Eh-heh-yeh.",
+      "file": "shared/d24b2a51566c7de6.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "2104f4c5ed438377",
+      "text": "A third blue pentagram burns to the West.",
+      "file": "shared/2104f4c5ed438377.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "7e319922dee4375d",
+      "text": "Turn to the North.",
+      "file": "shared/7e319922dee4375d.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "18f37459920fc74f",
+      "text": "Ah-geh-lah.",
+      "file": "shared/18f37459920fc74f.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "2d01aaa4ea219059",
+      "text": "A fourth blue pentagram burns to the North.",
+      "file": "shared/2d01aaa4ea219059.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "a39628555d374a97",
+      "text": "Return to the East.",
+      "file": "shared/a39628555d374a97.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "78deda0cae4d80b9",
+      "text": "Before me, Raphael.",
+      "file": "shared/78deda0cae4d80b9.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "1be0e989951a58de",
+      "text": "A towering winged figure in yellow and violet rises in the East, holding a wand.",
+      "file": "shared/1be0e989951a58de.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "ee7eda500e130e33",
+      "text": "Behind me, Gabriel.",
+      "file": "shared/ee7eda500e130e33.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "677ff853fe756120",
+      "text": "Behind you in the West rises a figure in blue and orange, holding a cup.",
+      "file": "shared/677ff853fe756120.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "6959194547faec87",
+      "text": "On my right hand, Michael.",
+      "file": "shared/6959194547faec87.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "6ccd80a448f193e3",
+      "text": "To your right in the South rises a figure in scarlet and emerald, holding a sword.",
+      "file": "shared/6ccd80a448f193e3.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d4a7b66d73d05f52",
+      "text": "On my left hand, Auriel.",
+      "file": "shared/d4a7b66d73d05f52.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "47fc73275ce7d0a6",
+      "text": "To your left in the North rises a figure in citrine, olive and russet, holding a sheaf of grain.",
+      "file": "shared/47fc73275ce7d0a6.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "7d952c3b7441f445",
+      "text": "About me flame the pentagrams.",
+      "file": "shared/7d952c3b7441f445.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "0552088efb00ea95",
+      "text": "All four pentagrams flare brighter in turn, and the circle on the ground brightens.",
+      "file": "shared/0552088efb00ea95.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "1ce6a8acef411d33",
+      "text": "And in the column shines the six-rayed star.",
+      "file": "shared/1ce6a8acef411d33.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "1f149f0055807985",
+      "text": "A golden six-pointed star forms around you at chest height and slowly turns.",
+      "file": "shared/1f149f0055807985.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "c63cd1a42b344f64",
+      "text": "The rite is complete.",
+      "file": "shared/c63cd1a42b344f64.mp3",
+      "uses": [
+        {
+          "ritual": "lbrp",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "faa5d678900d7383",
+      "text": "Arrive. Hold your intent once, clearly. Then let the words go.",
+      "file": "shared/faa5d678900d7383.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "0be4d1a087b012b7",
+      "text": "Breathe with the ring.",
+      "file": "shared/0be4d1a087b012b7.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        },
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "104aa1ac285a1c60",
+      "text": "A pale ring on the ground slowly widens and narrows with your breath.",
+      "file": "shared/104aa1ac285a1c60.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "fe8527f43c318542",
+      "text": "Cast the circle.",
+      "file": "shared/fe8527f43c318542.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d1af2b684c9057df",
+      "text": "A violet line of fire is drawn in a full ring around you at chest height.",
+      "file": "shared/d1af2b684c9057df.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "fdffd2f776c4a163",
+      "text": "Behold the sigil.",
+      "file": "shared/fdffd2f776c4a163.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "5e63e3bc39c44ac5",
+      "text": "A glowing magenta glyph draws itself in the air in front of you.",
+      "file": "shared/5e63e3bc39c44ac5.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "2b83da9a24291f9b",
+      "text": "Breathe into the sigil.",
+      "file": "shared/2b83da9a24291f9b.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "04625c6c4db45bef",
+      "text": "The glyph brightens steadily with each breath.",
+      "file": "shared/04625c6c4db45bef.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "b590a1fc03d5bc85",
+      "text": "Hold. Nothing but the sigil.",
+      "file": "shared/b590a1fc03d5bc85.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "85e2c92e9af2ad0c",
+      "text": "The glyph spins faster and its halo swells as the light around you turns rose.",
+      "file": "shared/85e2c92e9af2ad0c.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "fbf32d89a6b4e586",
+      "text": "Release!",
+      "file": "shared/fbf32d89a6b4e586.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "65bc29824cd52e64",
+      "text": "The glyph bursts into sparks and vanishes.",
+      "file": "shared/65bc29824cd52e64.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "e7716bc179c209fd",
+      "text": "Laugh. And forget.",
+      "file": "shared/e7716bc179c209fd.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "7d7e0743511f4073",
+      "text": "The working is done.",
+      "file": "shared/7d7e0743511f4073.mp3",
+      "uses": [
+        {
+          "ritual": "sigil-charging",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "3770f3e619659477",
+      "text": "Ground yourself. Breathe with the ring.",
+      "file": "shared/3770f3e619659477.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "2a083e8f1248eb32",
+      "text": "A pale ring on the ground widens and narrows slowly.",
+      "file": "shared/2a083e8f1248eb32.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "describe"
+        },
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "f7a5d5192bf8b189",
+      "text": "Open the circle.",
+      "file": "shared/f7a5d5192bf8b189.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "66f1b7a3887a0781",
+      "text": "Hold your question in mind.",
+      "file": "shared/66f1b7a3887a0781.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "86710a6574103ae7",
+      "text": "Draw.",
+      "file": "shared/86710a6574103ae7.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "f2f6158fb7658bd6",
+      "text": "A single tarot card rises in front of you and turns face up.",
+      "file": "shared/f2f6158fb7658bd6.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "2b2ef750da261bbf",
+      "text": "You drew {cards}.",
+      "file": "shared/2b2ef750da261bbf.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": true
+    },
+    {
+      "id": "addd97bae1b9dab1",
+      "text": "Close the circle.",
+      "file": "shared/addd97bae1b9dab1.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "40ed49b54ffcb048",
+      "text": "Carry it with you.",
+      "file": "shared/40ed49b54ffcb048.mp3",
+      "uses": [
+        {
+          "ritual": "daily-draw",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "10e1ec8ba2877db0",
+      "text": "Arrive. Let the everyday self go quiet.",
+      "file": "shared/10e1ec8ba2877db0.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "9aaf8087626f4761",
+      "text": "A faint violet circle glows on the ground around you.",
+      "file": "shared/9aaf8087626f4761.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "6c21a56ff0941220",
+      "text": "Eight ways from one.",
+      "file": "shared/6c21a56ff0941220.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "9984492853c0e8d2",
+      "text": "An eight-pointed star of arrows is drawn in the air in front of you, each arrow a different shifting color.",
+      "file": "shared/9984492853c0e8d2.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "3c3ca90abb0b3df0",
+      "text": "Kah-os.",
+      "file": "shared/3c3ca90abb0b3df0.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "e29099d1a8da75f2",
+      "text": "The star flares and its arrows shimmer.",
+      "file": "shared/e29099d1a8da75f2.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "977eb4dc7bb2a378",
+      "text": "Saturn.",
+      "file": "shared/977eb4dc7bb2a378.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "319bfb5d1a779e7d",
+      "text": "A dark indigo sphere appears above you and begins to orbit.",
+      "file": "shared/319bfb5d1a779e7d.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d3dfa4784d368a1c",
+      "text": "Jupiter.",
+      "file": "shared/d3dfa4784d368a1c.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "90c73ef91be1016e",
+      "text": "A blue sphere joins the orbit.",
+      "file": "shared/90c73ef91be1016e.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "07f204184aa36c13",
+      "text": "Mars.",
+      "file": "shared/07f204184aa36c13.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "ac6c1b1bf4b0af11",
+      "text": "A red sphere joins the orbit.",
+      "file": "shared/ac6c1b1bf4b0af11.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "78de69b31767da44",
+      "text": "Sun.",
+      "file": "shared/78de69b31767da44.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "8d5f978bbace874a",
+      "text": "A golden sphere joins the orbit.",
+      "file": "shared/8d5f978bbace874a.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "7c0e0f908a77cdfb",
+      "text": "Venus.",
+      "file": "shared/7c0e0f908a77cdfb.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "9f9a90e6a7900c0d",
+      "text": "A green sphere joins the orbit.",
+      "file": "shared/9f9a90e6a7900c0d.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "f6dde15e48854ee3",
+      "text": "Mercury.",
+      "file": "shared/f6dde15e48854ee3.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "6cf202e84e0e4251",
+      "text": "An orange sphere joins the orbit.",
+      "file": "shared/6cf202e84e0e4251.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "382ed647e695aae4",
+      "text": "Moon.",
+      "file": "shared/382ed647e695aae4.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d8307f03d440ff8d",
+      "text": "A silver sphere completes the ring of seven, all circling you.",
+      "file": "shared/d8307f03d440ff8d.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "d1fb019ed6aa6cab",
+      "text": "Beyond the seven.",
+      "file": "shared/d1fb019ed6aa6cab.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "4b7644ee6d55a175",
+      "text": "Far behind the Chaos Star a black sphere rises with a shifting, many-colored corona.",
+      "file": "shared/4b7644ee6d55a175.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "b20037a2049e88b6",
+      "text": "Look up. The rift opens.",
+      "file": "shared/b20037a2049e88b6.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "53945e2c71a12323",
+      "text": "Above you a glowing tear opens in the sky and a long shimmering serpent of shifting color flows out of it, stretching from East to West overhead.",
+      "file": "shared/53945e2c71a12323.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "8fbeffbc66191c60",
+      "text": "Oo-rah-nos. Zah-kah-reth. Ee-oh-nar. Khal-ah-thoo.",
+      "file": "shared/8fbeffbc66191c60.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "275f947d197dc00b",
+      "text": "The serpent writhes faster and brighter, and the seven planets speed up around you.",
+      "file": "shared/275f947d197dc00b.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "e13eb5ce12c7d58d",
+      "text": "Stand as the eighth.",
+      "file": "shared/e13eb5ce12c7d58d.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "0e47182b212f3238",
+      "text": "The serpent coils overhead and the dark sun's corona swells.",
+      "file": "shared/0e47182b212f3238.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "f8c0fbaafdd87710",
+      "text": "Remain.",
+      "file": "shared/f8c0fbaafdd87710.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "5c551cdf947a52eb",
+      "text": "The serpent returns.",
+      "file": "shared/5c551cdf947a52eb.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "ab7fb95412da80bc",
+      "text": "The serpent withdraws into the glowing tear, which fades.",
+      "file": "shared/ab7fb95412da80bc.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "0efaa6c24fa1bf25",
+      "text": "The seven go home.",
+      "file": "shared/0efaa6c24fa1bf25.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "e02b013e5d083747",
+      "text": "The planets rise away and fade, and the black sphere shrinks to nothing.",
+      "file": "shared/e02b013e5d083747.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "9992b8148254b399",
+      "text": "Laugh.",
+      "file": "shared/9992b8148254b399.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "47a1cf0b96ccc19f",
+      "text": "The Chaos Star flares and fades, and sparks scatter from the center.",
+      "file": "shared/47a1cf0b96ccc19f.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "describe"
+        }
+      ],
+      "dynamic": false
+    },
+    {
+      "id": "231350c888af3fa5",
+      "text": "Return.",
+      "file": "shared/231350c888af3fa5.mp3",
+      "uses": [
+        {
+          "ritual": "ouranos-chaos-star",
+          "field": "say"
+        }
+      ],
+      "dynamic": false
+    }
+  ]
+}

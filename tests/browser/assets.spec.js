@@ -52,19 +52,19 @@ test('Grove GLB renders, stays outside the clearing, tears down and has simplifi
   const result = await page.evaluate(async () => {
     VR.settings.grovePrototype = true; VR.loadWorld('grove', true);
     const hero = VR.world.inst.heroTree; await hero.userData.ready;
-    const box = new THREE.Box3().setFromObject(hero);
-    const corners = [box.min.x, box.max.x].flatMap(x => [box.min.z, box.max.z].map(z => Math.hypot(x,z)));
-    // The tree's complete XZ bounding rectangle must stay outside the clearing.
-    const nearX = Math.max(box.min.x, Math.min(0, box.max.x));
-    const nearZ = Math.max(box.min.z, Math.min(0, box.max.z));
+    let clearance=Infinity, count=0; const matrix=new THREE.Matrix4();
+    hero.traverse(o=>{if(!o.isInstancedMesh)return;count+=o.count;o.geometry.computeBoundingBox();
+      for(let i=0;i<o.count;i++){o.getMatrixAt(i,matrix);const box=o.geometry.boundingBox.clone().applyMatrix4(matrix);
+        clearance=Math.min(clearance,Math.hypot(Math.max(box.min.x,Math.min(0,box.max.x)),Math.max(box.min.z,Math.min(0,box.max.z))));}});
     let triangles=0, meshes=0;
     hero.traverse(o => { if (o.isMesh) { meshes++; triangles += (o.geometry.index?.count || o.geometry.attributes.position.count)/3; } });
-    VR.camera.position.copy(VR.dir(185).multiplyScalar(5)).setY(4); VR.camera.lookAt(hero.position.x, 5.5, hero.position.z);
+    const focus=VR.dir(185).multiplyScalar(18.5); VR.camera.position.copy(VR.dir(185).multiplyScalar(5)).setY(4); VR.camera.lookAt(focus.x,5.5,focus.z);
     VR.renderer.render(VR.scene, VR.camera);
-    return { status: hero.userData.status, clearance: Math.hypot(nearX,nearZ), height: hero.userData.height, triangles, meshes, corners, resources: VR.resourceSnapshot() };
+    return { status: hero.userData.status, clearance, height: hero.userData.height, triangles, meshes, count, resources: VR.resourceSnapshot() };
   });
   expect(result.status).toBe('ready'); expect(result.clearance).toBeGreaterThan(12.5);
   expect(result.triangles).toBeLessThanOrEqual(25000);
+  expect(result.count).toBe(18);
   await page.screenshot({ path: info.outputPath('grove-hero-oak.png') });
   const cleanup = await page.evaluate(async () => {
     const render = () => VR.renderer.render(VR.scene, VR.camera);
