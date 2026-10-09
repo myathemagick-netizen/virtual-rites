@@ -1,0 +1,17 @@
+{
+  "warm": {
+    "geometries": 5,
+    "textures": 4,
+    "programs": 5,
+    "calls": 4,
+    "triangles": 2274
+  },
+  "end": {
+    "geometries": 5,
+    "textures": 4,
+    "programs": 5,
+    "calls": 4,
+    "triangles": 2274
+  },
+  "featherCount": 320
+}

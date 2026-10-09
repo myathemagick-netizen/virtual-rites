@@ -1,0 +1,10 @@
+{
+  "approvedCredits": 60,
+  "model": "meshy-6",
+  "format": "glb",
+  "textureResolution": "2k",
+  "runtimeTextureResolution": 1024,
+  "consumedCredits": 60,
+  "arch": { "previewTask": "01a120d5-af33-768c-a706-6aa75e342a9f", "textureTask": "01a120d9-4f6d-7179-966f-e54897b9beda", "targetTriangles": 12000, "generatedTriangles": 12062, "runtimeTriangles": 836, "previewCredits": 20, "textureCredits": 10 },
+  "ruins": { "previewTask": "01a120d5-c3e0-7071-9886-c1e8a3a0d0ff", "textureTask": "01a120d9-60c2-7697-bd57-136a6d784839", "targetTriangles": 10000, "runtimeTriangles": 9301, "previewCredits": 20, "textureCredits": 10 }
+}

@@ -1,6 +1,7 @@
 /* World: Stonehenge before dawn
    Sarsen circle with lintels, trilithon horseshoe opening to the northeast, bluestones,
    altar, slaughter and heel stones on the solstice sunrise line. */
+import { stoneMaps, weatheredStone } from './stone-surface.js';
 VR.registerWorld({
   id: 'stonehenge',
   name: 'Stonehenge',
@@ -28,17 +29,12 @@ VR.registerWorld({
     const sun = new THREE.DirectionalLight(0xff9f6a, 1.25); sun.position.copy(dir(51)).multiplyScalar(60).setY(10); g.add(sun);
     const moon = new THREE.DirectionalLight(0x6f8cff, .45); moon.position.set(40, 60, 50); g.add(moon);
 
-    const mats = [0x8c879a, 0x7b7788, 0x96908b, 0x6e6a7c, 0x85807a].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: .95, flatShading: true }));
+    const maps=stoneMaps(ctx.simplified);
+    const mats = [0xc1bcb0, 0xaca99f, 0xb9b4a7, 0xa1a39b, 0xc3bbaa].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: .96, metalness:0, vertexColors:true, map:maps.map, bumpMap:maps.bumpMap, bumpScale:.055 }));
     let seed = 1;
-    function stoneGeo(w, h, d, sd, rough) {
-      const geo = new THREE.BoxGeometry(w, h, d, 2, 4, 2), p = geo.attributes.position;
-      for (let i = 0; i < p.count; i++) { let x = p.getX(i), y = p.getY(i), z = p.getZ(i); const kx = Math.round(x * 100), ky = Math.round(y * 100), kz = Math.round(z * 100);
-        const r1 = hash(kx * .37 + ky * 1.13 + kz * 2.71 + sd * 13.1), r2 = hash(kx * 1.91 + ky * .53 + kz * .77 + sd * 7.7), r3 = hash(kx * .61 + ky * 2.3 + kz * 1.37 + sd * 3.3), t = y / h + .5;
-        x = (x + (r1 - .5) * rough * w) * (1 - .1 * t); y = y + (r2 - .5) * rough * h * .25; z = (z + (r3 - .5) * rough * d) * (1 - .1 * t); p.setXYZ(i, x, y, z); }
-      geo.computeVertexNormals(); geo.translate(0, h / 2, 0); return geo;
-    }
     function stone(w, h, d, pos, yw, o = {}) {
-      const m = new THREE.Mesh(stoneGeo(w, h, d, seed, o.rough ?? .14), mats[seed % mats.length]); seed++;
+      const m = new THREE.Mesh(weatheredStone(w,h,d,seed,o.rough ?? .14,ctx.simplified), mats[seed % mats.length]); seed++;
+      m.name='Weathered Stonehenge stone';
       m.position.set(pos.x, o.y || 0, pos.z); m.rotation.y = yw; if (o.lean) m.rotation.z = o.lean; g.add(m); return m;
     }
     const missing = new Set([8, 9, 15, 18, 19, 23, 24, 27]), ups = [];

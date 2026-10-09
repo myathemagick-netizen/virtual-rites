@@ -37,13 +37,32 @@ virtual-rites/
 
 To add a ritual, write a file in `rituals/` and list it in `rituals/index.json`. To add a place, write a file in `worlds/` and list it in `worlds/index.json`. Nothing else needs to change.
 
-## Publishing on GitHub Pages
+The Drowned Temple is available in Choose a place: a level sanctuary beneath an ocean canopy, with stone arches, caustics, distant ruins and fish. Low intensity, reduced motion and simplified mode keep its water/light/fish still; simplified mode also lowers mesh detail and particle counts. The water uses custom WebGL-compatible shaders, without reflection/refraction render targets or a renderer change.
 
-1. Put everything in this folder at the top level of the repository, so `index.html` sits beside the `js`, `rituals` and `worlds` folders.
-2. In the repository, open Settings, then Pages, and publish from the `main` branch, root folder.
-3. Visit `https://<your-name>.github.io/<repository>/`.
+## Development and GitHub Pages
 
-The site has to be served from the web (or a local server such as `python3 -m http.server`), because browsers won't load the ritual files when `index.html` is opened directly from disk.
+Use Node 22.12+ (Node 24 is used in CI), then run:
+
+```sh
+npm ci
+npm run dev
+npm test
+npm run build
+npx playwright install chromium
+npm run test:smoke
+```
+
+The default URL includes `/virtual-rites/`. Deploy the generated `dist/` directory, rather than the source folder. In GitHub Settings → Pages choose **GitHub Actions**; the included Pages workflow builds and publishes after changes land on main. It has not been deployed as part of the migration review.
+
+For a renamed repository, set `VITE_BASE=/your-repository/` when building. For a custom domain at the root, set `VITE_BASE=/`. Relative runtime library URLs use the same configured base. Adding worlds still uses `VR.registerWorld` and `worlds/index.json`; rebuild after adding a JavaScript world. Ritual JSON and optional tarot images remain static files.
+
+WebGL2 is required. WebXR also requires HTTPS (or localhost) and a compatible device. See [the migration audit](docs/modernization-audit.md) for verification results and physical Quest checks.
+
+## Narration and ritual media
+
+The four built-in rites include 98 reusable recorded narration clips, so Narration can work in browsers without native TTS. Keep Sound and Narration enabled. In Comfort and access, Narration source selects Automatic, Recorded audio only, Browser TTS only, or Local voice only. Automatic tries recordings first, then browser voices and the enabled local fallback; explicit choices keep that source even when it is unavailable. Optional local speech can be downloaded for personalized text and custom rites; prepare it before entering VR. Physical Quest verification remains pending.
+
+Rituals can reference images, audio, muted video with still-image fallbacks, and embedded GLB models from their own folders. See [media authoring and narration](docs/ritual-media.md) and `examples/media-demo.json` for the schema and limitations.
 
 ## Controls
 
@@ -59,11 +78,11 @@ Effect intensity (with a low setting that removes flashes), simplified environme
 
 ## Privacy
 
-Intents, sigils, journal entries, settings and your optional location are stored only in this browser's local storage. Nothing is sent anywhere. Export the journal from the Journal screen to keep a copy or move it to another device, and import it there.
+Intents, sigils, journal entries, settings and your optional location are stored only in this browser's local storage. Narration does not send ritual text to a cloud TTS service at runtime. Enabling optional local speech downloads model files from Hugging Face; speech inference then runs in the browser. Export the journal from the Journal screen to keep a copy or move it to another device, and import it there.
 
 ## Credits
 
-The Lesser Banishing Ritual of the Pentagram follows Golden Dawn material from the 1890s, in the public domain. Sigil reduction follows Austin Osman Spare's The Book of Pleasure (1913). Tarot card names follow the Rider-Waite-Smith deck (1909). Built with three.js.
+The Lesser Banishing Ritual of the Pentagram follows Golden Dawn material from the 1890s, in the public domain. Sigil reduction follows Austin Osman Spare's The Book of Pleasure (1913). Tarot faces use public-domain historic Rider–Waite–Smith illustrations by Pamela Colman Smith from Wikimedia Commons. The Grove hero oak was generated with Meshy from original text prompts. Source pages, asset rights, generation settings and hashes are recorded alongside the assets; see [illustrated assets](docs/illustrated-assets.md). Built with three.js.
 
 ## Roadmap
 

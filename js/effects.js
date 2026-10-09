@@ -1,3 +1,4 @@
+import { createFlames, createAngel } from './ritual-visuals.js';
 /* Virtual Rites — ritual effects
    Every "do" in a ritual file maps to a function in VR.actions.
    See docs/ritual-markup.md for the author-facing reference. */
@@ -23,6 +24,8 @@ function drawRing(names) {
 VR.fx = {
   get state() { return F; },
   reset() {
+    VR.media?.clear();
+    VR.finishTweens();
     if (F) { VR.scene.remove(F.root); VR.disposeGroup(F.root); }
     F = { root: new THREE.Group(), on: {}, pents: {}, lines: [], guardians: {}, cards: [], bursts: [], sigil: null, qc: null, hex: null, breath: null, chaos: {}, planets: null, serpent: null };
     VR.scene.add(F.root);
@@ -39,13 +42,16 @@ VR.fx = {
   update(dt, T) {
     if (!F) return;
     F.ring.rotation.z += dt * .02;
-    Object.values(F.pents).forEach(P => { if (P.fl.material.opacity <= 0) return; const a = P.fl.geometry.attributes.position, b = P.fl.userData.base;
-      for (let i = 0; i < a.count; i++) { const f = (T * 1.6 + i * .37) % 1; a.setXYZ(i, b[i * 3] + Math.sin(T * 9 + i * 1.7) * .02, b[i * 3 + 1] + f * .14, b[i * 3 + 2] + Math.cos(T * 8 + i) * .02); }
-      a.needsUpdate = true; if (P.label) P.label.position.y = P.labelY + Math.sin(T * .8) * .04; });
+    Object.values(F.pents).forEach(P => {
+      P.fl.userData.update(T, P.tr.userData.p);
+      if (P.label) P.label.position.y = P.labelY + (VR.calm() || VR.reducedMotion ? 0 : Math.sin(T * .6) * .015);
+    });
     Object.values(F.guardians).forEach((G, i) => { if (!G.visible) return; const u = G.userData;
-      u.wings.forEach((w, s) => { w.rotation.z = (s ? -1 : 1) * Math.sin(T * 1.1 + i) * .06; }); u.halo.rotation.z += dt * .5; u.inner.rotation.y = Math.sin(T * .4 + i) * .04;
-      const p = u.parts.geometry.attributes.position, sp = u.parts.userData.spd; for (let j = 0; j < sp.length; j++) { let y = p.getY(j) + sp[j] * dt; if (y > 8.5) y = 0; p.setY(j, y); } p.needsUpdate = true;
-      if (u.a >= 1) u.light.intensity = (2.2 + Math.sin(T * 2 + i) * .3) * VR.fxK(); });
+      const quiet = VR.calm() || VR.settings.simplified || VR.reducedMotion;
+      u.wings.forEach((w, s) => { w.rotation.z = quiet ? 0 : (s ? -1 : 1) * Math.sin(T * .45 + i) * .018; });
+      u.inner.rotation.y = quiet ? 0 : Math.sin(T * .3 + i) * .012;
+      const p = u.parts.geometry.attributes.position, sp = u.parts.userData.spd; for (let j = 0; !quiet && j < sp.length; j++) { let y = p.getY(j) + sp[j] * dt; if (y > 8.5) y = 0; p.setY(j, y); } p.needsUpdate = true;
+      if (u.a >= 1) u.light.intensity = (2.2 + (quiet ? 0 : Math.sin(T * .6 + i) * .08)) * VR.fxK(); });
     if (F.hex) F.hex.rotation.y += dt * .25;
     Object.values(F.chaos).forEach(C => { for (let k = 0; k < C.lit; k++) C.rays[k].userData.glow(1 + (VR.calm() ? .08 : .35) * Math.sin(T * 2.6 + k * .8)); });
     if (F.planets) { const P = F.planets; P.g.rotation.y += dt * P.speed; Object.values(P.list).forEach(m => { m.position.y = m.userData.base + Math.sin(T * .7 + m.userData.phase) * .12; });
@@ -115,14 +121,7 @@ function pentOrder(type) {
   const i = CYC.indexOf(start), j = CYC.indexOf(second), step = ((j - i + 5) % 5) === 1 ? 1 : -1;
   const out = []; for (let k = 0; k <= 5; k++) out.push(CYC[(((i + step * k) % 5) + 5) % 5]); return out;
 }
-function flames(path, color) {
-  const pts = path.getSpacedPoints(150), base = new Float32Array(pts.length * 3);
-  pts.forEach((p, i) => { base[i * 3] = p.x; base[i * 3 + 1] = p.y; base[i * 3 + 2] = p.z; });
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(base.slice(), 3));
-  const m = new THREE.PointsMaterial({ map: VR.GLOW, size: .17, color: new THREE.Color(color).multiplyScalar(VR.fxK()), transparent: true, opacity: 0,
-    blending: THREE.AdditiveBlending, depthWrite: false, fog: false, toneMapped: false });
-  const p = new THREE.Points(g, m); p.userData.base = base; return p;
-}
+function flames(path, color) { return createFlames(path, color); }
 A.pentagram = (a, ctx) => {
   const b = VR.bearing(a.quarter ?? ctx.face), key = a.key || String(b);
   if (F.pents[key]) { F.root.remove(F.pents[key].group); VR.disposeGroup(F.pents[key].group); }
@@ -131,7 +130,7 @@ A.pentagram = (a, ctx) => {
   const pts = pentOrder(a.type).map(k => c.clone().addScaledVector(right, Math.cos(PV[k] * VR.DEG) * S).addScaledVector(VR.UP, Math.sin(PV[k] * VR.DEG) * S));
   const path = new THREE.CurvePath(); for (let i = 0; i < 5; i++) path.add(new THREE.LineCurve3(pts[i], pts[i + 1]));
   const grp = new THREE.Group(); F.root.add(grp);
-  const tr = VR.trace(path, { segs: 240, r: .03, core, glow, gop: .45 }), fl = flames(path, glow), flash = VR.sprite(core, .1, 0); flash.position.copy(c);
+  const tr = VR.trace(path, { segs: 240, r: .012, core, glow, gop: .45 }), fl = flames(path, glow), flash = VR.sprite(core, .1, 0); flash.position.copy(c);
   grp.add(tr, fl, flash);
   let label = null;
   if (a.name) { const he = a.name.he || a.name.hebrew, la = a.name.latin || a.name.text || '';
@@ -140,12 +139,12 @@ A.pentagram = (a, ctx) => {
     label.position.copy(c).add(new THREE.Vector3(0, S + .45, 0)); grp.add(label); }
   const P = { group: grp, tr, fl, flash, label, labelY: c.y + S + .45 }; F.pents[key] = P;
   const T = a.traceTime || 3.4;
-  VR.tween(T, (e, p) => tr.userData.set(p));
+  VR.tween(T, (e, p) => { tr.userData.set(p); fl.userData.update(0, p); });
   [523.25, 587.33, 659.25, 783.99, 880].forEach((f, k) => VR.at(k * T / 5, () => VR.audio.bell(f, .12)));
   if (!VR.calm()) VR.tween(1.6, (e, p) => { flash.material.opacity = Math.sin(p * Math.PI); flash.scale.setScalar(.2 + 2.8 * p); }, T + .1);
   VR.tween(2.2, (e, p) => tr.userData.glow(1 + (VR.calm() ? .4 : 2) * Math.sin(p * Math.PI)), T + .1);
   if (label) VR.tween(1.2, e => label.material.opacity = e, T + .3);
-  VR.tween(1.5, e => fl.material.opacity = .9 * e, T + .1);
+  VR.tween(1.5, e => fl.material.opacity = .52 * e);
   if (a.vibrate) VR.at(T + .1, () => { VR.audio.vibrate(a.vibrate); VR.haptic(.8, 400); });
 };
 
@@ -171,44 +170,9 @@ function makeWingTex() { const c = document.createElement('canvas'); c.width = 2
     g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(10, 0); g.lineTo(len * .96, 0); g.stroke(); g.restore(); }
   return VR.canvasTex(c); }
 function makeGuardian(a, b) {
-  if (!wingTex) wingTex = makeWingTex();
-  const [pc, sc] = a.colors || ['#ffffff', '#ffd36b'];
-  const root = new THREE.Group(); root.position.copy(VR.dir(b).multiplyScalar(a.radius || 6.8)); root.lookAt(0, 0, 0); root.scale.setScalar(a.scale || 1);
-  const inner = new THREE.Group(); root.add(inner); const mats = [];
-  const M = (c, o) => { const m = VR.addMat(c, o); mats.push([m, o]); m.opacity = 0; return m; };
-  const S = (c, size, o, x, y, z) => { const s = VR.sprite(c, size, 0); s.position.set(x, y, z); mats.push([s.material, o]); inner.add(s); return s; };
-  const prof = [[0, 0], [1.5, .05], [1.25, 1.5], [.95, 3], [.7, 4.4], [.55, 5.4], [.4, 6.1], [0, 6.3]].map(v => new THREE.Vector2(v[0], v[1]));
-  const robe = new THREE.LatheGeometry(prof, 40); inner.add(new THREE.Mesh(robe, M(pc, .26)));
-  const core = new THREE.Mesh(robe, M(0xffffff, .1)); core.scale.set(.45, 1, .45); inner.add(core);
-  S(0xffffff, 1.3, .9, 0, 6.85, .1); S(pc, 3.4, .6, 0, 6.7, 0); S(sc, 6, .25, 0, 4.5, -.4);
-  const halo = new THREE.Mesh(new THREE.TorusGeometry(.8, .035, 8, 64), M(0xffe7a0, .9)); halo.position.set(0, 6.95, -.3); inner.add(halo);
-  const wings = [];
-  if (a.wings !== false) { const wm = M(sc, .8); wm.map = wingTex; wm.needsUpdate = true;
-    [1, -1].forEach(side => { const pv = new THREE.Group(); pv.position.set(.35 * side, 4.1, -.2); pv.scale.x = side;
-      const pl = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 6.6), wm); pl.position.set(1.52, 2.75, 0); pv.add(pl); pv.rotation.y = -.38 * side; inner.add(pv); wings.push(pv); }); }
-  const at = new THREE.Group(); at.position.set(1, 3.2, .5);
-  switch (a.attribute) {
-    case 'sword': at.add(new THREE.Mesh(new THREE.BoxGeometry(.09, 2.8, .03), M(0xffffff, .9)), new THREE.Mesh(new THREE.BoxGeometry(.22, 2.9, .1), M(pc, .5)));
-      { const gd = new THREE.Mesh(new THREE.BoxGeometry(.7, .09, .09), M(0xffe7a0, .9)); gd.position.y = -.9; at.add(gd); } break;
-    case 'cup': { const cup = new THREE.Mesh(new THREE.LatheGeometry([[0, 0], [.25, 0], [.08, .1], [.06, .5], [.36, .7], [.44, 1.1]].map(v => new THREE.Vector2(v[0], v[1])), 24), M(sc, .75));
-      cup.position.y = -.4; at.add(cup); S(0x9fdcff, 1, .8, 1, 3.95, .5); } break;
-    case 'wand': at.add(new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, 2.4, 8), M(0xffffff, .8))); S(sc, 1.1, .9, 1, 4.45, .5); break;
-    case 'sheaf': for (let i = 0; i < 7; i++) { const cn = new THREE.Mesh(new THREE.ConeGeometry(.07, 1.6, 6), M(i % 2 ? pc : sc, .8)); cn.rotation.z = (i - 3) * .12; cn.position.x = (i - 3) * .05; at.add(cn); } break;
-    case 'orb': S(sc, 1.2, .9, 1, 3.4, .5); S(0xffffff, .4, .9, 1, 3.4, .5); break;
-    default: break;
-  }
-  inner.add(at);
-  const dm = M(pc, .55); dm.map = GLOW_MAP(); const disk = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), dm); disk.rotation.x = -Math.PI / 2; disk.position.y = .06; root.add(disk);
-  const n = VR.settings.simplified ? 50 : 150, pp = new Float32Array(n * 3), spd = new Float32Array(n);
-  for (let i = 0; i < n; i++) { const r = Math.random() * 1.8, t = Math.random() * 6.28; pp[i * 3] = Math.cos(t) * r; pp[i * 3 + 1] = Math.random() * 8; pp[i * 3 + 2] = Math.sin(t) * r; spd[i] = .4 + Math.random() * 1.2; }
-  const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
-  const pm = new THREE.PointsMaterial({ map: VR.GLOW, size: .2, color: new THREE.Color(sc).multiplyScalar(VR.fxK()), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, toneMapped: false });
-  mats.push([pm, .9]); const parts = new THREE.Points(pg, pm); parts.userData.spd = spd; inner.add(parts);
-  const light = new THREE.PointLight(new THREE.Color(pc), 0, 22, 1.5); light.position.set(0, 3, 1); root.add(light);
-  root.visible = false; root.userData = { setA: v => mats.forEach(([m, o]) => m.opacity = o * v), inner, light, wings, halo, parts, a: 0 };
-  return root;
+  if (!wingTex) { wingTex = makeWingTex(); VR.sharedTextures.add(wingTex); }
+  return createAngel(a, b, wingTex);
 }
-function GLOW_MAP() { return VR.GLOW; }
 A.guardian = (a, ctx) => {
   const b = VR.bearing(a.quarter ?? ctx.face), key = a.key || String(b); let G = F.guardians[key];
   if (G && G.visible && G.userData.a > 0) { const L = G.userData.light, i0 = L.intensity; VR.tween(2, (e, p) => L.intensity = i0 + 1.5 * Math.sin(p * Math.PI) * VR.fxK()); if (a.chord) VR.audio.chord(a.chord, 4); return; }

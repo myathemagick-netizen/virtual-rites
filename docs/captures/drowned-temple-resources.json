@@ -1,0 +1,57 @@
+{
+  "result": {
+    "terrainClearance": 15.499999474217262,
+    "rocks": 160,
+    "models": "ready",
+    "parts": {
+      "full-arch": 4,
+      "pillar": 10,
+      "arch-span": 4
+    },
+    "fallen": 6,
+    "ruins": 6,
+    "modelClearance": 15.600000143463728,
+    "particles": 700,
+    "clearance": 15.3,
+    "canopy": 24,
+    "fish": 96,
+    "resources": {
+      "geometries": 20,
+      "textures": 10,
+      "programs": 13,
+      "calls": 24,
+      "triangles": 68529
+    }
+  },
+  "checks": {
+    "simpleRocks": 32,
+    "quiet": true,
+    "reduced": true,
+    "warm": {
+      "geometries": 4,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "end": {
+      "geometries": 4,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "late": {
+      "geometries": 4,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "tailMoves": true,
+    "fishBounds": true,
+    "simpleModels": true,
+    "simpleFish": 16,
+    "simpleQuiet": true
+  }
+}

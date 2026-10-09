@@ -1,0 +1,39 @@
+{
+  "result": {
+    "status": "ready",
+    "clearance": 13.262277189360407,
+    "height": 12,
+    "triangles": 20489,
+    "meshes": 1,
+    "corners": [
+      13.73218396887014,
+      14.897734535158744,
+      23.864195506293928,
+      24.553399864128533
+    ],
+    "resources": {
+      "geometries": 50,
+      "textures": 7,
+      "programs": 10,
+      "calls": 50,
+      "triangles": 75433
+    }
+  },
+  "cleanup": {
+    "warm": {
+      "geometries": 5,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "end": {
+      "geometries": 5,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "simplified": true
+  }
+}

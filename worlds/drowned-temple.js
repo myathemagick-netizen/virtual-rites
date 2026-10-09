@@ -1,0 +1,43 @@
+import {stoneMaps,weatheredStone} from './stone-surface.js';
+import {templeWater,templeProjection} from './temple-water.js';
+import {templeModels} from './temple-models.js';
+import {templeFish} from './temple-fish.js';
+import {templeTerrain} from './temple-terrain.js';
+VR.registerWorld({id:'drowned-temple',name:'The Drowned Temple',blurb:'An air-filled sanctuary beneath the ocean, with weathered arches, drifting fish and sunlight rippling across the stone.',
+ build(ctx){
+  const g=ctx.group,K=VR.kit,dir=VR.dir,hash=VR.hash;
+  // Match the distant background to the scattering color so fog has no visible boundary.
+  ctx.setFog(0x073847,.04);const sky=K.sky(g,{top:0x185c73,mid:0x0b3c51,horizon:0x073847,glow:0x205e6b,glowBearing:55,glowPower:4,opposite:0x073847,oppositeAmount:0,below:0x073847});
+  sky.material.fragmentShader=sky.material.fragmentShader.replace('uHor*.55','c').replace('gl_FragColor=vec4(c,1.);','gl_FragColor=vec4(c,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n');
+  g.add(new THREE.HemisphereLight(0x9dd9e4,0x244b4b,2.0));const sun=new THREE.DirectionalLight(0xc3edf0,2.8);sun.position.copy(dir(55).multiplyScalar(35)).setY(50);g.add(sun);
+  const maps=stoneMaps(ctx.simplified),stone=new THREE.MeshStandardMaterial({color:0x6d8989,map:maps.map,bumpMap:maps.bumpMap,bumpScale:.05,roughness:.98,vertexColors:true});
+  const floorMat=new THREE.MeshStandardMaterial({color:0x526967,map:maps.map,bumpMap:maps.bumpMap,bumpScale:.025,roughness:.95});
+  const sandGeo=new THREE.CircleGeometry(85,64),sandUV=sandGeo.attributes.uv;for(let i=0;i<sandUV.count;i++)sandUV.setXY(i,sandUV.getX(i)*30,sandUV.getY(i)*30);
+  const sand=new THREE.Mesh(sandGeo,new THREE.MeshStandardMaterial({color:0x506e65,map:maps.map,roughness:1}));sand.name='Distant sandy seabed';sand.rotation.x=-Math.PI/2;sand.position.y=-.78;g.add(sand);
+  const projection=templeProjection(ctx.simplified);projection.apply(stone);projection.apply(floorMat);
+  const terrain=templeTerrain(ctx,stone);
+  const floorGeo=new THREE.CircleGeometry(13.5,64),uv=floorGeo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*9,uv.getY(i)*9);
+  const floor=new THREE.Mesh(floorGeo,floorMat);floor.rotation.x=-Math.PI/2;floor.name='Clear temple ritual floor';g.add(floor);
+  const terrace=new THREE.Mesh(new THREE.CylinderGeometry(14.3,15.3,.7,48),floorMat);terrace.position.y=-.4;g.add(terrace);
+  const edgeMat=new THREE.MeshBasicMaterial({color:0x76b8ba,transparent:true,opacity:.22});
+  for(const r of [8.5,12.8,13.4]){const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.025,5,96),edgeMat);ring.rotation.x=Math.PI/2;ring.position.y=.025;g.add(ring);}
+  const arches=[],pillars=[],ruins=[];
+  for(let i=0;i<12;i++){
+   const b=i*30,p=dir(b).multiplyScalar(16.5),geo=weatheredStone(1.5,11.5,1.7,i+1,.18,ctx.simplified);
+   const column=new THREE.Mesh(geo,stone);column.position.copy(p);column.rotation.y=VR.yawFor(b);column.name='Temple perimeter pillar';g.add(column);pillars.push(column);
+   const archGeo=new THREE.TorusGeometry(3.5,.5,ctx.simplified?5:8,ctx.simplified?16:32,Math.PI),colors=[];for(let v=0;v<archGeo.attributes.position.count;v++)colors.push(.9,.94,.92);archGeo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+   const arch=new THREE.Mesh(archGeo,stone);arch.position.copy(dir(b+15).multiplyScalar(16)).setY(11.5);arch.rotation.y=VR.yawFor(b+15);arch.name='Weathered temple arch';g.add(arch);arches.push(arch);if(i%3===1)arch.visible=false;
+  }
+  for(let i=0;i<(ctx.simplified?8:18);i++){const b=i*23,p=dir(b).multiplyScalar(30+hash(i+12)*25),ruin=new THREE.Mesh(weatheredStone(1.8,4+hash(i+30)*7,1.8,i+80,.24,ctx.simplified),stone);ruin.position.copy(p);ruin.rotation.y=b;ruin.rotation.z=(hash(i+44)-.5)*.35;g.add(ruin);ruins.push(ruin);}
+  const models=templeModels(ctx,[...arches,...pillars,...ruins],projection);
+  const water=templeWater(ctx.simplified);g.add(water.water);
+  const shafts=new THREE.Group();shafts.name='Submerged sun shafts';g.add(shafts);
+  const shaftMat=new THREE.ShaderMaterial({uniforms:{strength:{value:ctx.simplified?.035:.09}},transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,vertexShader:'varying vec2 beamUV;void main(){beamUV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 beamUV;uniform float strength;void main(){float sideFade=pow(abs(sin(beamUV.x*6.283185)),2.);float endFade=sin(beamUV.y*3.141593);gl_FragColor=vec4(.5,.85,.9,strength*sideFade*endFade*endFade);}' });
+  for(let i=0;i<(ctx.simplified?2:4);i++){const beam=new THREE.Mesh(new THREE.CylinderGeometry(.35,2.1,22,8,1,true),shaftMat);beam.position.copy(dir(35+i*85).multiplyScalar(12)).setY(12);beam.rotation.z=.12;shafts.add(beam);}
+  const fish=templeFish(ctx);
+  const particles=K.motes(g,{count:ctx.simplified?100:700,radius:26,height:22,palette:[0x74aab5,0xb5d7d5,0x81b9c5],size:.06,speed:.2,opacity:.28,minY:1});particles.points.name='Suspended marine particles';
+  return {water,pillars,projection,models,particles,fish,terrain,update(dt,T){const quiet=VR.calm()||VR.reducedMotion||ctx.simplified;water.update(T);projection.update(T);fish.update(dt,T);shaftMat.uniforms.strength.value=quiet?.025:VR.settings.intensity==='soft'?.05:.09;
+   if(!quiet)particles.update(dt,T);
+  }};
+ }
+});

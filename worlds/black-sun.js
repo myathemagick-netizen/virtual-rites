@@ -1,6 +1,7 @@
 /* World: Temple of the Black Sun
    A surreal obsidian plane under a crimson sky. A black sun with a burning corona hangs in the east,
    gold armillary rings turn overhead, and dark monoliths drift in orbit. */
+import { eclipseCorona, symbolOrbit } from './black-sun-visuals.js';
 VR.registerWorld({
   id: 'black-sun',
   name: 'Temple of the Black Sun',
@@ -20,13 +21,10 @@ VR.registerWorld({
     const sunPos = dir(SB).multiplyScalar(170).setY(58);
     const core = new THREE.Mesh(new THREE.SphereGeometry(20, 48, 24), new THREE.MeshBasicMaterial({ color: 0x000000, fog: false })); core.position.copy(sunPos); g.add(core);
     const behind = dir(SB).multiplyScalar(178).setY(60);
-    [[0xff5a2a, 95, .9], [0xffd36b, 62, .8], [0xff2a6a, 140, .35]].forEach(([c, s, o]) => { const sp = VR.sprite(c, s, o); sp.position.copy(behind); g.add(sp); });
-    const rays = new THREE.Group(); rays.position.copy(behind); rays.lookAt(0, 0, 0); g.add(rays);
-    const rm = VR.addMat(0xffc53d, .35);
-    for (let i = 0; i < 28; i++) { const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 60 + hash(i) * 50), rm); pl.position.y = 0; pl.geometry.translate(0, 45, 0); pl.rotation.z = i / 28 * Math.PI * 2; rays.add(pl); }
+    const corona=eclipseCorona(behind);g.add(corona.mesh);
 
     const rings = new THREE.Group(); rings.position.y = 13; g.add(rings);
-    [10, 14, 19].forEach((r, i) => { const t = new THREE.Mesh(new THREE.TorusGeometry(r, .06 + i * .02, 8, 160), VR.addMat(i === 1 ? 0xff7ab8 : 0xffc53d, .75));
+    [10, 14, 19, 23].forEach((r, i) => { const t = symbolOrbit(r,i,ctx.simplified);
       t.rotation.x = Math.PI / 2 + (i - 1) * .35; t.rotation.y = i * .7; rings.add(t); });
 
     const obs = new THREE.MeshStandardMaterial({ color: 0x0a0a0f, metalness: .9, roughness: .15 });
@@ -37,7 +35,8 @@ VR.registerWorld({
       m.userData = { r: 24 + hash(i) * 18, a: i / 9 * Math.PI * 2, y: 5 + hash(i + 4) * 7, s: .02 + hash(i + 9) * .03 }; g.add(m); monos.push(m); }
     const embers = K.motes(g, { count: ctx.simplified ? 120 : 420, radius: 26, height: 12, palette: [0xff5a2a, 0xffd36b, 0xff2a6a, 0xb67cff], size: .14, speed: .6 });
     return { update(dt, T) {
-      rays.rotation.z += dt * .02; rings.children.forEach((r, i) => { r.rotation.z += dt * (.04 + i * .02) * (i % 2 ? -1 : 1); });
+      const quiet=VR.calm()||VR.reducedMotion||VR.settings.simplified;corona.update(T);
+      rings.children.forEach((r, i) => { if(!quiet)r.rotation.z += dt * (.015 + i * .008) * (i % 2 ? -1 : 1); });
       monos.forEach(m => { const u = m.userData; u.a += dt * u.s; m.position.set(Math.cos(u.a) * u.r, u.y + Math.sin(T * .3 + u.r) * .8, Math.sin(u.a) * u.r); m.rotation.y += dt * .1; m.rotation.z = Math.sin(T * .2 + u.r) * .2; });
       embers.update(dt, T); } };
   }

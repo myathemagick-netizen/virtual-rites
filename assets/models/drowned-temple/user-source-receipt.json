@@ -1,0 +1,14 @@
+{
+  "sourceArchive": "Meshy_AI_Ancient_Ruined_Archwa_1009134850_texture_obj.zip",
+  "sourceSha256": "0d14da9439016c267ef9c0199927b2973a8f2298e1dc21ad7aec9a272db88537",
+  "sourceFormat": "OBJ + MTL + PNG",
+  "consumedCredits": 0,
+  "conversion": "OBJLoader and GLTFExporter, 1024 maximum texture size",
+  "separation": "connected triangle components grouped by position; all original triangles and UVs retained",
+  "parts": {
+    "full-arch": 2392,
+    "pillar": 993,
+    "arch-span": 786
+  },
+  "runtime": "user-parts.glb"
+}

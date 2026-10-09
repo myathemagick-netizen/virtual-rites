@@ -27,7 +27,7 @@ VR.store = {
   set(k, v) { try { localStorage.setItem('vr.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem('vr.' + k); } catch (e) {} }
 };
-const DEFAULTS = { intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
+const DEFAULTS = { narrationSource: 'auto', localNarration: false, grovePrototype: false, intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
   gaze: false, singleSwitch: false, narration: true, sound: true, timingTint: true, camera: 'witness', location: null };
 VR.settings = Object.assign({}, DEFAULTS, VR.store.get('settings', {}));
 VR.saveSettings = () => VR.store.set('settings', VR.settings);
@@ -39,7 +39,7 @@ const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 renderer.xr.enabled = true;
@@ -56,13 +56,14 @@ VR.tintLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0); scene.add(VR.ti
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 /* ---------- textures & glowing materials ---------- */
-VR.canvasTex = c => { const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; };
+VR.canvasTex = c => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
 const GLOW = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
   const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
   gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.18, 'rgba(255,255,255,.85)');
   gr.addColorStop(.45, 'rgba(255,255,255,.22)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 VR.GLOW = GLOW;
+VR.sharedTextures = new Set([GLOW]);
 const scaled = color => new THREE.Color(color).multiplyScalar(VR.fxK());
 VR.addMat = (color, op = 1) => new THREE.MeshBasicMaterial({ color: scaled(color), transparent: true, opacity: op,
   blending: THREE.AdditiveBlending, depthWrite: false, fog: false, side: THREE.DoubleSide, toneMapped: false });
@@ -81,8 +82,13 @@ VR.EYE = new THREE.Vector3(0, 1.6, 0); const BEAMS = new Set();
 VR.beamMat = (color, op) => {
   const u = { uColor: { value: scaled(color) }, uOp: { value: op }, uEye: { value: VR.EYE }, uFade: { value: 0 } };
   const m = new THREE.ShaderMaterial({ uniforms: u, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
-    vertexShader: 'varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
-    fragmentShader: 'varying vec3 vW;uniform vec3 uColor;uniform float uOp;uniform vec3 uEye;uniform float uFade;void main(){float f=mix(1.,smoothstep(.3,1.1,distance(vW,uEye)),uFade);gl_FragColor=vec4(uColor,uOp*f);}' });
+    vertexShader: 'varying vec3 vW,vN,vView;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;vec4 p=viewMatrix*w;vN=normalMatrix*normal;vView=-p.xyz;gl_Position=projectionMatrix*p;}',
+    fragmentShader: `varying vec3 vW,vN,vView;uniform vec3 uColor;uniform float uOp;uniform vec3 uEye;uniform float uFade;
+      void main(){float f=mix(1.,smoothstep(.3,1.1,distance(vW,uEye)),uFade);
+      float edge=pow(abs(dot(normalize(vN),normalize(vView))),2.);
+      gl_FragColor=vec4(uColor,uOp*f*edge);
+      #include <colorspace_fragment>
+      }` });
   Object.defineProperty(m, 'opacity', { get() { return u.uOp.value; }, set(v) { u.uOp.value = v; }, configurable: true });
   m.addEventListener('dispose', () => BEAMS.delete(u)); BEAMS.add(u); return m;
 };
@@ -90,13 +96,26 @@ VR.updateBeams = near => BEAMS.forEach(u => u.uFade.value = near ? 1 : 0);
 
 /* A glowing line that can be revealed progressively: trace.userData.set(0..1), .glow(multiplier) */
 VR.trace = (curve, { segs = 200, r = .028, core = 0xffffff, glow = 0x4cc3ff, gop = .4 } = {}) => {
-  const g1 = new THREE.TubeGeometry(curve, segs, r, 6, false), g2 = new THREE.TubeGeometry(curve, segs, r * 3.4, 6, false);
-  const m1 = VR.addMat(core, 1), m2 = VR.addMat(glow, gop);
+  const g1 = new THREE.TubeGeometry(curve, segs, r * .6, 6, false), g2 = new THREE.TubeGeometry(curve, segs, r * 4.2, 8, false);
+  const m1 = VR.addMat(core, 1);
+  // View-dependent edge falloff makes a soft halo rather than a second solid tube.
+  const uniforms = { uColor: { value: scaled(glow) }, uOpacity: { value: gop } };
+  const m2 = new THREE.ShaderMaterial({ uniforms, transparent: true, depthWrite: false,
+    blending: THREE.AdditiveBlending, side: THREE.FrontSide, toneMapped: false,
+    vertexShader: `varying vec3 vNormal,vView;void main(){vec4 p=modelViewMatrix*vec4(position,1.);
+      vNormal=normalize(normalMatrix*normal);vView=-p.xyz;gl_Position=projectionMatrix*p;}`,
+    fragmentShader: `varying vec3 vNormal,vView;uniform vec3 uColor;uniform float uOpacity;
+      void main(){float profile=pow(abs(dot(normalize(vNormal),normalize(vView))),3.);
+      gl_FragColor=vec4(uColor,uOpacity*profile*.65);
+      #include <colorspace_fragment>
+      }` });
+  Object.defineProperty(m2, 'opacity', { get: () => uniforms.uOpacity.value,
+    set: value => { uniforms.uOpacity.value = value; }, configurable: true });
   const grp = new THREE.Group(); grp.add(new THREE.Mesh(g1, m1), new THREE.Mesh(g2, m2));
   const head = VR.sprite(glow, .65); head.visible = false; grp.add(head); const per = 36;
   grp.userData = {
     p: 0,
-    set(p) { this.p = p; const n = Math.floor(p * segs) * per; g1.setDrawRange(0, n); g2.setDrawRange(0, n);
+    set(p) { this.p = p; const n = Math.floor(p * segs) * per; g1.setDrawRange(0, n); g2.setDrawRange(0, Math.floor(p * segs) * 48);
       head.visible = p > 0 && p < 1; if (head.visible) head.position.copy(curve.getPointAt(Math.min(p, 1))); },
     glow(a) { m1.opacity = Math.max(0, Math.min(1, a)); m2.opacity = Math.max(0, Math.min(1, gop * a)); }
   };
@@ -122,10 +141,10 @@ VR.fadeObject = (obj, dur, done) => {
 };
 
 /* ---------- audio ---------- */
-const AU = VR.audio = { ctx: null };
+const AU = VR.audio = { ctx: null, active: false };
 function out(n) { n.connect(AU.master); n.connect(AU.rev); }
 AU.init = function () {
-  if (AU.ctx) return; try { AU.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  if (AU.ctx || !AU.active || !VR.settings.sound) return; try { AU.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
   const A = AU.ctx; AU.master = A.createGain(); AU.master.gain.value = VR.settings.sound ? .7 : 0;
   const comp = A.createDynamicsCompressor(); AU.master.connect(comp); comp.connect(A.destination);
   AU.rev = A.createConvolver(); const len = A.sampleRate * 3.6, buf = A.createBuffer(2, len, A.sampleRate);
@@ -139,8 +158,21 @@ AU.init = function () {
   const ng = A.createGain(); ng.gain.value = .03; const l = A.createOscillator(); l.frequency.value = .07; const lg = A.createGain(); lg.gain.value = 280;
   l.connect(lg); lg.connect(bp.frequency); n.connect(bp); bp.connect(ng); out(ng); n.start(); l.start();
 };
-const ready = () => AU.ctx && !VR.silent;
-AU.level = () => VR.settings.sound ? .7 : 0;
+AU.start = () => {
+  AU.active = true; AU.init();
+  if (AU.ctx && AU.ctx.state === 'suspended') AU.ctx.resume().catch(() => {});
+};
+AU.stop = () => {
+  VR.media?.stopAudio(); VR.narration?.stop();
+  AU.active = false;
+  const ctx = AU.ctx;
+  // Drop the whole graph, including looping sources, LFOs and reverb tails.
+  // A fresh context on re-entry cannot replay the previous ritual's notes.
+  AU.ctx = null; AU.master = null; AU.rev = null;
+  if (ctx && ctx.state !== 'closed') ctx.close().catch(() => {});
+};
+const ready = () => AU.active && AU.ctx && VR.settings.sound && !VR.silent;
+AU.level = () => AU.active && VR.settings.sound ? .7 : 0;
 AU.setOn = () => { if (AU.ctx) AU.master.gain.setTargetAtTime(AU.level(), AU.ctx.currentTime, .1); };
 AU.duck = on => { if (AU.ctx) AU.master.gain.setTargetAtTime(on ? AU.level() * .15 : AU.level(), AU.ctx.currentTime, .5); };
 AU.bell = (f, v = .16) => { if (!ready()) return; const A = AU.ctx, now = A.currentTime;
@@ -165,12 +197,9 @@ AU.tone = (f, dur = 4, v = .05) => { if (!ready()) return; const A = AU.ctx, now
   o.connect(g); out(g); o.start(now); o.stop(now + dur + .1); };
 
 /* ---------- speech & haptics ---------- */
-let voice = null;
-function pickVoice() { const vs = speechSynthesis.getVoices(); voice = vs.find(v => /Daniel|Google UK English Male|Arthur|Oliver/i.test(v.name)) || vs.find(v => /^en/i.test(v.lang)) || null; }
-if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-VR.say = (t, queue) => { if (!t || VR.silent || !VR.settings.sound || !('speechSynthesis' in window)) return; if (!queue) speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(t); u.rate = .8; u.pitch = .72; u.volume = .95; if (voice) u.voice = voice; speechSynthesis.speak(u); };
-VR.stopSpeech = () => { if ('speechSynthesis' in window) speechSynthesis.cancel(); };
+// The narration module installs recorded, browser and local voice providers.
+VR.say = () => {};
+VR.stopSpeech = () => {};
 VR.haptic = (strength = .5, ms = 60) => { if (!VR.settings.haptics || VR.silent) return; const s = renderer.xr.getSession && renderer.xr.getSession(); if (!s) return;
   for (const src of s.inputSources) { const a = src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0]; if (a && a.pulse) try { a.pulse(strength, ms); } catch (e) {} } };
 
@@ -179,9 +208,39 @@ VR.toast = (msg, ms = 5000) => { const t = document.getElementById('toast'); if 
 /* ---------- worlds ---------- */
 VR.worlds = {}; VR.worldOrder = []; VR.world = null;
 VR.registerWorld = def => { if (!VR.worlds[def.id]) VR.worldOrder.push(def.id); VR.worlds[def.id] = def; };
-function disposeGroup(g) { while (g.children.length) { const o = g.children.pop(); o.traverse(x => { if (x.geometry) x.geometry.dispose();
-  const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(m => { if (m.map && m.map !== GLOW) m.map.dispose(); m.dispose(); }); }); } }
+function disposeGroup(g) {
+  const geometries = new Set(), materials = new Set(), textures = new Set(), instances = new Set();
+  // Include g itself: effect removals also pass Mesh and Sprite roots.
+  g.traverse(x => {
+    if (x.isInstancedMesh) instances.add(x);
+    if (x.geometry && !x.isSprite) geometries.add(x.geometry);
+    const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : [];
+    ms.forEach(m => {
+      materials.add(m);
+      Object.values(m).forEach(v => { if (v && v.isTexture) textures.add(v); });
+      Object.values(m.uniforms || {}).forEach(u => {
+        const values = Array.isArray(u.value) ? u.value : [u.value];
+        values.forEach(v => { if (v && v.isTexture) textures.add(v); });
+      });
+    });
+  });
+  const bitmaps = new Set();
+  textures.forEach(t => {
+    if (VR.sharedTextures.has(t)) return;
+    // GLTFLoader uses ImageBitmap; disposing the GPU texture does not close it.
+    if (t.image && typeof t.image.close === 'function') bitmaps.add(t.image);
+    t.dispose();
+  });
+  bitmaps.forEach(image => image.close());
+  materials.forEach(m => { m.userData.disposed = true; m.dispose(); });
+  geometries.forEach(geo => { geo.dispose(); });
+  instances.forEach(mesh => mesh.dispose());
+  g.clear();
+}
 VR.disposeGroup = disposeGroup;
+VR.resourceSnapshot = () => ({ geometries: renderer.info.memory.geometries,
+  textures: renderer.info.memory.textures, programs: renderer.info.programs.length,
+  calls: renderer.info.render.calls, triangles: renderer.info.render.triangles });
 VR.loadWorld = (id, force) => {
   const def = VR.worlds[id] || VR.worlds[VR.worldOrder[0]]; if (!def) return null;
   if (!force && VR.world && VR.world.def === def) return VR.world;

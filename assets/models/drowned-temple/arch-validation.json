@@ -1,0 +1,35 @@
+{
+  "file": "arch.glb",
+  "sha256": "0dbd39d816f3f9a4c7dd9f865ba688cd114406e01a81da68ae12085b0743778f",
+  "bytes": 5766508,
+  "triangles": 836,
+  "meshes": 1,
+  "materials": 1,
+  "textures": [
+    [
+      1024,
+      1024
+    ],
+    [
+      1024,
+      1024
+    ],
+    [
+      1024,
+      1024
+    ],
+    [
+      1024,
+      1024
+    ]
+  ],
+  "policy": {
+    "maxTriangles": 25000,
+    "maxBytes": 12000000,
+    "maxTextureDimension": 2048,
+    "maxMaterials": 6,
+    "embeddedOnly": true
+  },
+  "passed": true,
+  "validation": "GLB v2 header/chunk lengths, embedded buffer/image bounds, decoded image integrity, triangle/material/texture/file budgets"
+}

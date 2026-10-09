@@ -2,6 +2,8 @@
 
 A world is the place a rite happens: Stonehenge, a grove, a temple, orbit. Each one is a single JavaScript file in `worlds/`. Worlds only build scenery. The circle, pentagrams, guardians and every other ritual effect are drawn by the engine on top of whatever world is chosen, so any rite works in any world.
 
+The Drowned Temple (`drowned-temple`) is the sixth selectable world. Its main module imports shared weathered-stone builders and `temple-water.js`; water and caustics are ordinary GLSL ShaderMaterials on the existing WebGLRenderer. All meshes, shader uniforms and shared per-world maps belong to `ctx.group` and use its normal teardown. No reflection/refraction render targets are allocated. Fish use two InstancedMeshes with bounded counts. Keep `VR.calm()`, `VR.reducedMotion` and `ctx.simplified` in mind when adding motion or detail; this world provides steady, reduced variants.
+
 ## Adding a world
 
 1. Create `worlds/my-world.js`.
@@ -28,7 +30,7 @@ VR.registerWorld({
 });
 ```
 
-`build` is called whenever the world is chosen. Everything you add to `ctx.group` is removed and disposed automatically when another world is chosen, so no cleanup code is needed.
+`build` is called whenever the world is chosen. Everything you add to `ctx.group` is removed and disposed automatically when another world is chosen, so no cleanup code is needed for group-owned geometries, materials and textures. Application-lifetime texture caches must register their textures in `VR.sharedTextures`; a material flag does not transfer ownership. External listeners and other side effects are not automatically cleaned up.
 
 Respect `ctx.simplified`: when the practitioner turns on Simplified environment, use fewer particles and less motion. Keep the area within about 7 meters of the center clear, since that is where the circle, pentagrams (3.2 m) and guardians (6.8 m) appear. The practitioner stands at the origin facing East, which is the -Z direction. `VR.dir(bearing)` gives a unit vector toward any compass bearing, and `VR.yawFor(bearing)` gives the rotation that faces it.
 
@@ -46,4 +48,4 @@ Set `passthrough: true` on a world meant for mixed reality; its scenery is hidde
 | `VR.addMat(color, opacity)` | An additive glowing material. |
 | `VR.hash(n)` | A repeatable pseudo-random number from 0 to 1, for placing things the same way every time. |
 
-Three.js r128 is available as the global `THREE`. Keep a world under a few thousand objects so it runs smoothly on a standalone headset.
+Three.js 0.186.0 is available as the global `THREE` through the npm module entry point. World files are bundled ES modules; rebuild to publish new worlds. Keep a world under a few thousand objects so it runs smoothly on a standalone headset.

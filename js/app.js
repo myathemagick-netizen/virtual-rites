@@ -1,3 +1,4 @@
+import { validateRitual, validateLibrary } from './validation.js';
 /* Virtual Rites — app
    Boots the library (worlds/ and rituals/), runs the screens, the HUD and Conductor,
    the journal and settings, WebXR (VR and passthrough mixed reality) and the render loop. */
@@ -10,14 +11,14 @@ const state = { rituals: [], ritual: null, world: null, mode: 'guided', sigilMet
 const xr = { vr: false, ar: false, session: null, mode: null, prev: {} };
 
 /* ---------- boot ---------- */
-const fetchJSON = url => fetch(url, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
-const loadScript = src => new Promise((res) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => { console.error('[Virtual Rites] could not load', src); res(); }; document.head.appendChild(s); });
+const fetchJSON = url => fetch(VR.assetURL(url), { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
+const loadScript = src => VR.loadWorldModule(src);
 async function boot() {
   applyCss();
-  try { const wl = await fetchJSON('worlds/index.json'); for (const f of wl) await loadScript('worlds/' + f); }
+  try { const wl = validateLibrary(await fetchJSON('worlds/index.json'), 'js'); for (const f of wl) await loadScript(f); }
   catch (e) { console.error(e); VR.toast("Couldn't read worlds/index.json. If you opened the file directly, serve the folder from GitHub Pages or a local web server."); }
-  try { const rl = await fetchJSON('rituals/index.json');
-    const rs = await Promise.all(rl.map(f => fetchJSON('rituals/' + f).then(r => { r.file = f; return r; }).catch(err => { console.error('[Virtual Rites] ritual failed to load:', f, err); VR.toast('Ritual file ' + f + " couldn't be read. Check it for JSON errors."); return null; })));
+  try { const rl = validateLibrary(await fetchJSON('rituals/index.json'), 'json');
+    const rs = await Promise.all(rl.map(f => fetchJSON('rituals/' + f).then(r => { validateRitual(r, VR.actions); r.file = f; return r; }).catch(err => { console.error('[Virtual Rites] ritual failed to load:', f, err); VR.toast('Ritual file ' + f + " couldn't be read. Check it for JSON errors."); return null; })));
     state.rituals = rs.filter(Boolean); }
   catch (e) { console.error(e); VR.toast("Couldn't read rituals/index.json."); }
   VR.tarot.loadDeckInfo();
@@ -32,7 +33,7 @@ function show(id) {
   ['home', 'intent', 'after', 'journal', 'settings'].forEach(x => $('#' + x).classList.toggle('off', x !== id));
   const rite = id === 'rite'; state.screen = id;
   $('#top').classList.toggle('off', !rite); $('#stage').classList.toggle('off', !rite);
-  if (!rite) setConductor(false);
+  if (!rite) { VR.audio.stop(); VR.stopSpeech(); VR.media.clear(); setConductor(false); }
 }
 document.querySelectorAll('[data-home]').forEach(b => b.addEventListener('click', () => { renderHome(); show('home'); }));
 
@@ -96,7 +97,6 @@ $('#beginMR').onclick = () => begin('ar');
 
 /* ---------- sessions ---------- */
 function begin(mode) {
-  VR.audio.init(); if (VR.audio.ctx && VR.audio.ctx.state === 'suspended') VR.audio.ctx.resume();
   const r = state.ritual; if (!r) return;
   const intent = $('#intentText').value.trim();
   let sigil = null;
@@ -109,7 +109,6 @@ function begin(mode) {
 function resume(pr) {
   const r = state.rituals.find(x => x.file === pr.ritualFile);
   if (!r) { VR.toast("That ritual file is no longer in rituals/index.json, so it can't be resumed."); return; }
-  VR.audio.init(); if (VR.audio.ctx && VR.audio.ctx.state === 'suspended') VR.audio.ctx.resume();
   state.ritual = r; selectWorld(VR.worlds[pr.world] ? pr.world : state.world);
   const s = pr.session; s.priorSec = pr.elapsed || 0; s.resumedAt = (s.resumedAt || []).concat(new Date().toISOString());
   state.mode = s.mode; startSession(r, s, pr.si, null);
@@ -236,12 +235,15 @@ $('#importFile').addEventListener('change', e => { const f = e.target.files[0]; 
 
 /* ---------- settings ---------- */
 const SET = [
+  { k: 'grovePrototype', label: 'Grove lighting prototype', bool: true, help: 'Batched luminous fungi and gentle responsive light. Low intensity and simplified mode use static, gentler lighting.', reload: true },
   { k: 'intensity', label: 'Effect intensity', opts: [['full', 'Full'], ['soft', 'Soft'], ['low', 'Low (no flashes)']], help: 'Low removes flashes and strong pulses, for photosensitivity. Takes effect from the next element.' },
   { k: 'simplified', label: 'Simplified environment', bool: true, help: 'Fewer particles and less motion in the world. Easier on attention and on older devices.', reload: true },
   { k: 'seated', label: 'Seated mode', bool: true, help: 'In a headset, lifts you to standing eye level while you sit.' },
   { k: 'pace', label: 'Guided pace', num: true, opts: [[.75, 'Brisk'], [1, 'Normal'], [1.25, 'Slower'], [1.5, 'Much slower'], [2, 'Very slow']], help: 'How long each element lasts before the guide moves on.' },
   { k: 'textScale', label: 'Text size', num: true, opts: [[1, 'Normal'], [1.15, 'Large'], [1.3, 'Larger']], css: true },
   { k: 'narration', label: 'Narration', bool: true, help: 'The spoken guide in Guided mode.' },
+  { k: 'narrationSource', label: 'Narration source', narrationSource: true, opts: [['auto','Automatic (recordings, browser, local)'],['recorded','Recorded audio only'],['browser','Browser TTS only'],['local','Local voice only']], help: 'Choose recordings to use ritual authors’ audio, or choose a TTS voice explicitly. Only Automatic switches to another source when one is missing. Choosing Local prepares a large voice download; prepare before VR.' },
+  { k: 'localNarration', label: 'Enable local voice', bool: true, localVoice: true, help: 'Downloads a large local voice model (roughly 100 MB or more) once; prepare before VR. Text stays on this device. Experimental: headset performance needs testing.' },
   { k: 'describe', label: 'Audio description', bool: true, help: 'Also speaks a description of what appears in the space, for low vision.' },
   { k: 'sound', label: 'Sound', bool: true, help: 'Drone, bells, vibrated names and narration.', sound: true },
   { k: 'haptics', label: 'Controller haptics', bool: true, help: 'Controllers pulse when names are vibrated and elements change.' },
@@ -255,6 +257,8 @@ function renderSettings() {
     const ctl = o.bool ? `<input type="checkbox" id="${id}" ${S[o.k] ? 'checked' : ''}>` : `<select id="${id}">${o.opts.map(([v, l]) => `<option value="${v}" ${String(S[o.k]) === String(v) ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
     d.innerHTML = `<label for="${id}">${o.label}</label>${ctl}${o.help ? `<p>${o.help}</p>` : ''}`;
     d.querySelector('#' + id).addEventListener('change', e => { S[o.k] = o.bool ? e.target.checked : o.num ? parseFloat(e.target.value) : e.target.value; VR.saveSettings();
+      if (o.narrationSource) { VR.stopSpeech(); VR.narration.warned=false; if(S.narrationSource==='local'){S.localNarration=true;$('#set-localNarration').checked=true;VR.narration.prepareLocal();VR.saveSettings();} }
+      if (o.localVoice) { if (S.localNarration) VR.narration.prepareLocal(); else { VR.narration.disableLocal();if(S.narrationSource==='local'){S.narrationSource='auto';$('#set-narrationSource').value='auto';VR.saveSettings();} } }
       if (o.css) applyCss(); if (o.reload) VR.loadWorld(state.world, true); if (o.sound) { VR.audio.setOn(); if (!S.sound) VR.stopSpeech(); } if (o.tint && state.cosmos) applyTint(state.cosmos); syncHud(); });
     f.appendChild(d); });
   const d = document.createElement('div'); d.className = 'set'; const loc = S.location;
@@ -416,9 +420,9 @@ function updateCamera(dt) {
 }
 
 /* ---------- loop ---------- */
-const clock = new THREE.Clock(); let T = 0;
+let lastTime = performance.now(), T = 0;
 VR.renderer.setAnimationLoop(() => {
-  const dt = Math.min(clock.getDelta(), .05); T += dt;
+  const now = performance.now(); const dt = Math.min((now - lastTime) / 1000, .05); lastTime = now; T += dt;
   P.update(dt);
   if (VR.world && VR.world.inst.update) try { VR.world.inst.update(dt, T); } catch (e) { console.error(e); VR.world.inst.update = null; }
   VR.fx.update(dt, T); pollXR(); updateCamera(dt); xrui.update(dt);
@@ -430,5 +434,5 @@ VR.renderer.setAnimationLoop(() => {
 });
 
 VR.app = { state, xr, show, renderHome };
-boot();
+VR.ready = boot();
 })(window.VR);

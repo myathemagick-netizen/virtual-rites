@@ -1,6 +1,6 @@
 /* Virtual Rites — tarot module
    78 cards named after the Rider-Waite-Smith deck (1909, public domain).
-   Faces are drawn procedurally. To use real card images, see assets/tarot/README.md. */
+   Historic public-domain illustrations with procedural fallback; see assets/tarot/README.md. */
 (function (VR) {
 'use strict';
 const MAJ = ['The Fool', 'The Magician', 'The High Priestess', 'The Empress', 'The Emperor', 'The Hierophant', 'The Lovers', 'The Chariot', 'Strength', 'The Hermit',
@@ -109,16 +109,16 @@ function backCanvas() {
   return c;
 }
 let info = { images: false, ext: 'jpg' };
-function loadDeckInfo() { return fetch('assets/tarot/deck.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { if (j) info = Object.assign(info, j); }).catch(() => {}); }
+function loadDeckInfo() { return fetch(VR.assetURL('assets/tarot/deck.json'), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { if (j) info = Object.assign(info, j); }).catch(() => {}); }
 function mesh(card) {
   const outer = new THREE.Group(), inner = new THREE.Group(); outer.add(inner);
   const frontMat = new THREE.MeshBasicMaterial({ map: VR.canvasTex(faceCanvas(card)), transparent: true, toneMapped: false, fog: false });
-  if (!backTex) backTex = VR.canvasTex(backCanvas());
+  if (!backTex) { backTex = VR.canvasTex(backCanvas()); VR.sharedTextures.add(backTex); }
   const backMat = new THREE.MeshBasicMaterial({ map: backTex, transparent: true, toneMapped: false, fog: false });
   const geo = new THREE.PlaneGeometry(.66, 1.14), front = new THREE.Mesh(geo, frontMat), back = new THREE.Mesh(geo, backMat); back.rotation.y = Math.PI;
   const glow = VR.sprite(card.color, 2, .35); glow.position.z = -.05;
   inner.add(glow, front, back); if (card.reversed) inner.rotation.z = Math.PI;
-  if (info.images) new THREE.TextureLoader().load(`assets/tarot/${card.id}.${info.ext || 'jpg'}`, t => { t.encoding = THREE.sRGBEncoding; frontMat.map.dispose(); frontMat.map = t; frontMat.needsUpdate = true; }, undefined, () => {});
+  if (info.images) new THREE.TextureLoader().load(VR.assetURL(`assets/tarot/${card.id}.${info.ext || 'jpg'}`), t => { if (frontMat.userData.disposed) { t.dispose(); return; } t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(4, VR.renderer.capabilities.getMaxAnisotropy()); frontMat.map.dispose(); frontMat.map = t; frontMat.userData.illustrated = true; frontMat.needsUpdate = true; }, undefined, () => {});
   outer.userData = { inner, mats: [frontMat, backMat, glow.material] };
   backMat.userData.shared = true;
   return outer;
