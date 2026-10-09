@@ -23,6 +23,7 @@ function drawRing(names) {
 VR.fx = {
   get state() { return F; },
   reset() {
+    VR.finishTweens();
     if (F) { VR.scene.remove(F.root); VR.disposeGroup(F.root); }
     F = { root: new THREE.Group(), on: {}, pents: {}, lines: [], guardians: {}, cards: [], bursts: [], sigil: null, qc: null, hex: null, breath: null, chaos: {}, planets: null, serpent: null };
     VR.scene.add(F.root);
@@ -171,7 +172,7 @@ function makeWingTex() { const c = document.createElement('canvas'); c.width = 2
     g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(10, 0); g.lineTo(len * .96, 0); g.stroke(); g.restore(); }
   return VR.canvasTex(c); }
 function makeGuardian(a, b) {
-  if (!wingTex) wingTex = makeWingTex();
+  if (!wingTex) { wingTex = makeWingTex(); VR.sharedTextures.add(wingTex); }
   const [pc, sc] = a.colors || ['#ffffff', '#ffd36b'];
   const root = new THREE.Group(); root.position.copy(VR.dir(b).multiplyScalar(a.radius || 6.8)); root.lookAt(0, 0, 0); root.scale.setScalar(a.scale || 1);
   const inner = new THREE.Group(); root.add(inner); const mats = [];

@@ -1,3 +1,4 @@
+import { validateRitual } from './validation.js';
 /* Virtual Rites — ritual player
    Expands a ritual file into steps, runs them, and provides the flow controls:
    pause (graceful), next, repeat, mark, jump, skip phase (with one acknowledgment),
@@ -17,6 +18,7 @@ VR.PHASES = PHASES; VR.PHASE_NAMES = PHASE_NAMES;
 
 /* Turn "use" references into real steps and give every step a phase. */
 function expand(r) {
+  validateRitual(r, VR.actions);
   const seqs = r.sequences || {}, out = []; let last = 'preparation';
   const walk = (list, forced, intro, depth) => list.forEach((s, idx) => {
     if (s.use) { if (depth > 5) return; const sub = seqs[s.use]; if (!sub) { console.warn('[Virtual Rites] missing sequence:', s.use); return; } walk(sub, s.phase || forced, s.intro, depth + 1); return; }
@@ -62,6 +64,7 @@ function saveProgress() {
 P.elapsed = () => Math.round((performance.now() - (P.t0 || performance.now())) / 1000) + (P.session && P.session.priorSec || 0);
 
 P.start = (from = 0) => {
+  from = Number.isInteger(from) ? Math.max(0, Math.min(from, P.steps.length - 1)) : 0;
   P.active = true; P.paused = false; P.face = 90; P.view = 90; P.si = -1; P.t0 = performance.now(); VR.fx.reset();
   P.session.startedAt = P.session.startedAt || new Date().toISOString();
   if (from > 0) { fastForward(from); P.si = from; P.pending = { t: 3, i: from }; VR.audio.bell(523.25, .14); VR.at(.5, () => VR.audio.bell(783.99, .1));
@@ -69,7 +72,7 @@ P.start = (from = 0) => {
     if (VR.settings.narration && P.guided) VR.say('Returning to the circle.'); }
   else P.go(0);
 };
-function fastForward(n) { VR.silent = true; for (let i = 0; i < n; i++) { apply(i, true); VR.finishTweens(); } VR.silent = false; }
+function fastForward(n) { const wasSilent = VR.silent; VR.silent = true; try { for (let i = 0; i < n; i++) { apply(i, true); VR.finishTweens(); } } finally { VR.silent = wasSilent; } }
 P.go = i => {
   VR.finishTweens(); P.si = i; P.stepT = 0; P.pending = null; apply(i, false);
   const s = P.steps[i]; P.session.stepsDone = Math.max(P.session.stepsDone || 0, i + 1);

@@ -37,13 +37,24 @@ virtual-rites/
 
 To add a ritual, write a file in `rituals/` and list it in `rituals/index.json`. To add a place, write a file in `worlds/` and list it in `worlds/index.json`. Nothing else needs to change.
 
-## Publishing on GitHub Pages
+## Development and GitHub Pages
 
-1. Put everything in this folder at the top level of the repository, so `index.html` sits beside the `js`, `rituals` and `worlds` folders.
-2. In the repository, open Settings, then Pages, and publish from the `main` branch, root folder.
-3. Visit `https://<your-name>.github.io/<repository>/`.
+Use Node 22.12+ (Node 24 is used in CI), then run:
 
-The site has to be served from the web (or a local server such as `python3 -m http.server`), because browsers won't load the ritual files when `index.html` is opened directly from disk.
+```sh
+npm ci
+npm run dev
+npm test
+npm run build
+npx playwright install chromium
+npm run test:smoke
+```
+
+The default URL includes `/virtual-rites/`. Deploy the generated `dist/` directory, rather than the source folder. In GitHub Settings → Pages choose **GitHub Actions**; the included Pages workflow builds and publishes after changes land on main. It has not been deployed as part of the migration review.
+
+For a renamed repository, set `VITE_BASE=/your-repository/` when building. For a custom domain at the root, set `VITE_BASE=/`. Relative runtime library URLs use the same configured base. Adding worlds still uses `VR.registerWorld` and `worlds/index.json`; rebuild after adding a JavaScript world. Ritual JSON and optional tarot images remain static files.
+
+WebGL2 is required. WebXR also requires HTTPS (or localhost) and a compatible device. See [the migration audit](docs/modernization-audit.md) for verification results and physical Quest checks.
 
 ## Controls
 

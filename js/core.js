@@ -27,7 +27,7 @@ VR.store = {
   set(k, v) { try { localStorage.setItem('vr.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem('vr.' + k); } catch (e) {} }
 };
-const DEFAULTS = { intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
+const DEFAULTS = { grovePrototype: false, intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
   gaze: false, singleSwitch: false, narration: true, sound: true, timingTint: true, camera: 'witness', location: null };
 VR.settings = Object.assign({}, DEFAULTS, VR.store.get('settings', {}));
 VR.saveSettings = () => VR.store.set('settings', VR.settings);
@@ -39,7 +39,7 @@ const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 renderer.xr.enabled = true;
@@ -56,13 +56,14 @@ VR.tintLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0); scene.add(VR.ti
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 /* ---------- textures & glowing materials ---------- */
-VR.canvasTex = c => { const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; };
+VR.canvasTex = c => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
 const GLOW = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
   const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
   gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.18, 'rgba(255,255,255,.85)');
   gr.addColorStop(.45, 'rgba(255,255,255,.22)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 VR.GLOW = GLOW;
+VR.sharedTextures = new Set([GLOW]);
 const scaled = color => new THREE.Color(color).multiplyScalar(VR.fxK());
 VR.addMat = (color, op = 1) => new THREE.MeshBasicMaterial({ color: scaled(color), transparent: true, opacity: op,
   blending: THREE.AdditiveBlending, depthWrite: false, fog: false, side: THREE.DoubleSide, toneMapped: false });
@@ -179,9 +180,32 @@ VR.toast = (msg, ms = 5000) => { const t = document.getElementById('toast'); if 
 /* ---------- worlds ---------- */
 VR.worlds = {}; VR.worldOrder = []; VR.world = null;
 VR.registerWorld = def => { if (!VR.worlds[def.id]) VR.worldOrder.push(def.id); VR.worlds[def.id] = def; };
-function disposeGroup(g) { while (g.children.length) { const o = g.children.pop(); o.traverse(x => { if (x.geometry) x.geometry.dispose();
-  const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(m => { if (m.map && m.map !== GLOW) m.map.dispose(); m.dispose(); }); }); } }
+function disposeGroup(g) {
+  const geometries = new Set(), materials = new Set(), textures = new Set(), instances = new Set();
+  // Include g itself: effect removals also pass Mesh and Sprite roots.
+  g.traverse(x => {
+    if (x.isInstancedMesh) instances.add(x);
+    if (x.geometry && !x.isSprite) geometries.add(x.geometry);
+    const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : [];
+    ms.forEach(m => {
+      materials.add(m);
+      Object.values(m).forEach(v => { if (v && v.isTexture) textures.add(v); });
+      Object.values(m.uniforms || {}).forEach(u => {
+        const values = Array.isArray(u.value) ? u.value : [u.value];
+        values.forEach(v => { if (v && v.isTexture) textures.add(v); });
+      });
+    });
+  });
+  textures.forEach(t => { if (!VR.sharedTextures.has(t)) t.dispose(); });
+  materials.forEach(m => { m.userData.disposed = true; m.dispose(); });
+  geometries.forEach(geo => { geo.dispose(); });
+  instances.forEach(mesh => mesh.dispose());
+  g.clear();
+}
 VR.disposeGroup = disposeGroup;
+VR.resourceSnapshot = () => ({ geometries: renderer.info.memory.geometries,
+  textures: renderer.info.memory.textures, programs: renderer.info.programs.length,
+  calls: renderer.info.render.calls, triangles: renderer.info.render.triangles });
 VR.loadWorld = (id, force) => {
   const def = VR.worlds[id] || VR.worlds[VR.worldOrder[0]]; if (!def) return null;
   if (!force && VR.world && VR.world.def === def) return VR.world;

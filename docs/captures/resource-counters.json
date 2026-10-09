@@ -1,0 +1,108 @@
+{
+  "worlds": [
+    {
+      "id": "stonehenge",
+      "simplified": false,
+      "geometries": 91,
+      "textures": 3,
+      "programs": 7,
+      "calls": 91,
+      "triangles": 56042
+    },
+    {
+      "id": "grove",
+      "simplified": false,
+      "geometries": 242,
+      "textures": 3,
+      "programs": 10,
+      "calls": 349,
+      "triangles": 63002
+    },
+    {
+      "id": "black-sun",
+      "simplified": false,
+      "geometries": 50,
+      "textures": 3,
+      "programs": 11,
+      "calls": 80,
+      "triangles": 19970
+    },
+    {
+      "id": "orbit",
+      "simplified": false,
+      "geometries": 16,
+      "textures": 3,
+      "programs": 9,
+      "calls": 24,
+      "triangles": 43054
+    },
+    {
+      "id": "room",
+      "simplified": false,
+      "geometries": 5,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    {
+      "id": "stonehenge",
+      "simplified": true,
+      "geometries": 91,
+      "textures": 3,
+      "programs": 6,
+      "calls": 90,
+      "triangles": 55850
+    },
+    {
+      "id": "grove",
+      "simplified": true,
+      "geometries": 188,
+      "textures": 3,
+      "programs": 7,
+      "calls": 187,
+      "triangles": 51014
+    },
+    {
+      "id": "black-sun",
+      "simplified": true,
+      "geometries": 50,
+      "textures": 3,
+      "programs": 11,
+      "calls": 80,
+      "triangles": 19970
+    },
+    {
+      "id": "orbit",
+      "simplified": true,
+      "geometries": 15,
+      "textures": 3,
+      "programs": 9,
+      "calls": 23,
+      "triangles": 43054
+    },
+    {
+      "id": "room",
+      "simplified": true,
+      "geometries": 5,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    }
+  ],
+  "warm": {
+    "geometries": 5,
+    "textures": 5,
+    "programs": 8,
+    "calls": 4,
+    "triangles": 2274
+  },
+  "end": {
+    "geometries": 5,
+    "textures": 5,
+    "programs": 4,
+    "calls": 4,
+    "triangles": 2274
+  }
+}

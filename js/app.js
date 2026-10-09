@@ -1,3 +1,4 @@
+import { validateRitual, validateLibrary } from './validation.js';
 /* Virtual Rites — app
    Boots the library (worlds/ and rituals/), runs the screens, the HUD and Conductor,
    the journal and settings, WebXR (VR and passthrough mixed reality) and the render loop. */
@@ -10,14 +11,14 @@ const state = { rituals: [], ritual: null, world: null, mode: 'guided', sigilMet
 const xr = { vr: false, ar: false, session: null, mode: null, prev: {} };
 
 /* ---------- boot ---------- */
-const fetchJSON = url => fetch(url, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
-const loadScript = src => new Promise((res) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => { console.error('[Virtual Rites] could not load', src); res(); }; document.head.appendChild(s); });
+const fetchJSON = url => fetch(VR.assetURL(url), { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
+const loadScript = src => VR.loadWorldModule(src);
 async function boot() {
   applyCss();
-  try { const wl = await fetchJSON('worlds/index.json'); for (const f of wl) await loadScript('worlds/' + f); }
+  try { const wl = validateLibrary(await fetchJSON('worlds/index.json'), 'js'); for (const f of wl) await loadScript(f); }
   catch (e) { console.error(e); VR.toast("Couldn't read worlds/index.json. If you opened the file directly, serve the folder from GitHub Pages or a local web server."); }
-  try { const rl = await fetchJSON('rituals/index.json');
-    const rs = await Promise.all(rl.map(f => fetchJSON('rituals/' + f).then(r => { r.file = f; return r; }).catch(err => { console.error('[Virtual Rites] ritual failed to load:', f, err); VR.toast('Ritual file ' + f + " couldn't be read. Check it for JSON errors."); return null; })));
+  try { const rl = validateLibrary(await fetchJSON('rituals/index.json'), 'json');
+    const rs = await Promise.all(rl.map(f => fetchJSON('rituals/' + f).then(r => { validateRitual(r, VR.actions); r.file = f; return r; }).catch(err => { console.error('[Virtual Rites] ritual failed to load:', f, err); VR.toast('Ritual file ' + f + " couldn't be read. Check it for JSON errors."); return null; })));
     state.rituals = rs.filter(Boolean); }
   catch (e) { console.error(e); VR.toast("Couldn't read rituals/index.json."); }
   VR.tarot.loadDeckInfo();
@@ -236,6 +237,7 @@ $('#importFile').addEventListener('change', e => { const f = e.target.files[0]; 
 
 /* ---------- settings ---------- */
 const SET = [
+  { k: 'grovePrototype', label: 'Grove lighting prototype', bool: true, help: 'Batched luminous fungi and gentle responsive light. Low intensity and simplified mode use static, gentler lighting.', reload: true },
   { k: 'intensity', label: 'Effect intensity', opts: [['full', 'Full'], ['soft', 'Soft'], ['low', 'Low (no flashes)']], help: 'Low removes flashes and strong pulses, for photosensitivity. Takes effect from the next element.' },
   { k: 'simplified', label: 'Simplified environment', bool: true, help: 'Fewer particles and less motion in the world. Easier on attention and on older devices.', reload: true },
   { k: 'seated', label: 'Seated mode', bool: true, help: 'In a headset, lifts you to standing eye level while you sit.' },
@@ -416,9 +418,9 @@ function updateCamera(dt) {
 }
 
 /* ---------- loop ---------- */
-const clock = new THREE.Clock(); let T = 0;
+let lastTime = performance.now(), T = 0;
 VR.renderer.setAnimationLoop(() => {
-  const dt = Math.min(clock.getDelta(), .05); T += dt;
+  const now = performance.now(); const dt = Math.min((now - lastTime) / 1000, .05); lastTime = now; T += dt;
   P.update(dt);
   if (VR.world && VR.world.inst.update) try { VR.world.inst.update(dt, T); } catch (e) { console.error(e); VR.world.inst.update = null; }
   VR.fx.update(dt, T); pollXR(); updateCamera(dt); xrui.update(dt);
@@ -430,5 +432,5 @@ VR.renderer.setAnimationLoop(() => {
 });
 
 VR.app = { state, xr, show, renderHome };
-boot();
+VR.ready = boot();
 })(window.VR);

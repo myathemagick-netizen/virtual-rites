@@ -28,7 +28,7 @@ VR.registerWorld({
 });
 ```
 
-`build` is called whenever the world is chosen. Everything you add to `ctx.group` is removed and disposed automatically when another world is chosen, so no cleanup code is needed.
+`build` is called whenever the world is chosen. Everything you add to `ctx.group` is removed and disposed automatically when another world is chosen, so no cleanup code is needed for group-owned geometries, materials and textures. Application-lifetime texture caches must register their textures in `VR.sharedTextures`; a material flag does not transfer ownership. External listeners and other side effects are not automatically cleaned up.
 
 Respect `ctx.simplified`: when the practitioner turns on Simplified environment, use fewer particles and less motion. Keep the area within about 7 meters of the center clear, since that is where the circle, pentagrams (3.2 m) and guardians (6.8 m) appear. The practitioner stands at the origin facing East, which is the -Z direction. `VR.dir(bearing)` gives a unit vector toward any compass bearing, and `VR.yawFor(bearing)` gives the rotation that faces it.
 
@@ -46,4 +46,4 @@ Set `passthrough: true` on a world meant for mixed reality; its scenery is hidde
 | `VR.addMat(color, opacity)` | An additive glowing material. |
 | `VR.hash(n)` | A repeatable pseudo-random number from 0 to 1, for placing things the same way every time. |
 
-Three.js r128 is available as the global `THREE`. Keep a world under a few thousand objects so it runs smoothly on a standalone headset.
+Three.js 0.186.0 is available as the global `THREE` through the npm module entry point. World files are bundled ES modules; rebuild to publish new worlds. Keep a world under a few thousand objects so it runs smoothly on a standalone headset.

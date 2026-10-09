@@ -1,0 +1,35 @@
+{
+  "original": {
+    "geometries": 242,
+    "textures": 3,
+    "programs": 10,
+    "calls": 349,
+    "triangles": 63002
+  },
+  "prototype": {
+    "geometries": 190,
+    "textures": 3,
+    "programs": 8,
+    "calls": 189,
+    "triangles": 56954
+  },
+  "minRadius": 12.55312565266438,
+  "quiet": {
+    "lights": 0,
+    "count": 12
+  },
+  "warm": {
+    "geometries": 190,
+    "textures": 3,
+    "programs": 8,
+    "calls": 189,
+    "triangles": 56954
+  },
+  "end": {
+    "geometries": 190,
+    "textures": 3,
+    "programs": 8,
+    "calls": 189,
+    "triangles": 56954
+  }
+}
