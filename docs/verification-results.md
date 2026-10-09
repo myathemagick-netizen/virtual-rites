@@ -120,6 +120,8 @@ Reference: https://threejs.org/examples/webgpu_lights_projector.html uses WebGPU
 
 ### Meshy arches and exterior ruins
 
+**Current status:** the user preferred the previous architecture, so the procedural arches and exterior ruins have been restored. Meshy assets are inactive and retained only as reference. Fog and projected ripple lighting remain. The restoration build and targeted temple browser test pass, including quiet modes and stable teardown counts; the main temple screenshot/resource receipt now show the restored scene. No additional credits were spent. The following measurements describe the rejected prototype.
+
 Two Meshy 6 geometry jobs and two 2K PBR texture jobs succeeded, consuming exactly the approved 60 credits (20+10 per asset). The arch generation included an unwanted wall: a local extraction preserves the aperture, removes the threshold and retains 836 triangles with original UVs. The repaired surround is decorative, not a sealed/manifold structural mesh. Twelve shared clones are fitted to the perimeter pillars with an 8.6m span, 3.8m height and 1m depth. The 9,301-triangle ruin cluster replaces eighteen exterior placeholders with varied rotation/scale. Future architectural generations should use approved reference drawings.
 
 The runtime GLBs total 10,106,236 bytes, with four 1024-square embedded maps per asset downsampled from the generated 2K originals. Shared materials receive projected ripple light. Simplified mode skips the imports; failed loads retain procedural architecture. Source files are preserved locally outside the repository. Prompts, task IDs, actual credits, hashes and static validation receipts are documented under `assets/models/drowned-temple/` and `docs/drowned-temple-asset-plan.md`.

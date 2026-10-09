@@ -1,6 +1,6 @@
 # Drowned Temple Meshy asset plan
 
-Status: completed with the approved Meshy 6 budget; 60 credits consumed. Task IDs and stage costs are in `assets/models/drowned-temple/generation-receipt.json`.
+Status: generated and evaluated, then rejected visually by the user. Procedural arches and ruins are restored in the active scene. The generated files remain for reference; no new generation is authorized. The approved Meshy 6 jobs consumed 60 credits. Task IDs and stage costs are in `assets/models/drowned-temple/generation-receipt.json`.
 
 The text-generated arch included unwanted wall geometry. A local extraction retains the open surround (836 triangles), preserves UVs and removes the threshold obstruction. It is fitted to an 8.6m span, 3.8m height and 1m depth above perimeter pillars. The ruin cluster has 9,301 triangles; 18 clones share its geometry/textures and vary rotation/scale. The runtime tier downsamples the generated 2K maps to 1024, approximately halving GLB download sizes. Original provider files are preserved locally outside the deployable repository in `../meshy-temple-sources/`. Future architectural generations should use an approved reference drawing to avoid the wall interpretation. No extra charged takes or optimizations were run.
 

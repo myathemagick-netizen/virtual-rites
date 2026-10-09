@@ -1,29 +1,14 @@
 {
   "result": {
-    "models": "ready",
-    "arch": {
-      "triangles": 836,
-      "count": 12,
-      "width": 8.6,
-      "height": 3.8,
-      "depth": 1
-    },
-    "ruins": {
-      "triangles": 9301,
-      "count": 18,
-      "width": 3.6717765160075397,
-      "height": 5.162898152271249,
-      "depth": 4
-    },
     "clearance": 15.3,
     "canopy": 24,
     "fish": 24,
     "resources": {
-      "geometries": 20,
-      "textures": 13,
-      "programs": 10,
+      "geometries": 31,
+      "textures": 5,
+      "programs": 9,
       "calls": 33,
-      "triangles": 88621
+      "triangles": 26610
     }
   },
   "checks": {
@@ -43,14 +28,6 @@
       "calls": 4,
       "triangles": 2274
     },
-    "late": {
-      "geometries": 4,
-      "textures": 3,
-      "programs": 4,
-      "calls": 4,
-      "triangles": 2274
-    },
-    "simpleModels": true,
     "simpleFish": 8,
     "simpleQuiet": true
   }
