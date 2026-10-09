@@ -3,7 +3,9 @@ import {templeWater} from './temple-water.js';
 VR.registerWorld({id:'drowned-temple',name:'The Drowned Temple',blurb:'An air-filled sanctuary beneath the ocean, with weathered arches, drifting fish and sunlight rippling across the stone.',
  build(ctx){
   const g=ctx.group,K=VR.kit,dir=VR.dir,hash=VR.hash;
-  ctx.setFog(0x073847,.018);K.sky(g,{top:0x185c73,mid:0x0b3c51,horizon:0x062b3b,glow:0x73ccda,glowBearing:55,glowPower:4,opposite:0x031620,below:0x020d14});
+  // Match the distant background to the scattering color so fog has no visible boundary.
+  ctx.setFog(0x073847,.04);const sky=K.sky(g,{top:0x185c73,mid:0x0b3c51,horizon:0x073847,glow:0x205e6b,glowBearing:55,glowPower:4,opposite:0x073847,oppositeAmount:0,below:0x073847});
+  sky.material.fragmentShader=sky.material.fragmentShader.replace('uHor*.55','uHor').replace('gl_FragColor=vec4(c,1.);','gl_FragColor=vec4(c,1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n');
   g.add(new THREE.HemisphereLight(0x9dd9e4,0x112a2a,1.1));const sun=new THREE.DirectionalLight(0xc3edf0,1.5);sun.position.copy(dir(55).multiplyScalar(35)).setY(50);g.add(sun);
   const maps=stoneMaps(ctx.simplified),stone=new THREE.MeshStandardMaterial({color:0x6d8989,map:maps.map,bumpMap:maps.bumpMap,bumpScale:.05,roughness:.98,vertexColors:true});
   const floorMat=new THREE.MeshStandardMaterial({color:0x526967,map:maps.map,bumpMap:maps.bumpMap,bumpScale:.025,roughness:.95});

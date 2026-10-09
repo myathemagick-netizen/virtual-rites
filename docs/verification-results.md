@@ -100,6 +100,8 @@ Production build and targeted browser checks pass for texture loading, standing-
 
 ## New world: The Drowned Temple
 
+Underwater distance pass: exponential fog density is now 0.04, fading distant ruins while retaining the central ritual area. The sky uses the renderer's tone/color conversion and matches the fog at the lower horizon. The ocean canopy fades radially before its square perimeter and softens with per-eye view distance. The updated production build and targeted temple browser test pass, including quiet modes and stable teardown resources; the screenshot below reflects this pass. Meshy remains an option for more intricate arches/ruins; no new paid generation was requested or run.
+
 Registered as `drowned-temple` in `worlds/index.json`, available for every existing rite. A level 13.5m-radius stone floor sits inside weathered pillars and arches. Pillar clearance is 15.3m from the centre; decorative floor rings start at 8.5m. An ocean canopy 24m overhead has slow waves and surface light patterns, with a separate caustics layer across the floor, steady light shafts, exterior ruins and two instanced batches for 24 fish bodies/tails.
 
 Custom GLSL water works with the existing Three.js r186 WebGLRenderer. This pass does not use WebGPU water demos, planar reflection/refraction render targets, underwater postprocessing or a physical fluid simulation. This avoids extra per-eye scene renders. The canopy and caustics are artistic representations; physical Quest stereo appearance still needs testing.
