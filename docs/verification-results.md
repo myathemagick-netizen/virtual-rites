@@ -75,3 +75,13 @@ The existing 84 stones retain their positions, heights, ring gaps and sunrise al
 Production build and the targeted Stonehenge browser test pass (18 browser tests total). The stones contain 60,480 triangles in full mode. The captured view renders 66,602 scene triangles in 31 draws. Only two 512-square texture maps are shared across stone materials; simplified mode uses a 128-square color map, lower geometry detail and no bump map. Three teardown cycles return to the warm baseline of four geometries and three textures. Physical Quest frame time remains unverified. [Resource receipt](captures/stonehenge-resources.json).
 
 ![Weathered Stonehenge](captures/stonehenge-weathered.png)
+
+## Temple of the Black Sun visual pass
+
+The original monolith geometry, materials and movement remain unchanged. A single analytic GLSL corona replaces 28 rectangular ray planes and three halo sprites: bent tapering rays, spectral wisps and a bounded red/cyan edge split move slowly, without flashing the scene. Low intensity, reduced motion and simplified mode use a dimmer static corona and stationary symbol orbits; Soft reduces corona brightness.
+
+Four orbit families now carry zodiac, planetary, alchemical and original angelic-inspired marks. The last family is decorative and is not presented as a historical angelic alphabet. Four small shared canvas atlases avoid per-symbol texture loading; full mode has 32 symbols and simplified mode has 16. Procedural alchemical and angelic marks avoid dependence on specialist fonts; zodiac/planetary glyph appearance follows the platform's symbol fonts.
+
+Production build and the targeted browser test pass, checking shader rendering, all four families, quiet/reduced-motion behavior and three teardown cycles returning to warm geometry/texture counts. There are now 19 browser tests. Physical Quest appearance/frame time remain unverified. No paid asset generation was used.
+
+![Temple of the Black Sun](captures/black-sun-temple.png)
