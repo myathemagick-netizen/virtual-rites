@@ -12,8 +12,8 @@ test('Drowned Temple loads, keeps the ritual floor clear, provides quiet modes a
  });expect(result.clearance).toBeGreaterThan(12);expect(result.canopy).toBe(24);expect(result.fish).toBe(24);
  await page.screenshot({path:info.outputPath('drowned-temple.png')});
  const checks=await page.evaluate(()=>{
-  const inst=VR.world.inst;VR.settings.intensity='low';inst.update(1,50);const quiet=inst.water.water.material.uniforms.quiet.value===1&&inst.water.caustics.material.uniforms.time.value===0;
-  VR.settings.intensity='full';VR.reducedMotion=true;inst.update(1,60);const reduced=inst.water.water.material.uniforms.quiet.value===1;VR.reducedMotion=false;
+  const inst=VR.world.inst;VR.settings.intensity='low';inst.update(1,50);const quiet=inst.water.water.material.uniforms.quiet.value===1&&inst.projection.uniforms.templeTime.value===0;
+  VR.settings.intensity='full';VR.reducedMotion=true;inst.update(1,60);const reduced=inst.water.water.material.uniforms.quiet.value===1&&inst.projection.uniforms.templeTime.value===0;VR.reducedMotion=false;
   const render=()=>VR.renderer.render(VR.scene,VR.camera);VR.loadWorld('room');render();const warm=VR.resourceSnapshot();for(let i=0;i<3;i++){VR.loadWorld('drowned-temple');VR.world.inst.update(.016,0);render();VR.loadWorld('room');render();}const end=VR.resourceSnapshot();
   VR.settings.simplified=true;VR.loadWorld('drowned-temple');VR.world.inst.update(.016,80);render();const simpleFish=VR.worldGroup.getObjectByName('Distant fish school').count,simpleQuiet=VR.world.inst.water.water.material.uniforms.quiet.value===1;
   return {quiet,reduced,warm,end,simpleFish,simpleQuiet};

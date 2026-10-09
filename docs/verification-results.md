@@ -111,3 +111,10 @@ Low intensity, reduced motion and simplified mode stop water/caustics/fish/parti
 The production build and seven Node tests pass. The full browser suite passed 20 tests, with the optional real-model TTS download test skipped (previously verified separately); this includes selectable sixth world, central clearance, water height, fish counts, quiet/reduced/simplified modes, ritual replay/resume, all other worlds and three temple teardown cycles returning to the warm baseline. Captured view: 26,674 triangles, 34 draws, 32 GPU geometries and five textures; teardown returns to four geometries/three textures. [Resource receipt](captures/drowned-temple-resources.json). Quest frame time, transparent surfaces, headset eye height and comfort remain unverified.
 
 ![Drowned Temple](captures/drowned-temple.png)
+
+### Projected underwater light
+
+The floor-only transparent caustics overlay has been replaced by a world-space oblique ripple projection in the shared stone/floor materials, covering the floor, pillars, arches and ruins. Surface orientation and distance attenuate the light. This artistic GLSL projection does not include shadow occlusion or physical light transport. Quiet/reduced/simplified modes freeze and dim it. Build and targeted browser checks pass, including shader compilation and three stable teardown cycles. Updated capture: 26,610 triangles, 33 draws, 31 geometries and five textures. Quest remains untested.
+
+Reference: https://threejs.org/examples/webgpu_lights_projector.html uses WebGPURenderer, ProjectorLight and TSL; the ocean and compute-water examples also belong to that renderer path. Their direct adoption, reflection pipeline and compute simulation remain optional future WebGPU work under the existing WebGLRenderer scope.
+

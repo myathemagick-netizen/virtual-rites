@@ -4,11 +4,11 @@
     "canopy": 24,
     "fish": 24,
     "resources": {
-      "geometries": 32,
+      "geometries": 31,
       "textures": 5,
-      "programs": 10,
-      "calls": 34,
-      "triangles": 26674
+      "programs": 9,
+      "calls": 33,
+      "triangles": 26610
     }
   },
   "checks": {
