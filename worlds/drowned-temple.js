@@ -1,5 +1,6 @@
 import {stoneMaps,weatheredStone} from './stone-surface.js';
 import {templeWater,templeProjection} from './temple-water.js';
+import {templeModels} from './temple-models.js';
 VR.registerWorld({id:'drowned-temple',name:'The Drowned Temple',blurb:'An air-filled sanctuary beneath the ocean, with weathered arches, drifting fish and sunlight rippling across the stone.',
  build(ctx){
   const g=ctx.group,K=VR.kit,dir=VR.dir,hash=VR.hash;
@@ -15,14 +16,15 @@ VR.registerWorld({id:'drowned-temple',name:'The Drowned Temple',blurb:'An air-fi
   const terrace=new THREE.Mesh(new THREE.CylinderGeometry(14.3,15.3,.7,48),floorMat);terrace.position.y=-.4;g.add(terrace);
   const edgeMat=new THREE.MeshBasicMaterial({color:0x76b8ba,transparent:true,opacity:.22});
   for(const r of [8.5,12.8,13.4]){const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.025,5,96),edgeMat);ring.rotation.x=Math.PI/2;ring.position.y=.025;g.add(ring);}
-  const arches=[],pillars=[];
+  const arches=[],pillars=[],ruins=[];
   for(let i=0;i<12;i++){
    const b=i*30,p=dir(b).multiplyScalar(16.5),geo=weatheredStone(1.5,11.5,1.7,i+1,.18,ctx.simplified);
    const column=new THREE.Mesh(geo,stone);column.position.copy(p);column.rotation.y=VR.yawFor(b);column.name='Temple perimeter pillar';g.add(column);pillars.push(column);
    const archGeo=new THREE.TorusGeometry(3.5,.5,ctx.simplified?5:8,ctx.simplified?16:32,Math.PI),colors=[];for(let v=0;v<archGeo.attributes.position.count;v++)colors.push(.9,.94,.92);archGeo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
    const arch=new THREE.Mesh(archGeo,stone);arch.position.copy(dir(b+15).multiplyScalar(16)).setY(11.5);arch.rotation.y=VR.yawFor(b+15);arch.name='Weathered temple arch';g.add(arch);arches.push(arch);
   }
-  for(let i=0;i<(ctx.simplified?8:18);i++){const b=i*23,p=dir(b).multiplyScalar(30+hash(i+12)*25),ruin=new THREE.Mesh(weatheredStone(1.8,4+hash(i+30)*7,1.8,i+80,.24,ctx.simplified),stone);ruin.position.copy(p);ruin.rotation.y=b;ruin.rotation.z=(hash(i+44)-.5)*.35;g.add(ruin);}
+  for(let i=0;i<(ctx.simplified?8:18);i++){const b=i*23,p=dir(b).multiplyScalar(30+hash(i+12)*25),ruin=new THREE.Mesh(weatheredStone(1.8,4+hash(i+30)*7,1.8,i+80,.24,ctx.simplified),stone);ruin.position.copy(p);ruin.rotation.y=b;ruin.rotation.z=(hash(i+44)-.5)*.35;g.add(ruin);ruins.push(ruin);}
+  const models=templeModels(ctx,arches,ruins,projection);
   const water=templeWater(ctx.simplified);g.add(water.water);
   const shafts=new THREE.Group();shafts.name='Submerged sun shafts';g.add(shafts);
   const shaftMat=new THREE.MeshBasicMaterial({color:0x8fe8eb,transparent:true,opacity:ctx.simplified?.025:.035,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
@@ -32,7 +34,7 @@ VR.registerWorld({id:'drowned-temple',name:'The Drowned Temple',blurb:'An air-fi
   bodies.frustumCulled=tails.frustumCulled=false;
   const matrix=new THREE.Matrix4(),tailMatrix=new THREE.Matrix4(),position=new THREE.Vector3(),rotation=new THREE.Quaternion(),scale=new THREE.Vector3(1.5,.6,.45),tailTurn=new THREE.Matrix4().makeRotationZ(-Math.PI/2);
   const particles=K.motes(g,{count:ctx.simplified?80:260,radius:38,height:20,palette:[0x74aab5,0xb5d7d5,0x81b9c5],size:.035,speed:.12});
-  return {water,pillars,projection,update(dt,T){const quiet=VR.calm()||VR.reducedMotion||ctx.simplified,t=quiet?0:T;water.update(T);projection.update(T);
+  return {water,pillars,projection,models,update(dt,T){const quiet=VR.calm()||VR.reducedMotion||ctx.simplified,t=quiet?0:T;water.update(T);projection.update(T);
    for(let i=0;i<count;i++){const angle=i/count*Math.PI*2+t*.012,radius=28+hash(i+150)*8;position.set(Math.cos(angle)*radius,6+hash(i+240)*9+(quiet?0:Math.sin(t*.15+i)*.35),Math.sin(angle)*radius);rotation.setFromAxisAngle(VR.UP,-angle-Math.PI/2);matrix.compose(position,rotation,scale);bodies.setMatrixAt(i,matrix);tailMatrix.compose(position,rotation,new THREE.Vector3(1,1,1)).multiply(new THREE.Matrix4().makeTranslation(-.7,0,0)).multiply(tailTurn);tails.setMatrixAt(i,tailMatrix);}bodies.instanceMatrix.needsUpdate=tails.instanceMatrix.needsUpdate=true;
    if(!quiet)particles.update(dt,T);
   }};

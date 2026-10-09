@@ -118,3 +118,11 @@ The floor-only transparent caustics overlay has been replaced by a world-space o
 
 Reference: https://threejs.org/examples/webgpu_lights_projector.html uses WebGPURenderer, ProjectorLight and TSL; the ocean and compute-water examples also belong to that renderer path. Their direct adoption, reflection pipeline and compute simulation remain optional future WebGPU work under the existing WebGLRenderer scope.
 
+### Meshy arches and exterior ruins
+
+Two Meshy 6 geometry jobs and two 2K PBR texture jobs succeeded, consuming exactly the approved 60 credits (20+10 per asset). The arch generation included an unwanted wall: a local extraction preserves the aperture, removes the threshold and retains 836 triangles with original UVs. The repaired surround is decorative, not a sealed/manifold structural mesh. Twelve shared clones are fitted to the perimeter pillars with an 8.6m span, 3.8m height and 1m depth. The 9,301-triangle ruin cluster replaces eighteen exterior placeholders with varied rotation/scale. Future architectural generations should use approved reference drawings.
+
+The runtime GLBs total 10,106,236 bytes, with four 1024-square embedded maps per asset downsampled from the generated 2K originals. Shared materials receive projected ripple light. Simplified mode skips the imports; failed loads retain procedural architecture. Source files are preserved locally outside the repository. Prompts, task IDs, actual credits, hashes and static validation receipts are documented under `assets/models/drowned-temple/` and `docs/drowned-temple-asset-plan.md`.
+
+Production build, seven Node tests and the updated targeted browser test pass. Browser coverage waits for both assets, checks twelve/eighteen clones, arch dimensions, quiet/reduced/simplified modes, three loaded teardown cycles and leaving before imports finish. Both teardown paths return to four geometries, three textures and four programs. Captured view: 88,621 triangles, 33 draws, 20 geometries, thirteen textures. Actual Quest frame time, texture memory and stereo appearance remain unverified. The previous full-suite result above predates this asset pass.
+

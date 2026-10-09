@@ -1,0 +1,35 @@
+{
+  "file": "ruins.glb",
+  "sha256": "a5e91588ca5bee3072a6c9cb2f46f60d605c700ca848c4e099de5d89445373dc",
+  "bytes": 4339728,
+  "triangles": 9301,
+  "meshes": 1,
+  "materials": 1,
+  "textures": [
+    [
+      1024,
+      1024
+    ],
+    [
+      1024,
+      1024
+    ],
+    [
+      1024,
+      1024
+    ],
+    [
+      1024,
+      1024
+    ]
+  ],
+  "policy": {
+    "maxTriangles": 25000,
+    "maxBytes": 12000000,
+    "maxTextureDimension": 2048,
+    "maxMaterials": 6,
+    "embeddedOnly": true
+  },
+  "passed": true,
+  "validation": "GLB v2 header/chunk lengths, embedded buffer/image bounds, decoded image integrity, triangle/material/texture/file budgets"
+}
