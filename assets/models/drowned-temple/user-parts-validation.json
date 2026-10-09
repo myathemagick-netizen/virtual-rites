@@ -1,0 +1,23 @@
+{
+  "file": "user-parts.glb",
+  "sha256": "631c02f5cea4ec2ce150cfdff1fcfaf83f27395dd735fe2e7c4d76da1fff7e8b",
+  "bytes": 2968164,
+  "triangles": 4171,
+  "meshes": 3,
+  "materials": 1,
+  "textures": [
+    [
+      1024,
+      1024
+    ]
+  ],
+  "policy": {
+    "maxTriangles": 25000,
+    "maxBytes": 12000000,
+    "maxTextureDimension": 2048,
+    "maxMaterials": 6,
+    "embeddedOnly": true
+  },
+  "passed": true,
+  "validation": "GLB v2 header/chunk lengths, embedded buffer/image bounds, decoded image integrity, triangle/material/texture/file budgets"
+}

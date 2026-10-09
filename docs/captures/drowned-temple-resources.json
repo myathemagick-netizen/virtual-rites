@@ -1,14 +1,24 @@
 {
   "result": {
+    "models": "ready",
+    "parts": {
+      "full-arch": 4,
+      "pillar": 10,
+      "arch-span": 4
+    },
+    "fallen": 6,
+    "ruins": 6,
+    "modelClearance": 15.600000143463728,
+    "particles": 700,
     "clearance": 15.3,
     "canopy": 24,
-    "fish": 24,
+    "fish": 96,
     "resources": {
-      "geometries": 31,
-      "textures": 5,
-      "programs": 9,
-      "calls": 33,
-      "triangles": 26610
+      "geometries": 18,
+      "textures": 10,
+      "programs": 11,
+      "calls": 24,
+      "triangles": 45521
     }
   },
   "checks": {
@@ -28,7 +38,17 @@
       "calls": 4,
       "triangles": 2274
     },
-    "simpleFish": 8,
+    "late": {
+      "geometries": 4,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "tailMoves": true,
+    "fishBounds": true,
+    "simpleModels": true,
+    "simpleFish": 16,
     "simpleQuiet": true
   }
 }

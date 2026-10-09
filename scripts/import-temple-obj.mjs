@@ -1,0 +1,23 @@
+import {chromium} from '@playwright/test';
+import {readdirSync,readFileSync,writeFileSync} from 'node:fs';
+const dir=process.argv[2]||'../meshy-temple-sources/supplied-obj';
+const obj=readdirSync(dir).find(f=>f.endsWith('.obj')),texture=readdirSync(dir).find(f=>f.endsWith('.png'));
+const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const page=await browser.newPage({viewport:{width:1280,height:720}});await page.goto('http://127.0.0.1:5173/virtual-rites/');await page.evaluate(()=>VR.ready);
+const data=await page.evaluate(async({objText,textureURL})=>{
+ const {OBJLoader}=await import('/virtual-rites/node_modules/three/examples/jsm/loaders/OBJLoader.js');
+ const {GLTFExporter}=await import('/virtual-rites/node_modules/three/examples/jsm/exporters/GLTFExporter.js');
+ const root=new OBJLoader().parse(objText);
+ const map=await new THREE.TextureLoader().loadAsync(textureURL);map.colorSpace=THREE.SRGBColorSpace;
+ root.traverse(o=>{if(o.isMesh)o.material=new THREE.MeshStandardMaterial({map,roughness:1,metalness:0});});
+ const glb=await new GLTFExporter().parseAsync(root,{binary:true,maxTextureSize:1024});
+ VR.renderer.setAnimationLoop(null);VR.scene.clear();VR.scene.fog=null;VR.scene.background=new THREE.Color(0x28343e);
+ document.querySelectorAll('.screen').forEach(s=>s.classList.add('off'));
+ VR.scene.add(new THREE.HemisphereLight(0xffffff,0x445566,2));const light=new THREE.DirectionalLight(0xffffff,3);light.position.set(4,8,8);VR.scene.add(light);
+ const box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+ const wrapper=new THREE.Group();wrapper.add(root);root.position.set(-center.x,-box.min.y,-center.z);wrapper.scale.setScalar(7/Math.max(size.x,size.y,size.z));VR.scene.add(wrapper);
+ VR.scene.add(VR.camera);VR.camera.position.set(4,4,12);VR.camera.lookAt(0,2,0);VR.renderer.render(VR.scene,VR.camera);
+ let text='';for(const b of new Uint8Array(glb))text+=String.fromCharCode(b);return {base64:btoa(text),bounds:size.toArray()};
+},{objText:readFileSync(`${dir}/${obj}`,'utf8'),textureURL:'data:image/png;base64,'+readFileSync(`${dir}/${texture}`).toString('base64')});
+writeFileSync('../meshy-temple-sources/user-colonnade.glb',Buffer.from(data.base64,'base64'));
+console.log(JSON.stringify({bounds:data.bounds}));await page.screenshot({path:'docs/captures/user-colonnade.png'});await browser.close();

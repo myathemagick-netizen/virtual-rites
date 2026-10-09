@@ -1,0 +1,23 @@
+{
+  "file": "user-colonnade.glb",
+  "sha256": "9201a3ed301403830ef910ba683bfe93ece090c2fa41e066cff8f1862e9664b8",
+  "bytes": 2565496,
+  "triangles": 4171,
+  "meshes": 1,
+  "materials": 1,
+  "textures": [
+    [
+      1024,
+      1024
+    ]
+  ],
+  "policy": {
+    "maxTriangles": 25000,
+    "maxBytes": 12000000,
+    "maxTextureDimension": 2048,
+    "maxMaterials": 6,
+    "embeddedOnly": true
+  },
+  "passed": true,
+  "validation": "GLB v2 header/chunk lengths, embedded buffer/image bounds, decoded image integrity, triangle/material/texture/file budgets"
+}
