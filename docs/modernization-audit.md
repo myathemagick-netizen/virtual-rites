@@ -4,6 +4,8 @@ Reviewed `main` at `4b2e5c1feb6d8ec1115d976bf4fdfef880fed3fe`. Work is on `moder
 
 The subsequent user-authorized [ritual artwork pass](ritual-artwork.md) adds targeted flame/halo shaders and procedural guardian models. The Phase 1 shader-retention findings below describe the initial migration; sky, aurora, Earth and serpent shaders remain unchanged.
 
+Subsequent audio repair: original ritual exit restored master gain while leaving the looping synth graph alive. The player now owns audio start/stop; exits close the AudioContext, and any non-rite screen defensively stops audio and narration. Audio initialization is gated to active, audible rites. Resume/begin creates a fresh context so old scheduled notes and reverb cannot return. The seventh browser regression covers this lifecycle.
+
 ## Phase 1 findings and changes
 
 | Area | Finding | Change / remaining risk |

@@ -66,6 +66,7 @@ P.elapsed = () => Math.round((performance.now() - (P.t0 || performance.now())) /
 P.start = (from = 0) => {
   from = Number.isInteger(from) ? Math.max(0, Math.min(from, P.steps.length - 1)) : 0;
   P.active = true; P.paused = false; P.face = 90; P.view = 90; P.si = -1; P.t0 = performance.now(); VR.fx.reset();
+  VR.audio.start();
   P.session.startedAt = P.session.startedAt || new Date().toISOString();
   if (from > 0) { fastForward(from); P.si = from; P.pending = { t: 3, i: from }; VR.audio.bell(523.25, .14); VR.at(.5, () => VR.audio.bell(783.99, .1));
     const Lt = VR.centerLight, i0 = Lt.intensity; VR.tween(2.4, (e, p) => Lt.intensity = i0 + 1.2 * Math.sin(p * Math.PI) * VR.fxK()); emit('reentry', from);
@@ -101,11 +102,11 @@ P.skipPhase = () => {
   ack = null; P.session.skippedPhases = (P.session.skippedPhases || []).concat(ph); if (P.paused) P.resume(); P.go(j); return { done: true, msg: '' };
 };
 P.finish = () => {
-  if (!P.active) return; P.active = false; VR.stopSpeech(); VR.audio.duck(false);
+  if (!P.active) return; P.active = false; VR.stopSpeech(); VR.audio.stop();
   P.session.completed = P.si >= P.steps.length - 1; P.session.endedAt = new Date().toISOString(); P.session.durationSec = P.elapsed();
   VR.store.del('progress'); emit('end', P.session);
 };
-P.leave = save => { if (!P.active) return; if (save) saveProgress(); else VR.store.del('progress'); P.active = false; P.paused = false; VR.stopSpeech(); VR.audio.duck(false); emit('leave', save); };
+P.leave = save => { if (!P.active) return; if (save) saveProgress(); else VR.store.del('progress'); P.active = false; P.paused = false; VR.stopSpeech(); VR.audio.stop(); emit('leave', save); };
 P.update = dt => {
   if (!P.active || P.paused) return; VR.updTweens(dt);
   if (P.pending) { P.pending.t -= dt; if (P.pending.t <= 0) { const i = P.pending.i; P.pending = null; P.go(i); } return; }

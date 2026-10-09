@@ -33,7 +33,7 @@ function show(id) {
   ['home', 'intent', 'after', 'journal', 'settings'].forEach(x => $('#' + x).classList.toggle('off', x !== id));
   const rite = id === 'rite'; state.screen = id;
   $('#top').classList.toggle('off', !rite); $('#stage').classList.toggle('off', !rite);
-  if (!rite) setConductor(false);
+  if (!rite) { VR.audio.stop(); VR.stopSpeech(); setConductor(false); }
 }
 document.querySelectorAll('[data-home]').forEach(b => b.addEventListener('click', () => { renderHome(); show('home'); }));
 
@@ -97,7 +97,6 @@ $('#beginMR').onclick = () => begin('ar');
 
 /* ---------- sessions ---------- */
 function begin(mode) {
-  VR.audio.init(); if (VR.audio.ctx && VR.audio.ctx.state === 'suspended') VR.audio.ctx.resume();
   const r = state.ritual; if (!r) return;
   const intent = $('#intentText').value.trim();
   let sigil = null;
@@ -110,7 +109,6 @@ function begin(mode) {
 function resume(pr) {
   const r = state.rituals.find(x => x.file === pr.ritualFile);
   if (!r) { VR.toast("That ritual file is no longer in rituals/index.json, so it can't be resumed."); return; }
-  VR.audio.init(); if (VR.audio.ctx && VR.audio.ctx.state === 'suspended') VR.audio.ctx.resume();
   state.ritual = r; selectWorld(VR.worlds[pr.world] ? pr.world : state.world);
   const s = pr.session; s.priorSec = pr.elapsed || 0; s.resumedAt = (s.resumedAt || []).concat(new Date().toISOString());
   state.mode = s.mode; startSession(r, s, pr.si, null);

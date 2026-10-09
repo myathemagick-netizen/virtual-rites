@@ -4,6 +4,8 @@ Review date: October 9, 2026. Baseline: main commit `4b2e5c1feb6d8ec1115d976bf4f
 
 The subsequent [LBRP artwork pass](ritual-artwork.md) adds a sixth browser test for flame reveal, quiet fallbacks, feather instancing and resource cleanup, with close-up captures. The table below records the initial modernization verification.
 
+The audio exit repair adds a seventh browser regression using real Web Audio contexts. Leaving or finishing closes the complete synth graph, including looping drone/LFO sources and reverb tails, and cancels narration. Selection, journal, settings and after-rite screens cannot initialize menu audio. Beginning or resuming starts a fresh context; muted rites do not create one. The test checks context closure during sustained notes, menu/settings silence and fresh audio after resume and a new begin. Headset listening remains part of physical acceptance.
+
 | Check | Result |
 | --- | --- |
 | `npm install` / locked dependencies | Three 0.186.0, Vite 8.3.4, Playwright 1.64.0; zero reported vulnerabilities |

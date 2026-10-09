@@ -141,10 +141,10 @@ VR.fadeObject = (obj, dur, done) => {
 };
 
 /* ---------- audio ---------- */
-const AU = VR.audio = { ctx: null };
+const AU = VR.audio = { ctx: null, active: false };
 function out(n) { n.connect(AU.master); n.connect(AU.rev); }
 AU.init = function () {
-  if (AU.ctx) return; try { AU.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  if (AU.ctx || !AU.active || !VR.settings.sound) return; try { AU.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
   const A = AU.ctx; AU.master = A.createGain(); AU.master.gain.value = VR.settings.sound ? .7 : 0;
   const comp = A.createDynamicsCompressor(); AU.master.connect(comp); comp.connect(A.destination);
   AU.rev = A.createConvolver(); const len = A.sampleRate * 3.6, buf = A.createBuffer(2, len, A.sampleRate);
@@ -158,8 +158,20 @@ AU.init = function () {
   const ng = A.createGain(); ng.gain.value = .03; const l = A.createOscillator(); l.frequency.value = .07; const lg = A.createGain(); lg.gain.value = 280;
   l.connect(lg); lg.connect(bp.frequency); n.connect(bp); bp.connect(ng); out(ng); n.start(); l.start();
 };
-const ready = () => AU.ctx && !VR.silent;
-AU.level = () => VR.settings.sound ? .7 : 0;
+AU.start = () => {
+  AU.active = true; AU.init();
+  if (AU.ctx && AU.ctx.state === 'suspended') AU.ctx.resume().catch(() => {});
+};
+AU.stop = () => {
+  AU.active = false;
+  const ctx = AU.ctx;
+  // Drop the whole graph, including looping sources, LFOs and reverb tails.
+  // A fresh context on re-entry cannot replay the previous ritual's notes.
+  AU.ctx = null; AU.master = null; AU.rev = null;
+  if (ctx && ctx.state !== 'closed') ctx.close().catch(() => {});
+};
+const ready = () => AU.active && AU.ctx && VR.settings.sound && !VR.silent;
+AU.level = () => AU.active && VR.settings.sound ? .7 : 0;
 AU.setOn = () => { if (AU.ctx) AU.master.gain.setTargetAtTime(AU.level(), AU.ctx.currentTime, .1); };
 AU.duck = on => { if (AU.ctx) AU.master.gain.setTargetAtTime(on ? AU.level() * .15 : AU.level(), AU.ctx.currentTime, .5); };
 AU.bell = (f, v = .16) => { if (!ready()) return; const A = AU.ctx, now = A.currentTime;
