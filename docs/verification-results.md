@@ -67,3 +67,11 @@ Physical Quest checks remain: audio unlock after gesture/XR entry, recorded and 
 ## Explicit narration source preference
 
 Comfort and access now persists Automatic, Recorded audio only, Browser TTS only, or Local voice only. Explicit modes do not fall through to a different provider. Ritual-authored narration overrides the shared clip library in Recorded/Automatic modes. Changing source cancels current speech; selecting Local enables and prepares its voice. Build and seven Node tests passed, along with four media regression tests and the new settings/source-selection test (17 browser tests total, including the opt-in real-model test).
+
+## Stonehenge surface pass
+
+The existing 84 stones retain their positions, heights, ring gaps and sunrise alignment. Worn beveled edges and shallow irregular geometry replace hard, faceted boxes. Shared deterministic mineral-grain color and bump maps add pitting and lichen, with subtle vertex-color ground staining. No external texture downloads, paid generations, new lights or shadow passes were added.
+
+Production build and the targeted Stonehenge browser test pass (18 browser tests total). The stones contain 60,480 triangles in full mode. The captured view renders 66,602 scene triangles in 31 draws. Only two 512-square texture maps are shared across stone materials; simplified mode uses a 128-square color map, lower geometry detail and no bump map. Three teardown cycles return to the warm baseline of four geometries and three textures. Physical Quest frame time remains unverified. [Resource receipt](captures/stonehenge-resources.json).
+
+![Weathered Stonehenge](captures/stonehenge-weathered.png)
