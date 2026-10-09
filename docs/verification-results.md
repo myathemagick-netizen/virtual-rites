@@ -140,3 +140,8 @@ Build, independent embedded-GLB validation and the updated browser test pass. Th
 
 ![Separated full arch, pillar and arch span](captures/temple-separated-parts.png)
 
+### Reference-led Drowned Temple landscape pass
+
+The underwater reference guides a sloping seabed, clustered low-poly rocks and a brighter rippled surface canopy. Terrain begins at 15.5m, outside the level 13.5m ritual floor; rocks begin at 21m. The supplied separated arches/pillars/spans retain their current composition. Terrain and 160 shared instanced rocks add two geometries without additional textures; simplified mode uses a coarser terrain and 32 rocks. Sun shafts soften toward their ends, dim in quiet mode, and the canopy now includes output color conversion. No new generated assets or credits were used.
+
+Production build, seven Node tests and the targeted temple browser test pass. The capture reports 68,529 triangles, 24 draws, 20 geometries and ten textures. Loaded and late-load teardown both return to four geometries and three textures. Browser tests additionally assert terrain clearance and simplified rock count. This is a first composition pass toward the reference, rather than matching its photorealistic materials. Physical Quest stereo appearance, comfort and frame time remain untested.

@@ -1,5 +1,7 @@
 {
   "result": {
+    "terrainClearance": 15.499999474217262,
+    "rocks": 160,
     "models": "ready",
     "parts": {
       "full-arch": 4,
@@ -14,14 +16,15 @@
     "canopy": 24,
     "fish": 96,
     "resources": {
-      "geometries": 18,
+      "geometries": 20,
       "textures": 10,
-      "programs": 11,
+      "programs": 13,
       "calls": 24,
-      "triangles": 45521
+      "triangles": 68529
     }
   },
   "checks": {
+    "simpleRocks": 32,
     "quiet": true,
     "reduced": true,
     "warm": {
