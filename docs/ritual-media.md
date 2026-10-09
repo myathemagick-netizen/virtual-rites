@@ -10,6 +10,8 @@ See `examples/media-demo.json` and `rituals/media-demo/focus.svg`. To publish th
 
 ## Narration fallback order
 
+Comfort and access → **Narration source** lets listeners choose Automatic, Recorded audio only, Browser TTS only, or Local voice only. The preference persists. Explicit choices never silently switch providers: missing recordings or an unavailable voice leave captions and show a notice. Choosing Local enables/prepares its download; disabling the local voice resets that selection to Automatic. Changing source stops current narration. Ritual-authored `narration`/`descriptionAudio` files override shared recordings in Recorded and Automatic modes, allowing creators to supply their own audio.
+
 1. A step's `narration` audio asset (`descriptionAudio` for optional descriptions), or an exact-text entry in `assets/narration/manifest.json`.
 2. Browser speech synthesis when a voice is available; startup failure falls through.
 3. Optional local Kokoro WASM speech, enabled and prepared in Comfort and access.

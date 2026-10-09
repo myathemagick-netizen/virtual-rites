@@ -63,3 +63,7 @@ The Grove now uses 18 rotated/scaled instances of one imported oak. Measured cle
 ![Instanced oak Grove](captures/grove-instanced-oaks.png)
 
 Physical Quest checks remain: audio unlock after gesture/XR entry, recorded and local narration in both browsers, local voice memory/latency, headset suspension, video codecs, frame time with all oaks, and MR transitions. The local speech dependency tree has six moderate npm audit findings, documented in the media guide.
+
+## Explicit narration source preference
+
+Comfort and access now persists Automatic, Recorded audio only, Browser TTS only, or Local voice only. Explicit modes do not fall through to a different provider. Ritual-authored narration overrides the shared clip library in Recorded/Automatic modes. Changing source cancels current speech; selecting Local enables and prepares its voice. Build and seven Node tests passed, along with four media regression tests and the new settings/source-selection test (17 browser tests total, including the opt-in real-model test).

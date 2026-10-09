@@ -31,14 +31,15 @@ const N=VR.narration={
     const valid=()=>generation===epoch && available();
     const task=async()=>{
       if(!valid())return;
+      const mode=['recorded','browser','local'].includes(VR.settings.narrationSource)?VR.settings.narrationSource:'auto';
       const clip=options.url || (safeAssetPath(manifest[text])?VR.assetURL('assets/narration/'+manifest[text]):null);
-      if(clip){
+      if(clip && (mode==='auto' || mode==='recorded')){
         try{const ctx=VR.audio.ctx,r=await fetch(clip);if(!r.ok || !ctx)throw new Error('Clip unavailable');
           const b=await ctx.decodeAudioData(await r.arrayBuffer());if(valid() && VR.audio.ctx===ctx)await play(b,ctx);return;
         }catch{if(!valid())return;}
       }
       const synth=window.speechSynthesis,voices=synth?.getVoices() || [];
-      if(synth && voices.length){
+      if((mode==='auto' || mode==='browser') && synth && voices.length){
         try{
           await new Promise((resolve,reject)=>{
             const u=utterance=new SpeechSynthesisUtterance(text);u.rate=.8;u.pitch=.72;u.volume=.95;
@@ -49,14 +50,14 @@ const N=VR.narration={
           });return;
         }catch{if(!valid())return;}
       }
-      if(VR.settings.localNarration && N.localReady){
+      if((mode==='auto' || mode==='local') && VR.settings.localNarration && N.localReady){
         const words=String(text).split(/\s+/);let part='';const parts=[];
         for(const word of words){if(part.length+word.length>350 && part){parts.push(part);part='';}part+=(part?' ':'')+word;}if(part)parts.push(part);
         for(const chunk of parts){
           const data=await request('speak',chunk);if(!valid())return;const ctx=VR.audio.ctx;if(!ctx)return;
           const b=ctx.createBuffer(1,data.samples.length,data.rate);b.copyToChannel(data.samples,0);await play(b,ctx);
         }
-      }else if(!N.warned){N.warned=true;VR.toast('No narration voice is ready. Download the local voice in Comfort and access, or add recorded clips.',10000);}
+      }else if(!N.warned){N.warned=true;VR.toast(mode==='auto'?'No narration voice is ready. Download the local voice in Comfort and access, or add recorded clips.':'The selected narration source is unavailable for this text. Captions remain available; change Narration source in Comfort and access to use another voice.',10000);}
     };
     chain=chain.then(task).catch(()=>{if(generation===epoch)VR.toast('Narration could not play; captions remain available.');}).finally(()=>{if(generation===epoch)pending=Math.max(0,pending-1);});
   },

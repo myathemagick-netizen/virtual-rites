@@ -58,7 +58,7 @@ WebGL2 is required. WebXR also requires HTTPS (or localhost) and a compatible de
 
 ## Narration and ritual media
 
-The four built-in rites include 98 reusable recorded narration clips, so Narration can work in browsers without native TTS. Keep Sound and Narration enabled. Optional local speech can be downloaded in Comfort and access for personalized text and custom rites; prepare it before entering VR. Recorded speech plays first, followed by native voices and the optional local fallback. Physical Quest verification remains pending.
+The four built-in rites include 98 reusable recorded narration clips, so Narration can work in browsers without native TTS. Keep Sound and Narration enabled. In Comfort and access, Narration source selects Automatic, Recorded audio only, Browser TTS only, or Local voice only. Automatic tries recordings first, then browser voices and the enabled local fallback; explicit choices keep that source even when it is unavailable. Optional local speech can be downloaded for personalized text and custom rites; prepare it before entering VR. Physical Quest verification remains pending.
 
 Rituals can reference images, audio, muted video with still-image fallbacks, and embedded GLB models from their own folders. See [media authoring and narration](docs/ritual-media.md) and `examples/media-demo.json` for the schema and limitations.
 

@@ -242,7 +242,8 @@ const SET = [
   { k: 'pace', label: 'Guided pace', num: true, opts: [[.75, 'Brisk'], [1, 'Normal'], [1.25, 'Slower'], [1.5, 'Much slower'], [2, 'Very slow']], help: 'How long each element lasts before the guide moves on.' },
   { k: 'textScale', label: 'Text size', num: true, opts: [[1, 'Normal'], [1.15, 'Large'], [1.3, 'Larger']], css: true },
   { k: 'narration', label: 'Narration', bool: true, help: 'The spoken guide in Guided mode.' },
-  { k: 'localNarration', label: 'Local narration fallback', bool: true, localVoice: true, help: 'For browsers without voices. Downloads a large local voice model (roughly 100 MB or more) once; prepare before VR. Text stays on this device. Experimental: headset performance needs testing.' },
+  { k: 'narrationSource', label: 'Narration source', narrationSource: true, opts: [['auto','Automatic (recordings, browser, local)'],['recorded','Recorded audio only'],['browser','Browser TTS only'],['local','Local voice only']], help: 'Choose recordings to use ritual authors’ audio, or choose a TTS voice explicitly. Only Automatic switches to another source when one is missing. Choosing Local prepares a large voice download; prepare before VR.' },
+  { k: 'localNarration', label: 'Enable local voice', bool: true, localVoice: true, help: 'Downloads a large local voice model (roughly 100 MB or more) once; prepare before VR. Text stays on this device. Experimental: headset performance needs testing.' },
   { k: 'describe', label: 'Audio description', bool: true, help: 'Also speaks a description of what appears in the space, for low vision.' },
   { k: 'sound', label: 'Sound', bool: true, help: 'Drone, bells, vibrated names and narration.', sound: true },
   { k: 'haptics', label: 'Controller haptics', bool: true, help: 'Controllers pulse when names are vibrated and elements change.' },
@@ -256,7 +257,8 @@ function renderSettings() {
     const ctl = o.bool ? `<input type="checkbox" id="${id}" ${S[o.k] ? 'checked' : ''}>` : `<select id="${id}">${o.opts.map(([v, l]) => `<option value="${v}" ${String(S[o.k]) === String(v) ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
     d.innerHTML = `<label for="${id}">${o.label}</label>${ctl}${o.help ? `<p>${o.help}</p>` : ''}`;
     d.querySelector('#' + id).addEventListener('change', e => { S[o.k] = o.bool ? e.target.checked : o.num ? parseFloat(e.target.value) : e.target.value; VR.saveSettings();
-      if (o.localVoice) { if (S.localNarration) VR.narration.prepareLocal(); else VR.narration.disableLocal(); }
+      if (o.narrationSource) { VR.stopSpeech(); VR.narration.warned=false; if(S.narrationSource==='local'){S.localNarration=true;$('#set-localNarration').checked=true;VR.narration.prepareLocal();VR.saveSettings();} }
+      if (o.localVoice) { if (S.localNarration) VR.narration.prepareLocal(); else { VR.narration.disableLocal();if(S.narrationSource==='local'){S.narrationSource='auto';$('#set-narrationSource').value='auto';VR.saveSettings();} } }
       if (o.css) applyCss(); if (o.reload) VR.loadWorld(state.world, true); if (o.sound) { VR.audio.setOn(); if (!S.sound) VR.stopSpeech(); } if (o.tint && state.cosmos) applyTint(state.cosmos); syncHud(); });
     f.appendChild(d); });
   const d = document.createElement('div'); d.className = 'set'; const loc = S.location;

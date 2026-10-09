@@ -27,7 +27,7 @@ VR.store = {
   set(k, v) { try { localStorage.setItem('vr.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem('vr.' + k); } catch (e) {} }
 };
-const DEFAULTS = { localNarration: false, grovePrototype: false, intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
+const DEFAULTS = { narrationSource: 'auto', localNarration: false, grovePrototype: false, intensity: 'full', simplified: false, seated: false, pace: 1, textScale: 1, describe: false, haptics: true,
   gaze: false, singleSwitch: false, narration: true, sound: true, timingTint: true, camera: 'witness', location: null };
 VR.settings = Object.assign({}, DEFAULTS, VR.store.get('settings', {}));
 VR.saveSettings = () => VR.store.set('settings', VR.settings);
