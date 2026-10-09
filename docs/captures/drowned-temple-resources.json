@@ -1,0 +1,34 @@
+{
+  "result": {
+    "clearance": 15.3,
+    "canopy": 24,
+    "fish": 24,
+    "resources": {
+      "geometries": 32,
+      "textures": 5,
+      "programs": 10,
+      "calls": 34,
+      "triangles": 26674
+    }
+  },
+  "checks": {
+    "quiet": true,
+    "reduced": true,
+    "warm": {
+      "geometries": 4,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "end": {
+      "geometries": 4,
+      "textures": 3,
+      "programs": 4,
+      "calls": 4,
+      "triangles": 2274
+    },
+    "simpleFish": 8,
+    "simpleQuiet": true
+  }
+}

@@ -2,6 +2,8 @@
 
 A world is the place a rite happens: Stonehenge, a grove, a temple, orbit. Each one is a single JavaScript file in `worlds/`. Worlds only build scenery. The circle, pentagrams, guardians and every other ritual effect are drawn by the engine on top of whatever world is chosen, so any rite works in any world.
 
+The Drowned Temple (`drowned-temple`) is the sixth selectable world. Its main module imports shared weathered-stone builders and `temple-water.js`; water and caustics are ordinary GLSL ShaderMaterials on the existing WebGLRenderer. All meshes, shader uniforms and shared per-world maps belong to `ctx.group` and use its normal teardown. No reflection/refraction render targets are allocated. Fish use two InstancedMeshes with bounded counts. Keep `VR.calm()`, `VR.reducedMotion` and `ctx.simplified` in mind when adding motion or detail; this world provides steady, reduced variants.
+
 ## Adding a world
 
 1. Create `worlds/my-world.js`.

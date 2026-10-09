@@ -11,7 +11,7 @@ test('desktop libraries, rituals, replay, session resume and resource stability'
   await page.goto('./');
   await page.waitForFunction(() => !!window.VR?.ready); await page.evaluate(() => VR.ready);
   await expect(page.locator('#riteList button')).toHaveCount(4);
-  await expect(page.locator('#worldList button')).toHaveCount(5);
+  await expect(page.locator('#worldList button')).toHaveCount(6);
   await page.evaluate(() => { VR.settings.sound = false; VR.settings.narration = false; });
   const diagnostics = await page.evaluate(async () => {
     const frame = async () => {

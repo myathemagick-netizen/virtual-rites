@@ -97,3 +97,15 @@ Five outlined solids replace the seven indistinguishable crystals: tetrahedron, 
 Production build and targeted browser checks pass for texture loading, standing-eye visibility, all five solids, the viewing window, Milky Way and three teardown cycles returning to warm GPU resource counts. There are now 20 browser tests. Actual Quest stereo appearance, seated/standing comfort and frame time remain to be verified. NASA credit, download source and usage guidance are in `assets/earth/README.md`; no paid generation was used.
 
 ![Above the Earth](captures/above-earth.png)
+
+## New world: The Drowned Temple
+
+Registered as `drowned-temple` in `worlds/index.json`, available for every existing rite. A level 13.5m-radius stone floor sits inside weathered pillars and arches. Pillar clearance is 15.3m from the centre; decorative floor rings start at 8.5m. An ocean canopy 24m overhead has slow waves and surface light patterns, with a separate caustics layer across the floor, steady light shafts, exterior ruins and two instanced batches for 24 fish bodies/tails.
+
+Custom GLSL water works with the existing Three.js r186 WebGLRenderer. This pass does not use WebGPU water demos, planar reflection/refraction render targets, underwater postprocessing or a physical fluid simulation. This avoids extra per-eye scene renders. The canopy and caustics are artistic representations; physical Quest stereo appearance still needs testing.
+
+Low intensity, reduced motion and simplified mode stop water/caustics/fish/particle motion and dim caustics. Simplified mode reduces water subdivisions, stone detail, shafts, particles and fish (eight). There is no new sound, remote asset or paid generation. Per-world stone maps are shared and disposed through the existing ownership path.
+
+The production build and seven Node tests pass. The full browser suite passed 20 tests, with the optional real-model TTS download test skipped (previously verified separately); this includes selectable sixth world, central clearance, water height, fish counts, quiet/reduced/simplified modes, ritual replay/resume, all other worlds and three temple teardown cycles returning to the warm baseline. Captured view: 26,674 triangles, 34 draws, 32 GPU geometries and five textures; teardown returns to four geometries/three textures. [Resource receipt](captures/drowned-temple-resources.json). Quest frame time, transparent surfaces, headset eye height and comfort remain unverified.
+
+![Drowned Temple](captures/drowned-temple.png)

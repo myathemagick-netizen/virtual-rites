@@ -37,6 +37,8 @@ virtual-rites/
 
 To add a ritual, write a file in `rituals/` and list it in `rituals/index.json`. To add a place, write a file in `worlds/` and list it in `worlds/index.json`. Nothing else needs to change.
 
+The Drowned Temple is available in Choose a place: a level sanctuary beneath an ocean canopy, with stone arches, caustics, distant ruins and fish. Low intensity, reduced motion and simplified mode keep its water/light/fish still; simplified mode also lowers mesh detail and particle counts. The water uses custom WebGL-compatible shaders, without reflection/refraction render targets or a renderer change.
+
 ## Development and GitHub Pages
 
 Use Node 22.12+ (Node 24 is used in CI), then run:
