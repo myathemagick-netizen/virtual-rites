@@ -85,3 +85,15 @@ Four orbit families now carry zodiac, planetary, alchemical and original angelic
 Production build and the targeted browser test pass, checking shader rendering, all four families, quiet/reduced-motion behavior and three teardown cycles returning to warm geometry/texture counts. There are now 19 browser tests. Physical Quest appearance/frame time remain unverified. No paid asset generation was used.
 
 ![Temple of the Black Sun](captures/black-sun-temple.png)
+
+## Above the Earth visual and viewpoint pass
+
+Earth now uses a local 2048×1024 NASA Blue Marble land/ocean/ice texture with procedural clouds, lighting and an atmospheric edge. The old random night-light patches were removed. A failed/late map load retains the procedural fallback or disposes the unused texture. The existing custom shader remains on WebGLRenderer with r186 output-color chunks.
+
+Earth is placed forward and below the level deck, rather than directly underneath it. Its upper limb is above eye level at a simulated standing height of 1.6m. A transparent 3.3m-radius central window replaces the opaque centre; concentric luminous rim details surround the viewing area. The headset camera/rig and horizon are not tilted. This is an illustrative orbital scene rather than a physically scaled low-orbit simulation.
+
+Five outlined solids replace the seven indistinguishable crystals: tetrahedron, cube, octahedron, dodecahedron and icosahedron. A procedural cloudy Milky Way band with a dust lane complements the denser star belt, including a reduced version in simplified mode. Low intensity/reduced motion/simplified mode stop the new Earth/cloud/solid motion.
+
+Production build and targeted browser checks pass for texture loading, standing-eye visibility, all five solids, the viewing window, Milky Way and three teardown cycles returning to warm GPU resource counts. There are now 20 browser tests. Actual Quest stereo appearance, seated/standing comfort and frame time remain to be verified. NASA credit, download source and usage guidance are in `assets/earth/README.md`; no paid generation was used.
+
+![Above the Earth](captures/above-earth.png)
