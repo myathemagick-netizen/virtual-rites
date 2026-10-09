@@ -2,6 +2,8 @@
 
 Reviewed `main` at `4b2e5c1feb6d8ec1115d976bf4fdfef880fed3fe`. Work is on `modernization/three-r186`. The migration retains `WebGLRenderer`; there is no WebGPU renderer or TSL conversion.
 
+The subsequent user-authorized [ritual artwork pass](ritual-artwork.md) adds targeted flame/halo shaders and procedural guardian models. The Phase 1 shader-retention findings below describe the initial migration; sky, aurora, Earth and serpent shaders remain unchanged.
+
 ## Phase 1 findings and changes
 
 | Area | Finding | Change / remaining risk |

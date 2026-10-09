@@ -82,8 +82,13 @@ VR.EYE = new THREE.Vector3(0, 1.6, 0); const BEAMS = new Set();
 VR.beamMat = (color, op) => {
   const u = { uColor: { value: scaled(color) }, uOp: { value: op }, uEye: { value: VR.EYE }, uFade: { value: 0 } };
   const m = new THREE.ShaderMaterial({ uniforms: u, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
-    vertexShader: 'varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
-    fragmentShader: 'varying vec3 vW;uniform vec3 uColor;uniform float uOp;uniform vec3 uEye;uniform float uFade;void main(){float f=mix(1.,smoothstep(.3,1.1,distance(vW,uEye)),uFade);gl_FragColor=vec4(uColor,uOp*f);}' });
+    vertexShader: 'varying vec3 vW,vN,vView;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;vec4 p=viewMatrix*w;vN=normalMatrix*normal;vView=-p.xyz;gl_Position=projectionMatrix*p;}',
+    fragmentShader: `varying vec3 vW,vN,vView;uniform vec3 uColor;uniform float uOp;uniform vec3 uEye;uniform float uFade;
+      void main(){float f=mix(1.,smoothstep(.3,1.1,distance(vW,uEye)),uFade);
+      float edge=pow(abs(dot(normalize(vN),normalize(vView))),2.);
+      gl_FragColor=vec4(uColor,uOp*f*edge);
+      #include <colorspace_fragment>
+      }` });
   Object.defineProperty(m, 'opacity', { get() { return u.uOp.value; }, set(v) { u.uOp.value = v; }, configurable: true });
   m.addEventListener('dispose', () => BEAMS.delete(u)); BEAMS.add(u); return m;
 };
@@ -91,13 +96,26 @@ VR.updateBeams = near => BEAMS.forEach(u => u.uFade.value = near ? 1 : 0);
 
 /* A glowing line that can be revealed progressively: trace.userData.set(0..1), .glow(multiplier) */
 VR.trace = (curve, { segs = 200, r = .028, core = 0xffffff, glow = 0x4cc3ff, gop = .4 } = {}) => {
-  const g1 = new THREE.TubeGeometry(curve, segs, r, 6, false), g2 = new THREE.TubeGeometry(curve, segs, r * 3.4, 6, false);
-  const m1 = VR.addMat(core, 1), m2 = VR.addMat(glow, gop);
+  const g1 = new THREE.TubeGeometry(curve, segs, r * .6, 6, false), g2 = new THREE.TubeGeometry(curve, segs, r * 4.2, 8, false);
+  const m1 = VR.addMat(core, 1);
+  // View-dependent edge falloff makes a soft halo rather than a second solid tube.
+  const uniforms = { uColor: { value: scaled(glow) }, uOpacity: { value: gop } };
+  const m2 = new THREE.ShaderMaterial({ uniforms, transparent: true, depthWrite: false,
+    blending: THREE.AdditiveBlending, side: THREE.FrontSide, toneMapped: false,
+    vertexShader: `varying vec3 vNormal,vView;void main(){vec4 p=modelViewMatrix*vec4(position,1.);
+      vNormal=normalize(normalMatrix*normal);vView=-p.xyz;gl_Position=projectionMatrix*p;}`,
+    fragmentShader: `varying vec3 vNormal,vView;uniform vec3 uColor;uniform float uOpacity;
+      void main(){float profile=pow(abs(dot(normalize(vNormal),normalize(vView))),3.);
+      gl_FragColor=vec4(uColor,uOpacity*profile*.65);
+      #include <colorspace_fragment>
+      }` });
+  Object.defineProperty(m2, 'opacity', { get: () => uniforms.uOpacity.value,
+    set: value => { uniforms.uOpacity.value = value; }, configurable: true });
   const grp = new THREE.Group(); grp.add(new THREE.Mesh(g1, m1), new THREE.Mesh(g2, m2));
   const head = VR.sprite(glow, .65); head.visible = false; grp.add(head); const per = 36;
   grp.userData = {
     p: 0,
-    set(p) { this.p = p; const n = Math.floor(p * segs) * per; g1.setDrawRange(0, n); g2.setDrawRange(0, n);
+    set(p) { this.p = p; const n = Math.floor(p * segs) * per; g1.setDrawRange(0, n); g2.setDrawRange(0, Math.floor(p * segs) * 48);
       head.visible = p > 0 && p < 1; if (head.visible) head.position.copy(curve.getPointAt(Math.min(p, 1))); },
     glow(a) { m1.opacity = Math.max(0, Math.min(1, a)); m2.opacity = Math.max(0, Math.min(1, gop * a)); }
   };
